@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Deadly Dozen 2026 — Scoreboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blood: #c0392b;
+    --red: #e05050;
+    --bone: #e8e8e8;
+    --dark: #2c2c2c;
+    --ash: #363636;
+    --gray: #484848;
+    --muted: #888;
+  }
+
+:root { color-scheme: dark; }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–dark);
+color: var(–bone);
+font-family: ‘DM Mono’, ‘Courier New’, monospace;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 40px 20px;
+}
+
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background: repeating-linear-gradient(
+0deg, transparent, transparent 2px,
+rgba(255,255,255,0.012) 2px, rgba(255,255,255,0.012) 4px
+);
+pointer-events: none;
+z-index: 0;
+}
+
+.container { position: relative; z-index: 1; width: 100%; max-width: 680px; }
+
+header { text-align: center; margin-bottom: 40px; animation: fadeDown 0.8s ease both; }
+
+.skull {
+font-size: 5rem; display: block; margin-bottom: 8px;
+filter: grayscale(1) brightness(0.85);
+animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+0%, 100% { transform: scale(1); opacity: 0.7; }
+50% { transform: scale(1.05); opacity: 1; }
+}
+
+h1 {
+font-family: ‘Bebas Neue’, Impact, sans-serif;
+font-size: clamp(3rem, 10vw, 5.5rem);
+letter-spacing: 0.08em; line-height: 0.9;
+color: var(–bone);
+text-shadow: 0 0 60px rgba(192,57,43,0.4);
+}
+
+h1 span { color: var(–blood); display: block; font-size: 0.55em; letter-spacing: 0.25em; }
+
+.subtitle { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(–muted); margin-top: 16px; }
+
+.status-bar {
+display: flex; justify-content: space-between; align-items: center;
+padding: 10px 16px; background: var(–ash);
+border: 1px solid var(–gray); border-left: 3px solid var(–blood);
+margin-bottom: 28px; font-size: 0.65rem; letter-spacing: 0.15em;
+animation: fadeDown 0.8s 0.2s ease both;
+}
+
+.status-dot {
+display: inline-block; width: 6px; height: 6px;
+background: #27ae60; border-radius: 50%; margin-right: 8px;
+animation: blink 2s infinite;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+.col-headers {
+display: grid; grid-template-columns: 40px 1fr 1fr 90px;
+gap: 12px; padding: 0 16px 8px;
+font-size: 0.6rem; letter-spacing: 0.25em;
+text-transform: uppercase; color: var(–muted);
+}
+
+.scoreboard { width: 100%; display: flex; flex-direction: column; gap: 3px; margin-bottom: 24px; }
+
+.player-row {
+display: grid; grid-template-columns: 40px 1fr 1fr 90px;
+gap: 12px; align-items: center; padding: 14px 16px;
+background: var(–ash); border: 1px solid var(–gray);
+position: relative; overflow: hidden;
+animation: slideIn 0.5s ease both; transition: border-color 0.2s;
+}
+
+.player-row:hover { border-color: var(–blood); }
+
+.player-row::before {
+content: ‘’; position: absolute; left: 0; top: 0; bottom: 0;
+width: 3px; background: var(–gray); transition: background 0.2s;
+}
+
+.player-row:hover::before { background: var(–blood); }
+
+.player-row:nth-child(1) { animation-delay: 0.05s; }
+.player-row:nth-child(2) { animation-delay: 0.10s; }
+.player-row:nth-child(3) { animation-delay: 0.15s; }
+.player-row:nth-child(4) { animation-delay: 0.20s; }
+.player-row:nth-child(5) { animation-delay: 0.25s; }
+.player-row:nth-child(6) { animation-delay: 0.30s; }
+.player-row:nth-child(7) { animation-delay: 0.35s; }
+
+.rank { font-family: ‘Bebas Neue’, Impact, sans-serif; font-size: 1.4rem; color: var(–red); text-align: center; }
+.player-name { font-size: 0.85rem; letter-spacing: 0.1em; font-weight: 500; color: var(–bone); }
+.dead-picks { font-size: 0.6rem; color: #d0d0d0; letter-spacing: 0.05em; }
+
+.score { font-family: ‘Bebas Neue’, Impact, sans-serif; font-size: 1.8rem; text-align: right; letter-spacing: 0.05em; color: var(–red); }
+.score.zero { font-size: 1.4rem; opacity: 0.45; }
+.score.nonzero { text-shadow: 0 0 20px rgba(224,80,80,0.4); }
+
+.pts { font-size: 0.5rem; letter-spacing: 0.2em; color: #aaa; display: block; text-align: right; margin-top: -4px; }
+
+.game-window {
+display: flex; justify-content: center; gap: 32px;
+padding: 14px 24px; background: var(–ash); border: 1px solid var(–gray);
+font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+margin-bottom: 24px; animation: fadeDown 0.8s 0.5s ease both;
+}
+
+.game-window div { text-align: center; }
+.game-window .label { color: var(–muted); margin-bottom: 4px; }
+.game-window .value { color: var(–bone); font-weight: 500; }
+
+.picks-toggle, .rules-toggle {
+width: 100%; background: none;
+font-family: ‘DM Mono’, monospace; font-size: 0.65rem;
+letter-spacing: 0.2em; text-transform: uppercase;
+padding: 12px 16px; cursor: pointer; text-align: left;
+display: flex; justify-content: space-between; align-items: center;
+margin-bottom: 3px; transition: color 0.2s, border-color 0.2s;
+}
+
+.picks-toggle {
+border: 1px solid var(–gray); border-left: 3px solid var(–blood);
+color: var(–muted); animation: fadeDown 0.8s 0.6s ease both;
+}
+
+.picks-toggle:hover { color: var(–bone); border-color: var(–blood); }
+
+.rules-toggle {
+border: 1px solid var(–gray); border-left: 3px solid var(–muted);
+color: var(–muted); animation: fadeDown 0.8s 0.7s ease both;
+}
+
+.rules-toggle:hover { color: var(–bone); }
+
+.picks-section { display: none; flex-direction: column; gap: 3px; margin-bottom: 24px; }
+.picks-section.open { display: flex; }
+
+.picks-player { background: var(–ash); border: 1px solid var(–gray); padding: 14px 16px; }
+
+.picks-player-name {
+font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+color: var(–blood); margin-bottom: 10px; font-weight: 500;
+}
+
+.picks-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 4px 16px; }
+
+.pick-item { font-size: 0.65rem; color: #d0d0d0; letter-spacing: 0.05em; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.pick-item .num { color: var(–red); margin-right: 6px; font-size: 0.55rem; }
+.pick-item.dead { color: var(–blood); text-decoration: line-through; opacity: 0.6; }
+
+.rules-section { display: none; background: var(–ash); border: 1px solid var(–gray); padding: 20px; margin-bottom: 24px; }
+.rules-section.open { display: block; }
+
+.rule { display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.65rem; line-height: 1.6; }
+.rule-num { font-family: ‘Bebas Neue’, Impact, sans-serif; font-size: 1rem; color: var(–blood); min-width: 24px; line-height: 1.3; }
+.rule-text { color: var(–bone); }
+.rule-text strong { font-weight: 500; }
+
+.footer { text-align: center; font-size: 0.6rem; letter-spacing: 0.2em; color: var(–muted); padding-top: 8px; animation: fadeDown 0.8s 0.8s ease both; }
+
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+</style>
+
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <span class="skull">☠</span>
+    <h1>Deadly<span>Dozen</span>2026</h1>
+    <p class="subtitle">Official Scoreboard</p>
+  </header>
+
+  <div class="status-bar">
+    <span><span class="status-dot"></span>Monitoring active · BBC News primary source</span>
+    <span>Last checked: 04 Mar 2026</span>
+  </div>
+
+  <div class="col-headers">
+    <div>#</div><div>Player</div><div>Dead Picks</div><div style="text-align:right">Points</div>
+  </div>
+
+  <div class="scoreboard" id="scoreboard"></div>
+
+  <div class="game-window">
+    <div><div class="label">Game Start</div><div class="value">1 Jan 2026</div></div>
+    <div><div class="label">Scoring</div><div class="value">100 − Age at Death</div></div>
+    <div><div class="label">Game End</div><div class="value">25 Dec 2026</div></div>
+  </div>
+
+  <button class="picks-toggle" onclick="toggleSection('picks', this)">
+    <span>▸ View All Picks</span><span>▾</span>
+  </button>
+  <div class="picks-section" id="picks"></div>
+
+  <button class="rules-toggle" onclick="toggleSection('rules', this)">
+    <span>▸ Official Rules</span><span>▾</span>
+  </button>
+  <div class="rules-section" id="rules">
+    <div class="rule"><div class="rule-num">1</div><div class="rule-text"><strong>Entry Fee & Prize Pot</strong><br>Each player pays a £10 entry fee. The total pot is awarded to the winner. In the event of a tie, the pot is split equally between tied players.</div></div>
+    <div class="rule"><div class="rule-num">2</div><div class="rule-text"><strong>Picks & Replacements</strong><br>Each player must select exactly 12 celebrities. If a selected celebrity dies before 1 January 2026, that pick may be replaced. All replacements must comply with all eligibility rules.</div></div>
+    <div class="rule"><div class="rule-num">3</div><div class="rule-text"><strong>Eligibility Restrictions</strong><br>Picks must be real, identifiable individuals (no fictional characters or aliases). Players may not select themselves, immediate family members, or anyone they could reasonably influence the death of.</div></div>
+    <div class="rule"><div class="rule-num">4</div><div class="rule-text"><strong>Health Restriction</strong><br>Players may not select anyone with a known long-term or terminal illness at the time the pick is made.</div></div>
+    <div class="rule"><div class="rule-num">5</div><div class="rule-text"><strong>Prohibited Conduct</strong><br>Players cannot kill their own picks.</div></div>
+    <div class="rule"><div class="rule-num">6</div><div class="rule-text"><strong>Scoring</strong><br>For each valid death during the game window: Score = 100 − age at death. Anyone aged 100 or over scores 0 points.</div></div>
+    <div class="rule"><div class="rule-num">7</div><div class="rule-text"><strong>Death Verification</strong><br>Deaths must be confirmed by reputable news sources, with BBC News used as a primary reference where available.</div></div>
+    <div class="rule"><div class="rule-num">8</div><div class="rule-text"><strong>Game Window</strong><br>The game runs from 00:00, 1 January 2026 to 23:59, 25 December 2026. Deaths occurring outside this window do not count.</div></div>
+    <div class="rule"><div class="rule-num">9</div><div class="rule-text"><strong>Ruleset Status</strong><br>These rules are FINAL and LOCKED. No amendments may be made unless all players unanimously agree.</div></div>
+  </div>
+
+  <div class="footer">
+    <p>All 7 players · £10 entry · Winner takes the pot</p>
+    <p style="margin-top:8px;">Deaths verified via BBC News & reputable sources</p>
+  </div>
+
+</div>
+<script>
+const players = [
+  { name: "Gill",    dead: [], picks: ["Joe Biden","Harvey Weinstein","Dolly Parton","Jane Fonda","Dustin Hoffman","Steven Spielberg","Cher","Twiggy","Lionel Richie","Sharon Osbourne","Brian May","Richard Gere"] },
+  { name: "Izzy",   dead: [], picks: ["David Suchet","David Gower","Jon Snow (journalist)","Vladimir Putin","Hugh Laurie","Sugar Ray Leonard","Timothy Spall","Princess Michael of Kent","Michael Caine","Tommy Lee","Pope Francis","Johnny Depp"] },
+  { name: "Graeme", dead: [], picks: ["Dame Vanessa Redgrave","Yoko Ono","Rupert Murdoch","Dame Shirley Bassey","Dame Sheila Hancock","Dame Joan Collins","Mary Berry","William Shatner","Joe Pesci","Cliff Richard","Shaun Ryder","Mark Berry 'Bez'"] },
+  { name: "Caitlin",dead: [], picks: ["Phil Collins","Goldie Hawn","Harvey Weinstein","Dolly Parton","Donald Trump","Cher","Dame Judi Dench","Clint Eastwood","George W Bush","John Astin","Calvin Klein","Michael Douglas"] },
+  { name: "Brian",  dead: [], picks: ["Goldie Hawn","Ringo Starr","Al Pacino","Trevor McDonald","Lesley Joseph","Bobby George","Bob Anderson","Robert Powell","Paul McCartney","Danny DeVito","Dustin Hoffman","Jack Nicholson"] },
+  { name: "Kyle",   dead: [], picks: ["Kevin Keegan","Ben Kingsley","Patrick Stewart","David Bradley","Sir Alex Ferguson","Michael Douglas","Stellan Skarsgard","Morgan Freeman","Clint Eastwood","Anthony Hopkins","Dustin Hoffman","Sir Jackie Stewart"] },
+  { name: "Lauren", dead: [], picks: ["Rupert Murdoch","Bill Cosby","Morgan Freeman","Harrison Ford","Prince Edward, Duke of Kent","Dame Judi Dench","Joni Mitchell","Clint Eastwood","Sean Combs","Buzz Aldrin","Paul McCartney","Danny DeVito"] }
+];
+
+function getScore(p) { return p.dead.reduce((s, d) => s + d.points, 0); }
+
+function buildScoreboard() {
+const sorted = […players].sort((a, b) => getScore(b) - getScore(a));
+const sb = document.getElementById(‘scoreboard’);
+sb.innerHTML = ‘’;
+let rank = 1;
+sorted.forEach((p, i) => {
+const score = getScore(p);
+if (i > 0 && score < getScore(sorted[i - 1])) rank = i + 1;
+const tied = sorted.filter(x => getScore(x) === score).length > 1;
+const deadText = p.dead.length ? p.dead.map(d => `${d.name} (${d.points}pts)`).join(’, ’) : ‘—’;
+const row = document.createElement(‘div’);
+row.className = ‘player-row’;
+row.style.animationDelay = `${i * 0.05}s`;
+row.innerHTML = ` <div class="rank">${rank}${tied ? '=' : ''}</div> <div class="player-name">${p.name}</div> <div class="dead-picks">${deadText}</div> <div> <div class="score ${score === 0 ? 'zero' : 'nonzero'}">${score}</div> <span class="pts">pts</span> </div>`;
+sb.appendChild(row);
+});
+}
+
+function buildPicks() {
+const section = document.getElementById(‘picks’);
+section.innerHTML = ‘’;
+players.forEach(p => {
+const deadNames = p.dead.map(d => d.name);
+const div = document.createElement(‘div’);
+div.className = ‘picks-player’;
+div.innerHTML = `<div class="picks-player-name">${p.name}</div> <div class="picks-list"> ${p.picks.map((pick, i) =>`<div class="pick-item ${deadNames.includes(pick) ? 'dead' : ''}"><span class="num">${String(i+1).padStart(2,‘0’)}</span>${pick}</div>`).join('')} </div>`;
+section.appendChild(div);
+});
+}
+
+function toggleSection(id, btn) {
+const s = document.getElementById(id);
+s.classList.toggle(‘open’);
+btn.querySelectorAll(‘span’)[1].textContent = s.classList.contains(‘open’) ? ‘▴’ : ‘▾’;
+}
+
+buildScoreboard();
+buildPicks();
+</script>
+
+</body>
+</html>
