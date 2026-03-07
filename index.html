@@ -732,6 +732,23 @@ let resTab = '2027';
 let adminTab = 'deaths';
 
 // ════════════════════════════════════════
+// CLOUD FUNCTIONS CONFIG
+// ════════════════════════════════════════
+const CF_BASE = 'https://us-central1-deadly-dozen-ddf4c.cloudfunctions.net';
+const ADMIN_KEY = 'DeadlyAdmin2026';
+
+async function cfCall(fnName, payload) {
+  const res = await fetch(`${CF_BASE}/${fnName}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, adminKey: ADMIN_KEY })
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || 'Function error');
+  return data;
+}
+
+// ════════════════════════════════════════
 // FIRESTORE HELPERS
 // ════════════════════════════════════════
 const fsGet = async (path) => {
@@ -1397,8 +1414,8 @@ async function recordDeath(){
   const points=Math.max(0,100-age);
   const pickedBy=allPlayers.filter(p=>(p.picks||[]).includes(name)).map(p=>p.name);
   try{
-    const ref=await fsAdd('deaths',{name,age,date,points,source,pickedBy,recorded:new Date().toISOString()});
-    const newDeath={id:ref.id,name,age,date,points,source,pickedBy};
+    const res=await cfCall('recordDeath',{name,age,date,points,source,pickedBy});
+    const newDeath={id:res.id,name,age,date,points,source,pickedBy};
     allDeaths.push(newDeath);
     document.getElementById('d-name').value='';
     document.getElementById('d-age').value='';
@@ -1406,7 +1423,7 @@ async function recordDeath(){
     document.getElementById('d-source').value='';
     showAlert('death-alert',`☠ ${name} recorded. ${points} pts. Picked by: ${pickedBy.join(', ')||'nobody'}.`,'s');
     buildDeathLog();
-  }catch(e){showAlert('death-alert','Failed to record death.','e');}
+  }catch(e){showAlert('death-alert','Failed to record death: '+e.message,'e');}
 }
 
 function buildDeathLog(){
@@ -1417,9 +1434,11 @@ function buildDeathLog(){
 
 async function undoDeath(id,name){
   if(!confirm(`Remove death record for ${name}?`))return;
-  await fsDel(`deaths/${id}`);
-  allDeaths=allDeaths.filter(d=>d.id!==id);
-  buildDeathLog();
+  try{
+    await cfCall('deleteDeath',{id});
+    allDeaths=allDeaths.filter(d=>d.id!==id);
+    buildDeathLog();
+  }catch(e){alert('Failed to undo: '+e.message);}
 }
 
 // PLAYERS
@@ -1438,30 +1457,34 @@ async function addPlayer(){
   if(!name||!pass){showAlert('np-alert','Please fill in all fields.','e');return;}
   if(allPlayers.find(p=>p.name.toLowerCase()===name.toLowerCase())){showAlert('np-alert','A player with this name already exists.','e');return;}
   try{
-    const ref=await fsAdd('players',{name,password:pass,role,picks:[],reserves:[]});
-    allPlayers.push({id:ref.id,name,password:pass,role,picks:[],reserves:[]});
+    const res=await cfCall('addPlayer',{name,password:pass,role});
+    allPlayers.push({id:res.id,name,password:pass,role,picks:[],reserves:[]});
     document.getElementById('np-name').value='';
     document.getElementById('np-pass').value='';
     showAlert('np-alert',`${name} added.`,'s');
     buildPlayersAdmin();
-  }catch(e){showAlert('np-alert','Failed to add player.','e');}
+  }catch(e){showAlert('np-alert','Failed to add player: '+e.message,'e');}
 }
 
 async function adminResetPw(){
   const pid=document.getElementById('rp-player').value;
   const pass=document.getElementById('rp-pass').value.trim();
   if(!pass){showAlert('rp-alert','Enter a new password.','e');return;}
-  await fsSet(`players/${pid}`,{password:pass});
-  const idx=allPlayers.findIndex(p=>p.id===pid);
-  if(idx>=0)allPlayers[idx]={...allPlayers[idx],password:pass};
-  document.getElementById('rp-pass').value='';
-  showAlert('rp-alert','Password updated.','s');
+  try{
+    await cfCall('resetPassword',{playerId:pid,password:pass});
+    const idx=allPlayers.findIndex(p=>p.id===pid);
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],password:pass};
+    document.getElementById('rp-pass').value='';
+    showAlert('rp-alert','Password updated.','s');
+  }catch(e){showAlert('rp-alert','Failed: '+e.message,'e');}
 }
 
 async function setLock(locked){
-  gameSettings={...gameSettings,picksLocked:locked};
-  await fsSet('config/game',{picksLocked:locked});
-  document.getElementById('lock-status').textContent=locked?'🔒 Picks are LOCKED':'🔓 Picks are UNLOCKED';
+  try{
+    await cfCall('setPicksLock',{locked});
+    gameSettings={...gameSettings,picksLocked:locked};
+    document.getElementById('lock-status').textContent=locked?'🔒 Picks are LOCKED':'🔓 Picks are UNLOCKED';
+  }catch(e){alert('Failed: '+e.message);}
 }
 
 // FUTURE GAMES
@@ -1522,15 +1545,17 @@ async function createFutureGame(){
   const scoring=document.getElementById('fg-scoring').value.trim()||'100 - age';
   if(!year){showAlert('fg-alert','Please enter a year.','e');return;}
   try{
-    await fsAdd('futureGames',{year,startDate:start,endDate:end,entryFee:fee,picksPerPlayer:picks,scoring,players:[],rules:[]});
+    await cfCall('saveFutureGame',{data:{year,startDate:start,endDate:end,entryFee:fee,picksPerPlayer:picks,scoring,players:[],rules:[]}});
     buildFutureGames();
-  }catch(e){showAlert('fg-alert','Failed to create.','e');}
+  }catch(e){showAlert('fg-alert','Failed to create: '+e.message,'e');}
 }
 
 async function deleteFutureGame(id,year){
   if(!confirm(`Delete planned ${year} game?`))return;
-  await fsDel(`futureGames/${id}`);
-  buildFutureGames();
+  try{
+    await cfCall('deleteFutureGame',{id});
+    buildFutureGames();
+  }catch(e){alert('Failed: '+e.message);}
 }
 
 async function toggleFuturePlayer(fgId,pid,isIn){
@@ -1540,8 +1565,10 @@ async function toggleFuturePlayer(fgId,pid,isIn){
   let players=fg.players||[];
   if(isIn==='true')players=players.filter(p=>p!==pid);
   else players=[...players,pid];
-  await fsSet(`futureGames/${fgId}`,{players});
-  buildFutureGames();
+  try{
+    await cfCall('saveFutureGame',{id:fgId,data:{players}});
+    buildFutureGames();
+  }catch(e){alert('Failed: '+e.message);}
 }
 
 async function addFgRule(fgId){
@@ -1554,9 +1581,11 @@ async function addFgRule(fgId){
   const fgs=await fsCol('futureGames');
   const fg=fgs.find(g=>g.id===fgId);
   const rules=[...(fg?.rules||[]),{title,text}];
-  await fsSet(`futureGames/${fgId}`,{rules});
-  inp.value='';
-  buildFutureGames();
+  try{
+    await cfCall('saveFutureGame',{id:fgId,data:{rules}});
+    inp.value='';
+    buildFutureGames();
+  }catch(e){alert('Failed: '+e.message);}
 }
 
 async function saveFgRules(fgId){
@@ -1567,16 +1596,20 @@ async function saveFgRules(fgId){
     const p=v.split(':');
     return{title:p[0].trim(),text:p.slice(1).join(':').trim()||v};
   });
-  await fsSet(`futureGames/${fgId}`,{rules});
-  buildFutureGames();
+  try{
+    await cfCall('saveFutureGame',{id:fgId,data:{rules}});
+    buildFutureGames();
+  }catch(e){alert('Failed: '+e.message);}
 }
 
 async function removeFgRule(fgId,ri){
   const fgs=await fsCol('futureGames');
   const fg=fgs.find(g=>g.id===fgId);
   const rules=(fg?.rules||[]).filter((_,i)=>i!==ri);
-  await fsSet(`futureGames/${fgId}`,{rules});
-  buildFutureGames();
+  try{
+    await cfCall('saveFutureGame',{id:fgId,data:{rules}});
+    buildFutureGames();
+  }catch(e){alert('Failed: '+e.message);}
 }
 
 // ARCHIVE CURRENT SEASON
@@ -1603,12 +1636,7 @@ async function archiveSeason(){
   };
 
   try{
-    const batch=writeBatch(db);
-    batch.set(doc(collection(db,'archive')),archiveData);
-    for(const d of allDeaths) batch.delete(doc(db,'deaths',d.id));
-    for(const p of allPlayers) batch.update(doc(db,'players',p.id),{picks:[]});
-    await batch.commit();
-
+    await cfCall('archiveSeason',{year,snapshot:archiveData});
     allDeaths=[];
     allPlayers=allPlayers.map(p=>({...p,picks:[]}));
     document.getElementById('archive-year-input').value='';
@@ -1671,15 +1699,14 @@ async function addManualArchive(){
   };
 
   try{
-    await fsAdd('archive',archiveData);
-    // Clear form
+    await cfCall('addManualArchive',{year,data:archiveData});
     ['manarc-year','manarc-winner','manarc-score','manarc-scores','manarc-picks','manarc-deaths','manarc-notes'].forEach(id=>{
       const el=document.getElementById(id);
       if(el)el.value='';
     });
     showAlert('manarc-alert',`${year} season added to history.`,'s');
     buildArchiveListAdmin();
-  }catch(e){showAlert('manarc-alert','Failed to save. Try again.','e');}
+  }catch(e){showAlert('manarc-alert','Failed to save: '+e.message,'e');}
 }
 
 // LIST EXISTING ARCHIVES IN ADMIN
@@ -1708,8 +1735,10 @@ async function buildArchiveListAdmin(){
 
 async function deleteArchive(id,year){
   if(!confirm(`Delete the ${year} history entry? This cannot be undone.`))return;
-  await fsDel(`archive/${id}`);
-  buildArchiveListAdmin();
+  try{
+    await cfCall('deleteArchive',{year});
+    buildArchiveListAdmin();
+  }catch(e){alert('Failed: '+e.message);}
 }
 
 // GAME SETTINGS
@@ -1731,10 +1760,10 @@ async function saveGameSettings(){
     lastChecked:document.getElementById('gs-checked').value.trim(),
   };
   try{
-    await fsSet('config/game',d);
+    await cfCall('saveGameSettings',{settings:d});
     gameSettings={...gameSettings,...d};
     showAlert('gs-alert','Settings saved.','s');
-  }catch(e){showAlert('gs-alert','Failed to save.','e');}
+  }catch(e){showAlert('gs-alert','Failed to save: '+e.message,'e');}
 }
 
 // RULES EDITOR
@@ -1768,15 +1797,10 @@ async function saveRules(){
     if(title)newRules.push({title,text:text||'',order:i+1});
   }
   try{
-    // Delete old rules
-    const oldRules=await fsCol('rules');
-    const batch=writeBatch(db);
-    oldRules.forEach(r=>batch.delete(doc(db,'rules',r.id)));
-    newRules.forEach((r,i)=>batch.set(doc(collection(db,'rules')),r));
-    await batch.commit();
+    await cfCall('saveRules',{rules:newRules});
     currentRules=newRules.map((r,i)=>({...r,id:`new-${i}`}));
     showAlert('rules-save-alert','Rules saved.','s');
-  }catch(e){showAlert('rules-save-alert','Failed to save rules.','e');}
+  }catch(e){showAlert('rules-save-alert','Failed to save rules: '+e.message,'e');}
 }
 
 // DATA EXPORT
