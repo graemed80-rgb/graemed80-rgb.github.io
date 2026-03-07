@@ -1732,15 +1732,93 @@ async function buildArchiveListAdmin(){
       return;
     }
     el.innerHTML=archives.map(a=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;font-size:0.6rem">
-        <div>
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.06em;margin-right:12px">${a.year}</span>
-          <span style="color:var(--muted);font-size:0.52rem">🏆 ${a.winner||'—'} · ${a.winnerScore||0}pts · ${a.deaths?.length||0} deaths</span>
-          ${a.manual?`<span style="margin-left:8px;font-size:0.44rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:1px 5px">Manual</span>`:''}
+      <div style="background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;">
+        <!-- Summary row -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:0.6rem">
+          <div>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.06em;margin-right:12px">${a.year}</span>
+            <span style="color:var(--muted);font-size:0.52rem">🏆 ${a.winner||'—'} · ${a.winnerScore||0}pts · ${a.deaths?.length||0} deaths</span>
+            ${a.manual?`<span style="margin-left:8px;font-size:0.44rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:1px 5px">Manual</span>`:''}
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="toggleArchiveEdit('edit-${a.id}')">✏ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteArchive('${a.id}','${a.year}')">Delete</button>
+          </div>
         </div>
-        <button class="btn btn-danger btn-sm" onclick="deleteArchive('${a.id}','${a.year}')">Delete</button>
+        <!-- Edit panel (hidden by default) -->
+        <div id="edit-${a.id}" style="display:none;padding:14px;border-top:1px solid var(--gray);background:var(--dark)">
+          <div id="edit-alert-${a.id}" style="display:none"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+            <div class="field" style="margin:0"><label>Year</label><input type="text" id="ea-year-${a.id}" value="${a.year||''}"></div>
+            <div class="field" style="margin:0"><label>Winner</label><input type="text" id="ea-winner-${a.id}" value="${(a.winner||'').replace(/"/g,'&quot;')}"></div>
+            <div class="field" style="margin:0"><label>Winning Score</label><input type="number" id="ea-score-${a.id}" value="${a.winnerScore||0}"></div>
+          </div>
+          <div class="field" style="margin:0 0 8px"><label>Final Scores (one per line: Name, Score)</label>
+            <textarea id="ea-scores-${a.id}" style="min-height:80px">${(a.finalScores||[]).map(s=>`${s.name}, ${s.score}`).join('\n')}</textarea>
+          </div>
+          <div class="field" style="margin:0 0 8px"><label>Deaths (one per line: Name, Age, Date, Points)</label>
+            <textarea id="ea-deaths-${a.id}" style="min-height:80px">${(a.deaths||[]).map(d=>`${d.name}, ${d.age||''}, ${d.date||''}, ${d.points||0}`).join('\n')}</textarea>
+          </div>
+          <div class="field" style="margin:0 0 12px"><label>Notes</label>
+            <input type="text" id="ea-notes-${a.id}" value="${(a.notes||'').replace(/"/g,'&quot;')}">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="saveArchiveEdit('${a.id}')">Save Changes</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleArchiveEdit('edit-${a.id}')">Cancel</button>
+          </div>
+        </div>
       </div>`).join('');
   }catch(e){el.innerHTML=`<div class="alert ae">Failed to load.</div>`;}
+}
+
+function toggleArchiveEdit(panelId){
+  const el=document.getElementById(panelId);
+  if(!el)return;
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+async function saveArchiveEdit(id){
+  const year=document.getElementById(`ea-year-${id}`).value.trim();
+  const winner=document.getElementById(`ea-winner-${id}`).value.trim();
+  const winnerScore=parseInt(document.getElementById(`ea-score-${id}`).value)||0;
+  const scoresRaw=document.getElementById(`ea-scores-${id}`).value.trim();
+  const deathsRaw=document.getElementById(`ea-deaths-${id}`).value.trim();
+  const notes=document.getElementById(`ea-notes-${id}`).value.trim();
+  const alertEl=document.getElementById(`edit-alert-${id}`);
+
+  if(!year||!winner){
+    alertEl.style.display='block';
+    alertEl.className='alert ae';
+    alertEl.textContent='Year and winner are required.';
+    return;
+  }
+
+  const finalScores=scoresRaw?scoresRaw.split('\n').filter(l=>l.trim()).map(l=>{
+    const parts=l.split(',');
+    return{name:(parts[0]||'').trim(),score:parseInt((parts[1]||'0').trim())||0};
+  }).filter(s=>s.name):[];
+
+  const deaths=deathsRaw?deathsRaw.split('\n').filter(l=>l.trim()).map(l=>{
+    const parts=l.split(',');
+    return{
+      name:(parts[0]||'').trim(),
+      age:parseInt((parts[1]||'0').trim())||0,
+      date:(parts[2]||'').trim(),
+      points:parseInt((parts[3]||'0').trim())||0,
+    };
+  }).filter(d=>d.name):[];
+
+  try{
+    await cfCall('updateArchive',{id, data:{year,winner,winnerScore,finalScores,deaths,notes}});
+    alertEl.style.display='block';
+    alertEl.className='alert ag';
+    alertEl.textContent='Saved.';
+    setTimeout(()=>buildArchiveListAdmin(),800);
+  }catch(e){
+    alertEl.style.display='block';
+    alertEl.className='alert ae';
+    alertEl.textContent='Failed: '+e.message;
+  }
 }
 
 async function deleteArchive(id,year){
@@ -1860,6 +1938,8 @@ window.removeFgRule=removeFgRule;
 window.archiveSeason=archiveSeason;
 window.addManualArchive=addManualArchive;
 window.deleteArchive=deleteArchive;
+window.toggleArchiveEdit=toggleArchiveEdit;
+window.saveArchiveEdit=saveArchiveEdit;
 window.saveGameSettings=saveGameSettings;
 window.saveDisplayName=saveDisplayName;
 window.changePassword=changePassword;
