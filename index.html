@@ -894,7 +894,7 @@ async function doLogin() {
       btn.disabled = false; btn.textContent = 'Enter the Pool';
       return;
     }
-    currentUser = data.player;
+    currentUser = { ...data.player, password: pass };
     // Merge password-free player into allPlayers
     const idx = allPlayers.findIndex(p => p.id === data.player.id);
     if (idx >= 0) allPlayers[idx] = { ...allPlayers[idx], ...data.player };
