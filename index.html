@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadly Dozen</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--blood:#c0392b;--red:#e05050;--red-dim:rgba(224,80,80,0.22);--bone:#e8e8e8;--dark:#1a1a1a;--ash:#242424;--ash2:#2c2c2c;--gray:#383838;--gray2:#484848;--muted:#666;--gold:#c9a84c;--gold-dim:rgba(201,168,76,0.18);--green:#27ae60;--green-dim:rgba(39,174,96,0.13);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--dark);color:var(--bone);font-family:'DM Mono','Courier New',monospace;min-height:100vh;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,0.006) 3px,rgba(255,255,255,0.006) 4px);pointer-events:none;z-index:9999;}
+
+/* LOADING */
+#loading-screen{position:fixed;inset:0;background:var(--dark);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity 0.5s;}
+#loading-screen.hidden{opacity:0;pointer-events:none;}
+.ls-skull{font-size:3rem;animation:pulse 1.4s ease-in-out infinite;}
+.ls-text{font-size:0.56rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);}
+.ls-bar{width:180px;height:2px;background:var(--gray);overflow:hidden;}
+.ls-fill{height:100%;background:var(--blood);animation:lf 1.6s ease infinite;}
+@keyframes lf{0%{width:0;margin-left:0}60%{width:100%}100%{width:100%;margin-left:100%}}
+
+/* NAV - two row */
+#main-nav{position:sticky;top:0;z-index:500;background:rgba(18,18,18,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray);display:flex;flex-direction:column;}
+.nav-top{display:flex;justify-content:space-between;align-items:center;padding:0 18px;height:46px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.nav-bottom{overflow-x:auto;scrollbar-width:none;height:36px;}
+.nav-bottom::-webkit-scrollbar{display:none;}
+.nav-logo{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.15rem;letter-spacing:0.14em;cursor:pointer;user-select:none;white-space:nowrap;}
+.nav-logo em{color:var(--blood);font-style:normal;}
+.nav-links{display:flex;list-style:none;height:36px;align-items:center;}
+.nav-links li{height:100%;display:flex;align-items:center;}
+.nav-links a{display:flex;align-items:center;height:100%;padding:0 11px;font-size:0.5rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;cursor:pointer;white-space:nowrap;line-height:1;}
+.nav-links a:hover,.nav-links a.active{color:var(--bone);border-bottom-color:var(--blood);}
+.nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.nav-uname{font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);white-space:nowrap;}
+.nav-uname b{color:var(--bone);}
+.btn-nav{background:none;border:1px solid var(--gray);color:var(--muted);font-family:'DM Mono',monospace;font-size:0.46rem;letter-spacing:0.14em;text-transform:uppercase;padding:5px 9px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.btn-nav:hover{border-color:var(--bone);color:var(--bone);}
+.nav-auth{display:none;}
+#nav-loggedout{display:flex;align-items:center;}
+#nav-loggedin{display:none;align-items:center;gap:8px;}
+
+/* LOGIN MODAL */
+#login-modal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;}
+#login-modal.open{display:flex;animation:pf 0.25s ease;}
+.lmodal-box{width:100%;max-width:360px;background:var(--ash);border:1px solid var(--gray);border-top:2px solid var(--blood);padding:28px 28px;}
+.lmodal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.lmodal-title{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.6rem;letter-spacing:0.08em;}
+.lmodal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;transition:color 0.2s;line-height:1;}
+.lmodal-close:hover{color:var(--bone);}
+
+/* PAGES */
+.page{display:none;min-height:calc(100vh - 82px);}
+.page.active{display:block;animation:pf 0.3s ease;}
+@keyframes pf{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* LAYOUT */
+.container{width:100%;max-width:740px;margin:0 auto;padding:44px 24px 72px;}
+.wide{width:100%;max-width:1100px;margin:0 auto;padding:44px 24px 72px;}
+
+/* TYPE */
+.eyebrow{font-size:0.5rem;letter-spacing:0.36em;text-transform:uppercase;color:var(--blood);margin-bottom:7px;}
+.page-title{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(2rem,5.5vw,3.2rem);letter-spacing:0.06em;line-height:0.92;}
+.sec-title{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.35rem;letter-spacing:0.09em;margin-bottom:3px;}
+.divider{width:34px;height:2px;background:var(--blood);margin:15px 0;}
+.muted{font-size:0.58rem;color:var(--muted);letter-spacing:0.07em;line-height:1.8;}
+
+/* PANELS */
+.panel{background:var(--ash);border:1px solid var(--gray);padding:20px 22px;margin-bottom:3px;}
+.panel-title{font-size:0.54rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-bottom:13px;}
+
+/* BUTTONS */
+.btn{font-family:'DM Mono',monospace;font-size:0.57rem;letter-spacing:0.17em;text-transform:uppercase;padding:9px 17px;cursor:pointer;border:none;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--blood);color:var(--bone);}
+.btn-primary:hover{background:#a93226;}
+.btn-ghost{background:none;border:1px solid var(--gray);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--bone);color:var(--bone);}
+.btn-gold{background:var(--gold);color:#1a1a1a;}
+.btn-gold:hover{background:#b8962e;}
+.btn-danger{background:none;border:1px solid rgba(192,57,43,0.35);color:var(--red);}
+.btn-danger:hover{background:var(--blood);color:var(--bone);border-color:var(--blood);}
+.btn-sm{padding:5px 10px;font-size:0.48rem;}
+.btn-full{width:100%;justify-content:center;}
+.btn:disabled{opacity:0.38;cursor:not-allowed;}
+
+/* INPUTS */
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:0.5rem;letter-spacing:0.23em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.66rem;padding:9px 11px;outline:none;transition:border-color 0.2s;letter-spacing:0.04em;-webkit-appearance:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blood);}
+.field input::placeholder{color:var(--gray2);}
+.field select option{background:var(--dark);}
+.field textarea{resize:vertical;min-height:68px;line-height:1.6;}
+
+/* ALERTS */
+.alert{padding:9px 13px;font-size:0.56rem;letter-spacing:0.07em;margin-bottom:13px;border-left:3px solid;line-height:1.6;}
+.ae{background:rgba(192,57,43,0.1);border-color:var(--blood);color:#e88;}
+.as{background:var(--green-dim);border-color:var(--green);color:#5dde8a;}
+.ai{background:rgba(255,255,255,0.03);border-color:var(--gray2);color:var(--bone);}
+.ag{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+
+/* STATUS BAR */
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);margin-bottom:20px;font-size:0.54rem;letter-spacing:0.12em;gap:10px;flex-wrap:wrap;}
+.sdot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:7px;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.15}}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--gray);margin-bottom:20px;flex-wrap:wrap;}
+.tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.52rem;letter-spacing:0.18em;text-transform:uppercase;padding:9px 13px;cursor:pointer;transition:color 0.2s,border-color 0.2s;margin-bottom:-1px;}
+.tab.active{color:var(--bone);border-bottom-color:var(--blood);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ══ PUBLIC HOME PROMPT ══ */
+#home-signin-prompt a{transition:color 0.2s;}
+#home-signin-prompt a:hover{color:var(--bone);}
+
+/* ══ HOME / NEWS ══ */
+.home-hero{text-align:center;padding:52px 24px 38px;border-bottom:1px solid var(--gray);}
+.hskull{font-size:3.2rem;display:block;filter:grayscale(1) brightness(0.65);animation:pulse 3s ease-in-out infinite;margin-bottom:8px;}
+.htitle{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(2.8rem,11vw,5.5rem);letter-spacing:0.07em;line-height:0.88;text-shadow:0 0 80px rgba(192,57,43,0.25);}
+.htitle .year{display:block;font-size:0.38em;color:var(--blood);letter-spacing:0.44em;margin-top:5px;}
+.htagline{font-size:0.56rem;letter-spacing:0.2em;color:var(--muted);margin-top:14px;text-transform:uppercase;}
+.home-layout{display:grid;grid-template-columns:1fr 290px;gap:3px;padding:3px;max-width:1100px;margin:0 auto;}
+.news-feed{display:flex;flex-direction:column;gap:3px;}
+.news-hdr{padding:12px 17px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
+.news-hdr span{color:var(--bone);}
+.obit{background:var(--ash);border:1px solid var(--gray);padding:19px 20px 17px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
+.obit:hover{border-color:var(--gray2);}
+.obit::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blood);}
+.obit-date{font-size:0.48rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.obit-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.7rem;letter-spacing:0.05em;line-height:1;margin-bottom:3px;padding-right:60px;}
+.obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:9px;}
+.obit-meta strong{color:var(--red);}
+.obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:9px;border-top:1px solid var(--gray);}
+.obit-picked-names{color:var(--bone);}
+.obit-pts{position:absolute;top:16px;right:16px;font-family:'Bebas Neue',Impact,sans-serif;font-size:1.9rem;color:var(--red);text-shadow:0 0 18px var(--red-dim);line-height:1;text-align:right;}
+.obit-pts small{font-size:0.4rem;letter-spacing:0.16em;display:block;color:var(--muted);margin-top:-2px;}
+.obit-src{font-size:0.48rem;color:var(--muted);margin-top:7px;letter-spacing:0.07em;}
+.obit-src a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--gray);}
+.obit-src a:hover{color:var(--bone);}
+.no-deaths{padding:36px 20px;background:var(--ash);border:1px solid var(--gray);text-align:center;font-size:0.58rem;color:var(--muted);letter-spacing:0.11em;line-height:2;}
+.home-sidebar{display:flex;flex-direction:column;gap:3px;}
+.sidebar-sb{background:var(--ash);border:1px solid var(--gray);}
+.sidebar-sb-hdr{padding:11px 15px;border-bottom:1px solid var(--gray);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);}
+.sb-row{display:flex;justify-content:space-between;align-items:center;padding:9px 15px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.6rem;transition:background 0.15s;}
+.sb-row:last-child{border-bottom:none;}
+.sb-row:hover{background:var(--ash2);}
+.sb-row.leader{background:var(--gold-dim);}
+.sb-name{letter-spacing:0.06em;}
+.sb-pts{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.2rem;color:var(--red);}
+.sb-row.leader .sb-pts{color:var(--gold);}
+.sidebar-info{background:var(--ash);border:1px solid var(--gray);padding:15px 17px;}
+.si-title{font-size:0.48rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--muted);margin-bottom:11px;}
+.si-row{display:flex;justify-content:space-between;font-size:0.56rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.si-row:last-child{border-bottom:none;}
+.si-l{color:var(--muted);}
+.si-v{color:var(--bone);}
+
+/* ══ SCOREBOARD ══ */
+.col-hdrs{display:grid;grid-template-columns:42px 1fr 1fr 96px;gap:11px;padding:0 15px 7px;font-size:0.49rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);}
+.sb-board{display:flex;flex-direction:column;gap:3px;margin-bottom:20px;}
+.pr{display:grid;grid-template-columns:42px 1fr 1fr 96px;gap:11px;align-items:center;padding:12px 15px;background:var(--ash);border:1px solid var(--gray);position:relative;overflow:hidden;animation:si 0.4s ease both;transition:border-color 0.2s,background 0.2s;}
+.pr:hover{border-color:var(--gray2);background:var(--ash2);}
+.pr::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gray);transition:background 0.2s;}
+.pr.r1::before{background:var(--gold);}
+.pr.r1{border-color:rgba(201,168,76,0.18);}
+.pr-rank{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.35rem;color:var(--red);text-align:center;}
+.r1 .pr-rank{color:var(--gold);}
+.pr-name{font-size:0.78rem;letter-spacing:0.07em;font-weight:500;}
+.pr-dead{font-size:0.52rem;color:#999;letter-spacing:0.03em;line-height:1.55;}
+.pr-sw{text-align:right;}
+.pr-score{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.7rem;color:var(--red);line-height:1;}
+.pr-score.z{opacity:0.26;font-size:1.2rem;}
+.pr-score.h{text-shadow:0 0 18px var(--red-dim);}
+.pr-pts{font-size:0.43rem;letter-spacing:0.18em;color:var(--muted);display:block;margin-top:2px;}
+.gw-bar{display:flex;flex-wrap:wrap;background:var(--ash);border:1px solid var(--gray);margin-bottom:20px;overflow:hidden;}
+.gwi{flex:1;min-width:100px;text-align:center;padding:13px 9px;border-right:1px solid var(--gray);font-size:0.52rem;letter-spacing:0.09em;text-transform:uppercase;}
+.gwi:last-child{border-right:none;}
+.gwi-l{color:var(--muted);margin-bottom:4px;}
+.gwi-v{color:var(--bone);font-weight:500;font-size:0.58rem;}
+
+/* ══ PICKS ══ */
+.picks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:3px;margin-bottom:20px;}
+.pc{background:var(--ash);border:1px solid var(--gray);padding:16px 18px;animation:fd 0.4s ease both;transition:border-color 0.2s;}
+.pc:hover{border-color:var(--gray2);}
+.pc-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--gray);}
+.pc-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.28rem;letter-spacing:0.07em;}
+.pc-score{font-size:0.54rem;color:var(--muted);}
+.pc-score span{color:var(--red);}
+.pl{display:flex;align-items:center;gap:7px;font-size:0.57rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);color:#ccc;letter-spacing:0.03em;transition:color 0.15s;}
+.pl:last-child{border-bottom:none;}
+.pl:hover{color:var(--bone);}
+.pl.dead{color:var(--blood);text-decoration:line-through;opacity:0.48;}
+.pn{font-size:0.44rem;color:var(--muted);min-width:15px;text-align:right;}
+.stag{margin-left:auto;font-size:0.4rem;letter-spacing:0.12em;text-transform:uppercase;background:rgba(192,57,43,0.09);color:var(--blood);border:1px solid rgba(192,57,43,0.2);padding:1px 4px;}
+
+/* ══ MY PICKS ══ */
+.pslot{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:8px 12px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;transition:border-color 0.2s;}
+.pslot.f{border-left:3px solid var(--blood);}
+.pslot.e{border-left:3px solid var(--gray);opacity:0.48;}
+.pslot:hover{border-color:var(--gray2);}
+.snum{font-family:'Bebas Neue',Impact,sans-serif;font-size:1rem;color:var(--muted);text-align:center;}
+.sinput{background:none;border:none;color:var(--bone);font-family:'DM Mono',monospace;font-size:0.66rem;letter-spacing:0.03em;outline:none;width:100%;}
+.sinput::placeholder{color:var(--gray2);}
+.sinput:disabled{opacity:0.55;}
+.sclear{background:none;border:none;color:var(--gray2);cursor:pointer;font-size:0.85rem;padding:2px 3px;transition:color 0.2s;}
+.sclear:hover{color:var(--red);}
+.picks-meta{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:0.54rem;letter-spacing:0.09em;color:var(--muted);margin-bottom:13px;}
+.picks-meta b{color:var(--bone);}
+
+/* ══ RESERVES ══ */
+.resitem{display:grid;grid-template-columns:1fr auto auto;gap:9px;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;animation:si 0.3s ease both;transition:border-color 0.2s;}
+.resitem:hover{border-color:var(--gray2);}
+.res-name{font-size:0.68rem;letter-spacing:0.03em;}
+.res-notes{font-size:0.48rem;color:var(--muted);margin-top:2px;letter-spacing:0.04em;}
+.ybadge{font-size:0.46rem;letter-spacing:0.14em;text-transform:uppercase;padding:2px 7px;border:1px solid;}
+.ybadge.y2027{color:var(--gold);border-color:rgba(201,168,76,0.28);background:rgba(201,168,76,0.07);}
+.ybadge.y2028{color:#7eb8c9;border-color:rgba(126,184,201,0.26);background:rgba(126,184,201,0.06);}
+.ybadge.y2029{color:#a88fd4;border-color:rgba(168,143,212,0.26);background:rgba(168,143,212,0.06);}
+
+/* ══ STATS ══ */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:3px;margin-bottom:24px;}
+.stc{background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);padding:16px 18px;animation:fd 0.4s ease both;}
+.stc-l{font-size:0.48rem;letter-spacing:0.23em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.stc-v{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.8rem;line-height:1;}
+.stc-s{font-size:0.48rem;color:var(--muted);margin-top:3px;letter-spacing:0.06em;}
+.freq-list{background:var(--ash);border:1px solid var(--gray);margin-bottom:24px;}
+.fr{display:grid;grid-template-columns:1fr 65px 140px;gap:11px;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.56rem;letter-spacing:0.03em;transition:background 0.15s;}
+.fr:last-child{border-bottom:none;}
+.fr:hover{background:var(--ash2);}
+.fr-c{color:var(--muted);font-size:0.48rem;letter-spacing:0.13em;text-align:right;}
+.frbg{background:var(--gray);height:3px;}
+.frfill{height:100%;background:var(--blood);}
+.h2hw{background:var(--ash);border:1px solid var(--gray);overflow:auto;margin-bottom:24px;}
+.h2ht{width:100%;border-collapse:collapse;font-size:0.52rem;letter-spacing:0.03em;}
+.h2ht th{padding:8px 10px;font-size:0.44rem;letter-spacing:0.17em;text-transform:uppercase;color:var(--muted);background:rgba(0,0,0,0.2);border:1px solid var(--gray);}
+.h2ht th:first-child{text-align:left;}
+.h2ht td{padding:8px 10px;border:1px solid rgba(255,255,255,0.04);text-align:center;color:var(--muted);}
+.h2ht td:first-child{text-align:left;color:var(--bone);font-weight:500;}
+.h2ht td.sh{color:var(--red);font-weight:500;}
+.h2ht td.slf{background:rgba(0,0,0,0.2);color:var(--gray2);}
+
+/* ══ GAME INFO PANEL (on Scoreboard) ══ */
+.game-info-panel{background:var(--ash);border:1px solid var(--gray);margin-top:20px;}
+.game-info-hdr{padding:11px 17px;border-bottom:1px solid var(--gray);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);}
+.game-info-grid{display:grid;grid-template-columns:repeat(3,1fr);}
+.gi-cell{padding:13px 17px;border-right:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);}
+.gi-cell:nth-child(3n){border-right:none;}
+.gi-cell:nth-last-child(-n+3):nth-child(3n+1),.gi-cell:nth-last-child(-n+3):nth-child(3n+2),.gi-cell:nth-last-child(1){border-bottom:none;}
+.gi-label{font-size:0.46rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.gi-value{font-size:0.64rem;color:var(--bone);letter-spacing:0.04em;}
+.rules-list{display:flex;flex-direction:column;gap:3px;}
+.rc{background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--gray);padding:18px 20px;display:flex;gap:16px;animation:fd 0.4s ease both;transition:border-left-color 0.2s;}
+.rc:hover{border-left-color:var(--blood);}
+.rnum{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.9rem;color:var(--blood);opacity:0.3;line-height:1;min-width:28px;}
+.rtitle{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--bone);margin-bottom:6px;font-weight:500;}
+.rtext{font-size:0.58rem;color:#aaa;line-height:1.75;letter-spacing:0.02em;}
+
+/* ══ HISTORY ══ */
+.hyc{background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;overflow:hidden;animation:fd 0.4s ease both;}
+.hyh{padding:17px 21px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background 0.2s;border-left:3px solid var(--blood);}
+.hyh:hover{background:var(--ash2);}
+.hyt{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.9rem;letter-spacing:0.07em;}
+.hym{font-size:0.52rem;color:var(--muted);letter-spacing:0.09em;}
+.hyw{font-size:0.58rem;color:var(--gold);letter-spacing:0.09em;margin-top:2px;}
+.hyb{display:none;padding:0 21px 18px;border-top:1px solid var(--gray);}
+.hyb.open{display:block;}
+.hwb{background:var(--gold-dim);border:1px solid rgba(201,168,76,0.18);padding:13px 17px;margin:14px 0 11px;display:flex;justify-content:space-between;align-items:center;}
+.hwbl{font-size:0.48rem;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.hwbn{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.5rem;letter-spacing:0.05em;}
+.hwbs{font-family:'Bebas Neue',Impact,sans-serif;font-size:2.2rem;color:var(--gold);}
+
+/* ══ SETTINGS ══ */
+.sset{background:var(--ash);border:1px solid var(--gray);padding:20px 22px;margin-bottom:3px;}
+.sset-title{font-size:0.53rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--blood);margin-bottom:14px;padding-bottom:9px;border-top:0;border-bottom:1px solid var(--gray);}
+
+/* ══ ADMIN ══ */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:3px;margin-bottom:22px;}
+.acard{background:var(--ash);border:1px solid var(--gray);border-top:2px solid var(--blood);padding:19px 20px;}
+.acard-title{font-size:0.53rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--blood);margin-bottom:13px;}
+.dli{display:grid;grid-template-columns:1fr auto auto;gap:9px;align-items:center;padding:9px 13px;background:var(--dark);border:1px solid var(--gray);margin-bottom:3px;font-size:0.56rem;letter-spacing:0.03em;animation:si 0.3s ease both;}
+.dli:hover{border-color:var(--gray2);}
+.dli-n{font-weight:500;}
+.dli-m{font-size:0.48rem;color:var(--muted);margin-top:2px;letter-spacing:0.05em;}
+.dli-p{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.15rem;color:var(--red);}
+
+/* ══ FUTURE GAMES ══ */
+.fg-panel{background:var(--ash);border:1px solid var(--gray);border-top:2px solid var(--gold);padding:20px 22px;margin-bottom:3px;}
+.fg-title{font-size:0.53rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.psrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:7px 11px;background:var(--dark);border:1px solid var(--gray);margin-bottom:3px;font-size:0.6rem;}
+.psrow.pf{border-left:2px solid var(--green);}
+.psrow.pe{border-left:2px solid var(--gray);opacity:0.48;}
+
+/* PUBLIC RULES WRAPPER */
+#pub-rules-wrap{display:none;min-height:100vh;}
+#pub-rules-wrap.active{display:block;}
+
+/* FOOTER */
+.site-footer{text-align:center;padding:18px;border-top:1px solid var(--gray);font-size:0.48rem;letter-spacing:0.16em;color:var(--muted);text-transform:uppercase;}
+
+/* ANIMS */
+@keyframes fd{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes si{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--gray);border-top-color:var(--blood);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESPONSIVE GRID HELPERS */
+.res-form{display:grid;grid-template-columns:1fr 100px 1fr auto;gap:8px;align-items:end;}
+.res-add-btn{white-space:nowrap;align-self:end;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* MOBILE */
+@media(max-width:640px){
+  /* Nav */
+  .nav-uname{display:none;}
+  /* Layout */
+  .container{padding:28px 16px 60px;}
+  .wide{padding:28px 16px 60px;}
+  /* Scoreboard */
+  .col-hdrs,.pr{grid-template-columns:34px 1fr 78px;}
+  .dead-col,.pr-dead{display:none;}
+  /* gw-bar: 2×2 grid on mobile */
+  .gw-bar{display:grid;grid-template-columns:1fr 1fr;}
+  .gwi{border-right:1px solid var(--gray);border-bottom:1px solid var(--gray);}
+  .gwi:nth-child(2){border-right:none;}
+  .gwi:nth-child(3){border-bottom:none;}
+  .gwi:nth-child(4){border-right:none;border-bottom:none;}
+  /* Cards/grids */
+  .picks-grid,.admin-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .home-layout{grid-template-columns:1fr;}
+  /* Freq list */
+  .fr{grid-template-columns:1fr 58px;}
+  .frbg{display:none;}
+  /* Reserves form — stack into 2-col then full row */
+  .res-form{grid-template-columns:1fr 90px;}
+  .res-form .field:first-child{grid-column:1/-1;}
+  .res-form .field:nth-child(3){grid-column:1/2;}
+  .res-add-btn{grid-column:2/3;grid-row:3;}
+  /* Responsive grids */
+  .grid-3{grid-template-columns:1fr 1fr;}
+  .grid-2{grid-template-columns:1fr;}
+  /* Death log item */
+  .dli{grid-template-columns:1fr auto;}
+  .dli .btn{grid-row:2;grid-column:1/-1;}
+  /* Home sidebar — show standings but hide game info (moved to scoreboard) */
+  .home-sidebar .sidebar-info{display:none;}
+  /* Admin tabs — allow horizontal scroll */
+  #page-admin .tabs{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap;}
+  #page-admin .tabs::-webkit-scrollbar{display:none;}
+  #page-admin .tab{white-space:nowrap;flex-shrink:0;}
+  /* Future game player rows */
+  .psrow{grid-template-columns:1fr auto;}
+  /* History year body padding */
+  .hyb{padding:0 14px 16px;}
+  /* H2H table */
+  .h2ht{font-size:0.46rem;}
+  .h2ht th,.h2ht td{padding:5px 6px;}
+  /* Reserve list item */
+  .resitem{grid-template-columns:1fr auto auto;gap:7px;}
+  /* Game info panel on scoreboard */
+  .game-info-panel{display:block;}
+  .game-info-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="ls-skull">☠</div>
+  <div class="ls-text">Loading Deadly Dozen</div>
+  <div class="ls-bar"><div class="ls-fill"></div></div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-top">
+    <div class="nav-logo" onclick="showPage('home')">☠ <em>Deadly</em> Dozen</div>
+    <div class="nav-right">
+      <div id="nav-loggedout">
+        <button class="btn-nav" onclick="openLoginModal()">Sign In</button>
+      </div>
+      <div id="nav-loggedin">
+        <div class="nav-uname">Hi <b id="nav-uname-text"></b></div>
+        <button class="btn-nav" onclick="showPage('settings')">Settings</button>
+        <button class="btn-nav" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+  <div class="nav-bottom">
+    <ul class="nav-links" id="nav-links">
+      <li><a onclick="showPage('home')" data-page="home">News</a></li>
+      <li><a onclick="showPage('scoreboard')" data-page="scoreboard">Scoreboard</a></li>
+      <li><a onclick="showPage('allpicks')" data-page="allpicks" class="nav-auth">Picks</a></li>
+      <li><a onclick="showPage('mypicks')" data-page="mypicks" class="nav-auth">My Picks</a></li>
+      <li><a onclick="showPage('reserves')" data-page="reserves" class="nav-auth">Reserves</a></li>
+      <li><a onclick="showPage('stats')" data-page="stats" class="nav-auth">Stats</a></li>
+      <li><a onclick="showPage('history')" data-page="history">History</a></li>
+      <li><a onclick="showPage('rules')" data-page="rules">Rules</a></li>
+      <li id="nav-admin-li" style="display:none"><a onclick="showPage('admin')" data-page="admin">Admin</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- LOGIN MODAL -->
+<div id="login-modal" onclick="if(event.target===this)closeLoginModal()">
+  <div class="lmodal-box">
+    <div class="lmodal-header">
+      <div class="lmodal-title">☠ Sign In</div>
+      <button class="lmodal-close" onclick="closeLoginModal()">✕</button>
+    </div>
+    <div id="login-alert" class="alert ae" style="display:none"></div>
+    <div class="field"><label>Player Name</label><input type="text" id="login-name" placeholder="Your name" autocomplete="username"></div>
+    <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()">Enter the Pool</button>
+    <div style="margin-top:13px;font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);display:flex;justify-content:space-between;">
+      <span>Contact Graeme to reset your password</span>
+      <a onclick="closeLoginModal();showPage('rules')" style="color:var(--muted);cursor:pointer;text-decoration:none;border-bottom:1px solid var(--gray)">Rules ↗</a>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ══ HOME / NEWS ══ -->
+<div class="page active" id="page-home">
+  <div class="home-hero">
+    <span class="hskull">☠</span>
+    <div class="htitle">Deadly Dozen<span class="year" id="home-year-text">2026</span></div>
+    <div class="htagline" id="home-tagline-text">Official Game Portal</div>
+  </div>
+  <div id="home-signin-prompt" style="display:none;background:rgba(192,57,43,0.08);border-bottom:1px solid rgba(192,57,43,0.2);padding:10px 22px;text-align:center;font-size:0.54rem;letter-spacing:0.14em;color:var(--muted)">
+    <a onclick="openLoginModal()" style="color:var(--red);cursor:pointer;text-decoration:none;border-bottom:1px solid rgba(192,57,43,0.3)">Sign in</a> to access your picks, reserves, stats and more
+  </div>
+  <div class="home-layout">
+    <div>
+      <div class="news-feed">
+        <div class="news-hdr"><span>☠ Death Notices</span><span id="news-count-badge"></span></div>
+        <div id="news-feed"></div>
+      </div>
+    </div>
+    <div class="home-sidebar">
+      <div class="sidebar-sb">
+        <div class="sidebar-sb-hdr">Live Standings</div>
+        <div id="sidebar-scores"></div>
+      </div>
+    </div>
+  </div>
+  <div class="site-footer">Deaths verified via BBC News &amp; reputable sources</div>
+</div>
+
+<!-- ══ SCOREBOARD ══ -->
+<div class="page" id="page-scoreboard">
+  <div class="container">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Live Standings</div><div class="page-title">Scoreboard</div><div class="divider"></div><div class="muted">Score = 100 − age at death.</div></div><br>
+    <div class="status-bar"><span><span class="sdot"></span>Monitoring active · BBC News primary source</span><span id="lc-display">—</span></div>
+    <div class="col-hdrs"><div>#</div><div>Player</div><div class="dead-col">Scoring Deaths</div><div style="text-align:right">Pts</div></div>
+    <div class="sb-board" id="scoreboard-board"></div>
+    <div class="gw-bar" id="gw-bar"></div>
+    <div class="game-info-panel" id="game-info-panel">
+      <div class="game-info-hdr">Game Info</div>
+      <div class="game-info-grid" id="game-info-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ALL PICKS ══ -->
+<div class="page" id="page-allpicks">
+  <div class="wide">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">All Selections</div><div class="page-title">Picks</div><div class="divider"></div><div class="muted">All players · 12 picks each.</div></div><br>
+    <div class="picks-grid" id="all-picks-grid"></div>
+  </div>
+</div>
+
+<!-- ══ MY PICKS ══ -->
+<div class="page" id="page-mypicks">
+  <div class="container">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Your Selections</div><div class="page-title">My Picks</div><div class="divider"></div><div class="muted" id="mypicks-sub">Enter your 12 celebrity picks.</div></div><br>
+    <div id="mypicks-locked-note" class="alert ag" style="display:none">🔒 Picks are locked. Contact Graeme to request a change.</div>
+    <div id="mypicks-alert" style="display:none"></div>
+    <div class="picks-meta">Filled: <b id="picks-count">0</b> / 12</div>
+    <div id="picks-editor"></div>
+    <div id="mypicks-btns" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="saveMyPicks()">Save Picks</button>
+      <button class="btn btn-ghost" onclick="clearMyPicks()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESERVES ══ -->
+<div class="page" id="page-reserves">
+  <div class="container">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Future Games</div><div class="page-title">My Reserves</div><div class="divider"></div><div class="muted">Build your shortlist for future years. Only you can see this.</div></div><br>
+    <div class="panel" style="border-top:2px solid var(--blood)">
+      <div class="panel-title">Add Reserve</div>
+      <div id="reserve-alert" style="display:none"></div>
+      <div class="res-form">
+        <div class="field" style="margin:0"><label>Celebrity</label><input type="text" id="res-name" placeholder="e.g. Keith Richards" onkeydown="if(event.key==='Enter')addReserve()"></div>
+        <div class="field" style="margin:0"><label>Year</label><select id="res-year"><option>2027</option><option>2028</option><option>2029</option></select></div>
+        <div class="field" style="margin:0"><label>Notes</label><input type="text" id="res-notes" placeholder="Age, notes..."></div>
+        <button class="btn btn-primary res-add-btn" onclick="addReserve()">+ Add</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchResTab('2027',this)">2027</button>
+      <button class="tab" onclick="switchResTab('2028',this)">2028</button>
+      <button class="tab" onclick="switchResTab('2029',this)">2029</button>
+      <button class="tab" onclick="switchResTab('all',this)">All</button>
+    </div>
+    <div id="reserve-list"></div>
+  </div>
+</div>
+
+<!-- ══ STATS ══ -->
+<div class="page" id="page-stats">
+  <div class="wide">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Analysis</div><div class="page-title">Stats</div><div class="divider"></div><div class="muted">Frequencies, overlap, and comparisons.</div></div><br>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="sec-title">Most Picked</div><div class="muted" style="margin-bottom:11px">Sorted by number of players who selected them.</div>
+    <div class="freq-list" id="freq-list"></div>
+    <div class="sec-title" style="margin-top:24px">Head to Head</div><div class="muted" style="margin-bottom:11px">Shared picks between each pair of players.</div>
+    <div class="h2hw" id="h2h-wrap"></div>
+  </div>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div class="page" id="page-history">
+  <div class="container">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Archive</div><div class="page-title">History</div><div class="divider"></div><div class="muted">Previous game seasons.</div></div><br>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<!-- ══ RULES ══ -->
+<div class="page" id="page-rules">
+  <div class="container">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Official Rulebook</div><div class="page-title">Rules</div><div class="divider"></div><div class="muted">Binding for the current season.</div></div>
+    <div id="rules-year-tabs" style="margin:14px 0 0"></div>
+    <br>
+    <div class="rules-list" id="rules-list"></div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div class="page" id="page-settings">
+  <div class="container">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Account</div><div class="page-title">Settings</div><div class="divider"></div></div><br>
+    <div class="sset"><div class="sset-title">Profile</div><div id="settings-alert" style="display:none"></div><div class="field"><label>Display Name</label><input type="text" id="sett-name"></div><button class="btn btn-primary" onclick="saveDisplayName()">Update Name</button></div>
+    <div class="sset"><div class="sset-title">Change Password</div><div id="pw-alert" style="display:none"></div><div class="field"><label>Current Password</label><input type="password" id="pw-cur" placeholder="Current password"></div><div class="field"><label>New Password</label><input type="password" id="pw-new" placeholder="New password (min 6 chars)"></div><div class="field"><label>Confirm Password</label><input type="password" id="pw-con" placeholder="Confirm new password"></div><button class="btn btn-primary" onclick="changePassword()">Change Password</button></div>
+  </div>
+</div>
+
+<!-- ══ ADMIN ══ -->
+<div class="page" id="page-admin">
+  <div class="wide">
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Commissioner</div><div class="page-title">Admin</div><div class="divider"></div></div><br>
+    <div class="tabs">
+      <button class="tab active" onclick="switchAdminTab('deaths',this)">⚰ Deaths</button>
+      <button class="tab" onclick="switchAdminTab('players',this)">👥 Players</button>
+      <button class="tab" onclick="switchAdminTab('future',this)">📅 Future Games</button>
+      <button class="tab" onclick="switchAdminTab('archive',this)">📦 Archive</button>
+      <button class="tab" onclick="switchAdminTab('gamesettings',this)">⚙ Settings</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-deaths">
+      <div class="admin-grid">
+        <div class="acard">
+          <div class="acard-title">⚰ Record a Death</div>
+          <div id="death-alert" style="display:none"></div>
+          <div class="field"><label>Celebrity Name</label><input type="text" id="d-name" placeholder="Exact name as in picks"></div>
+          <div class="grid-2">
+            <div class="field"><label>Age at Death</label><input type="number" id="d-age" placeholder="84" min="0" max="130"></div>
+            <div class="field"><label>Date of Death</label><input type="date" id="d-date"></div>
+          </div>
+          <div class="field"><label>Source URL (optional)</label><input type="text" id="d-source" placeholder="https://bbc.co.uk/..."></div>
+          <button class="btn btn-primary btn-full" onclick="recordDeath()">Record Death</button>
+        </div>
+        <div class="acard">
+          <div class="acard-title">ℹ How It Works</div>
+          <div class="muted" style="line-height:2.1">• Matched automatically to all picks<br>• Points = 100 − age at death<br>• Obituary posts to homepage news feed<br>• Scoreboard updates immediately<br>• Deaths can be undone from log below</div>
+        </div>
+      </div>
+      <div class="sec-title" style="margin-bottom:3px">Death Log</div>
+      <div class="muted" style="margin-bottom:11px">All confirmed deaths this game window.</div>
+      <div id="death-log"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-players">
+      <div class="admin-grid">
+        <div class="acard">
+          <div class="acard-title">➕ Add New Player</div>
+          <div id="np-alert" style="display:none"></div>
+          <div class="field"><label>Player Name</label><input type="text" id="np-name" placeholder="Full name"></div>
+          <div class="field"><label>Password</label><input type="text" id="np-pass" placeholder="Temporary password"></div>
+          <div class="field"><label>Role</label><select id="np-role"><option value="player">Player</option><option value="admin">Admin</option></select></div>
+          <button class="btn btn-primary btn-full" onclick="addPlayer()">Add Player</button>
+        </div>
+        <div class="acard">
+          <div class="acard-title">🔑 Reset Password</div>
+          <div id="rp-alert" style="display:none"></div>
+          <div class="field"><label>Player</label><select id="rp-player"></select></div>
+          <div class="field"><label>New Password</label><input type="text" id="rp-pass" placeholder="New password"></div>
+          <button class="btn btn-ghost btn-full" onclick="adminResetPw()">Reset Password</button>
+          <div style="margin-top:16px;padding-top:13px;border-top:1px solid var(--gray)">
+            <div class="acard-title" style="margin-bottom:9px">🔒 Lock / Unlock Picks</div>
+            <div style="display:flex;gap:8px;margin-bottom:9px"><button class="btn btn-danger btn-sm" onclick="setLock(true)">Lock All</button><button class="btn btn-ghost btn-sm" onclick="setLock(false)">Unlock All</button></div>
+            <div id="lock-status" style="font-size:0.52rem;color:var(--muted);letter-spacing:0.09em"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-title" style="margin-bottom:3px">Players</div>
+      <div id="player-list-admin"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-future">
+      <div id="future-content"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-archive">
+      <div class="fg-panel" style="border-top-color:var(--blood)">
+        <div class="fg-title" style="color:var(--red)">⚠ Archive Current Season</div>
+        <div class="muted" style="margin-bottom:14px;line-height:1.9">Snapshots the current game (scores, picks, deaths, rules) into the History archive. All current picks and deaths are cleared for the new season. <strong style="color:var(--red)">This cannot be undone.</strong></div>
+        <div class="field"><label>Season Year to Archive</label><input type="text" id="archive-year-input" placeholder="e.g. 2026"></div>
+        <button class="btn btn-danger" onclick="archiveSeason()">Archive &amp; Start New Season</button>
+      </div>
+
+      <div class="fg-panel" style="margin-top:3px;border-top-color:var(--gold)">
+        <div class="fg-title">📜 Manually Add a Past Season</div>
+        <div class="muted" style="margin-bottom:16px;line-height:1.9">Add a historical season to the History page. Use this to record games from before this site existed.</div>
+        <div id="manarc-alert" style="display:none"></div>
+        <div class="grid-3">
+          <div class="field"><label>Year</label><input type="text" id="manarc-year" placeholder="e.g. 2024"></div>
+          <div class="field"><label>Winner Name(s)</label><input type="text" id="manarc-winner" placeholder="e.g. Graeme"></div>
+          <div class="field"><label>Winning Score</label><input type="number" id="manarc-score" placeholder="e.g. 42" min="0"></div>
+        </div>
+        <div class="field"><label>Final Scores (one per line: Name, Score)</label><textarea id="manarc-scores" placeholder="Graeme, 42&#10;Gill, 35&#10;Brian, 28" style="min-height:90px"></textarea></div>
+        <div class="field"><label>Picks (one per line: PlayerName: Pick1, Pick2, ...)</label><textarea id="manarc-picks" placeholder="Graeme: Keith Richards, Mick Jagger, ...&#10;Gill: Paul McCartney, ..." style="min-height:90px"></textarea></div>
+        <div class="field"><label>Deaths (one per line: Name, Age, Date, Points)</label><textarea id="manarc-deaths" placeholder="Jimmy White, 82, 2024-03-15, 18&#10;Jean-Paul Belmondo, 88, 2024-06-02, 12" style="min-height:90px"></textarea></div>
+        <div class="field"><label>Notes (optional — shown as a summary)</label><input type="text" id="manarc-notes" placeholder="e.g. First ever Deadly Dozen game. 6 players."></div>
+        <button class="btn btn-gold" onclick="addManualArchive()">Add to History</button>
+      </div>
+
+      <div class="sec-title" style="margin:20px 0 3px">Existing History Entries</div>
+      <div class="muted" style="margin-bottom:11px">Manage archived seasons.</div>
+      <div id="archive-list-admin"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-gamesettings">
+      <div class="admin-grid">
+        <div class="acard">
+          <div class="acard-title">📅 Game Window</div>
+          <div id="gs-alert" style="display:none"></div>
+          <div class="field"><label>Current Year</label><input type="text" id="gs-year" placeholder="2026"></div>
+          <div class="field"><label>Start Date</label><input type="date" id="gs-start"></div>
+          <div class="field"><label>End Date</label><input type="date" id="gs-end"></div>
+          <div class="field"><label>Entry Fee</label><input type="text" id="gs-fee" placeholder="£10"></div>
+          <div class="field"><label>Last Checked</label><input type="text" id="gs-checked" placeholder="04 Mar 2026"></div>
+          <button class="btn btn-primary btn-full" onclick="saveGameSettings()">Save Settings</button>
+        </div>
+        <div class="acard">
+          <div class="acard-title">📋 Edit Current Rules</div>
+          <div class="muted" style="margin-bottom:11px">Edit the rules shown on the Rules page. One rule per block.</div>
+          <div id="rules-editor"></div>
+          <button class="btn btn-ghost btn-sm" onclick="addRuleEditor()" style="margin-top:8px">+ Add Rule</button>
+          <button class="btn btn-primary btn-sm" onclick="saveRules()" style="margin-top:8px;margin-left:6px">Save Rules</button>
+          <div id="rules-save-alert" style="display:none;margin-top:10px"></div>
+        </div>
+        <div class="acard">
+          <div class="acard-title">💾 Data Export</div>
+          <div class="muted" style="margin-bottom:11px">JSON backup of all game data.</div>
+          <button class="btn btn-ghost btn-full" onclick="exportData()">Export JSON</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ══ FIREBASE + APP JS ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, addDoc, deleteDoc, query, orderBy, onSnapshot, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDB_UbbjesWUh3ncYzabwT7Y28f2Vgcc30",
+  authDomain: "deadly-dozen-ddf4c.firebaseapp.com",
+  projectId: "deadly-dozen-ddf4c",
+  storageBucket: "deadly-dozen-ddf4c.firebasestorage.app",
+  messagingSenderId: "722817265361",
+  appId: "1:722817265361:web:83589f36fa0403067a9ff0",
+  measurementId: "G-31DTZGSXV3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let currentUser = null;
+let gameSettings = {};
+let allPlayers = [];
+let allDeaths = [];
+let currentRules = [];
+let resTab = '2027';
+let adminTab = 'deaths';
+
+// ════════════════════════════════════════
+// FIRESTORE HELPERS
+// ════════════════════════════════════════
+const fsGet = async (path) => {
+  const ref = doc(db, ...path.split('/'));
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
+};
+const fsSet = (path, data) => setDoc(doc(db, ...path.split('/')), data, { merge: true });
+const fsCol = async (path, ...constraints) => {
+  const ref = collection(db, ...path.split('/'));
+  const q = constraints.length ? query(ref, ...constraints) : ref;
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+};
+const fsAdd = (path, data) => addDoc(collection(db, ...path.split('/')), { ...data, _ts: serverTimestamp() });
+const fsDel = (path) => deleteDoc(doc(db, ...path.split('/')));
+
+// ════════════════════════════════════════
+// INIT / SEED
+// ════════════════════════════════════════
+async function init() {
+  // Check if settings exist; if not, seed
+  let settings = await fsGet('config/game');
+  if (!settings) {
+    await seedInitialData();
+    settings = await fsGet('config/game');
+  }
+  gameSettings = settings;
+  allPlayers = await fsCol('players');
+  allDeaths = await fsCol('deaths');
+  currentRules = await fsCol('rules');
+  currentRules.sort((a,b) => (a.order||0) - (b.order||0));
+
+  // Check session
+  const sess = sessionStorage.getItem('dd26_user');
+  if (sess) {
+    try { currentUser = JSON.parse(sess); } catch {}
+  }
+
+  hideLoading();
+  updateNavState();
+  // Always show home page first — public
+  showPage('home');
+}
+
+async function seedInitialData() {
+  const batch = writeBatch(db);
+
+  // Game settings
+  batch.set(doc(db,'config','game'), {
+    year: '2026',
+    startDate: '2026-01-01',
+    endDate: '2026-12-25',
+    entryFee: '£10',
+    lastChecked: '04 Mar 2026',
+    picksLocked: false
+  });
+
+  // Players
+  const players = [
+    { name:'Gill',    password:'gill2026',    role:'player' },
+    { name:'Izzy',    password:'izzy2026',    role:'player' },
+    { name:'Graeme',  password:'graeme2026',  role:'admin'  },
+    { name:'Caitlin', password:'caitlin2026', role:'player' },
+    { name:'Brian',   password:'brian2026',   role:'player' },
+    { name:'Kyle',    password:'kyle2026',    role:'player' },
+    { name:'Lauren',  password:'lauren2026',  role:'player' },
+  ];
+
+  const defaultPicks = {
+    Gill:    ["Joe Biden","Harvey Weinstein","Dolly Parton","Jane Fonda","Dustin Hoffman","Steven Spielberg","Cher","Twiggy","Lionel Richie","Sharon Osbourne","Brian May","Richard Gere"],
+    Izzy:    ["David Suchet","David Gower","Jon Snow (journalist)","Vladimir Putin","Hugh Laurie","Sugar Ray Leonard","Timothy Spall","Princess Michael of Kent","Michael Caine","Tommy Lee","Pope Francis","Johnny Depp"],
+    Graeme:  ["Dame Vanessa Redgrave","Yoko Ono","Rupert Murdoch","Dame Shirley Bassey","Dame Sheila Hancock","Dame Joan Collins","Mary Berry","William Shatner","Joe Pesci","Cliff Richard","Shaun Ryder","Mark Berry 'Bez'"],
+    Caitlin: ["Phil Collins","Goldie Hawn","Harvey Weinstein","Dolly Parton","Donald Trump","Cher","Dame Judi Dench","Clint Eastwood","George W Bush","John Astin","Calvin Klein","Michael Douglas"],
+    Brian:   ["Goldie Hawn","Ringo Starr","Al Pacino","Trevor McDonald","Lesley Joseph","Bobby George","Bob Anderson","Robert Powell","Paul McCartney","Danny DeVito","Dustin Hoffman","Jack Nicholson"],
+    Kyle:    ["Kevin Keegan","Ben Kingsley","Patrick Stewart","David Bradley","Sir Alex Ferguson","Michael Douglas","Stellan Skarsgard","Morgan Freeman","Clint Eastwood","Anthony Hopkins","Dustin Hoffman","Sir Jackie Stewart"],
+    Lauren:  ["Rupert Murdoch","Bill Cosby","Morgan Freeman","Harrison Ford","Prince Edward, Duke of Kent","Dame Judi Dench","Joni Mitchell","Clint Eastwood","Sean Combs","Buzz Aldrin","Paul McCartney","Danny DeVito"],
+  };
+
+  for (const p of players) {
+    const ref = doc(collection(db,'players'));
+    batch.set(ref, { ...p, picks: defaultPicks[p.name]||[], reserves: [] });
+  }
+
+  // Default rules
+  const rules = [
+    { order:1, title:'Entry Fee & Prize Pot', text:'Each player pays a £10 entry fee. The total pot is awarded to the winner. In the event of a tie, the pot is split equally between tied players.' },
+    { order:2, title:'Picks & Replacements', text:'Each player must select exactly 12 celebrities. If a selected celebrity dies before 1 January 2026, that pick may be replaced. All replacements must comply with all eligibility rules.' },
+    { order:3, title:'Eligibility Restrictions', text:'Picks must be real, identifiable individuals. Players may not select themselves, immediate family members, or anyone they could reasonably influence the death of.' },
+    { order:4, title:'Health Restriction', text:'Players may not select anyone with a known long-term or terminal illness at the time the pick is made.' },
+    { order:5, title:'Prohibited Conduct', text:'Players cannot kill their own picks.' },
+    { order:6, title:'Scoring', text:'For each valid death during the game window: Score = 100 − age at death. Anyone aged 100 or over scores 0 points.' },
+    { order:7, title:'Death Verification', text:'Deaths must be confirmed by reputable news sources, with BBC News used as a primary reference where available.' },
+    { order:8, title:'Game Window', text:'The game runs from 00:00, 1 January 2026 to 23:59, 24 December 2026. Deaths occurring outside this window do not count.' },
+  ];
+  for (const r of rules) {
+    batch.set(doc(collection(db,'rules')), r);
+  }
+
+  await batch.commit();
+}
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+function openLoginModal() {
+  document.getElementById('login-modal').classList.add('open');
+  document.getElementById('login-name').focus();
+}
+function closeLoginModal() {
+  document.getElementById('login-modal').classList.remove('open');
+  document.getElementById('login-alert').style.display = 'none';
+  document.getElementById('login-pass').value = '';
+}
+
+async function doLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!name || !pass) { showAlert('login-alert','Please enter your name and password.','e'); return; }
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Signing in...';
+
+  try {
+    const players = await fsCol('players');
+    const player = players.find(p => p.name.toLowerCase() === name.toLowerCase() && p.password === pass);
+    if (!player) {
+      showAlert('login-alert','Incorrect name or password.','e');
+      btn.disabled = false; btn.textContent = 'Enter the Pool';
+      return;
+    }
+    currentUser = player;
+    allPlayers = players;
+    sessionStorage.setItem('dd26_user', JSON.stringify(player));
+    closeLoginModal();
+    updateNavState();
+    // Refresh current page to show auth content
+    buildPage(currentPage);
+  } catch(e) {
+    showAlert('login-alert','Connection error. Please try again.','e');
+    btn.disabled = false; btn.textContent = 'Enter the Pool';
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  sessionStorage.removeItem('dd26_user');
+  updateNavState();
+  showPage('home');
+}
+
+function updateNavState() {
+  const loggedIn = !!currentUser;
+  // Show/hide auth nav items
+  document.querySelectorAll('.nav-auth').forEach(el => {
+    el.style.display = loggedIn ? 'block' : 'none';
+  });
+  document.getElementById('nav-admin-li').style.display = (loggedIn && currentUser.role === 'admin') ? 'block' : 'none';
+  document.getElementById('nav-loggedout').style.display = loggedIn ? 'none' : 'flex';
+  document.getElementById('nav-loggedin').style.display = loggedIn ? 'flex' : 'none';
+  if (loggedIn) document.getElementById('nav-uname-text').textContent = currentUser.name;
+  // Sign-in prompt on home
+  const prompt = document.getElementById('home-signin-prompt');
+  if (prompt) prompt.style.display = loggedIn ? 'none' : 'block';
+}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+const PUBLIC_PAGES = new Set(['home','scoreboard','history','rules']);
+let currentPage = 'home';
+
+function showPage(id) {
+  // Auth-only pages: open login modal if not signed in
+  if (!currentUser && !PUBLIC_PAGES.has(id)) {
+    openLoginModal();
+    return;
+  }
+  currentPage = id;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  const lnk = document.querySelector(`.nav-links a[data-page="${id}"]`);
+  if (lnk) lnk.classList.add('active');
+  window.scrollTo(0,0);
+  buildPage(id);
+}
+
+function buildPage(id) {
+  const map = {
+    home: buildHome,
+    scoreboard: buildScoreboard,
+    allpicks: buildAllPicks,
+    mypicks: buildMyPicks,
+    reserves: buildReserves,
+    stats: buildStats,
+    history: buildHistory,
+    rules: buildRules,
+    settings: buildSettings,
+    admin: buildAdmin,
+  };
+  if (map[id]) map[id]();
+}
+
+// ════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════
+function getScore(playerDoc) {
+  return allDeaths.filter(d => (playerDoc.picks||[]).includes(d.name)).reduce((s,d)=>s+d.points,0);
+}
+function getDeadPicks(playerDoc) {
+  return allDeaths.filter(d => (playerDoc.picks||[]).includes(d.name));
+}
+function getSortedPlayers() {
+  return [...allPlayers].sort((a,b)=>getScore(b)-getScore(a));
+}
+function pickCounts() {
+  const m = {};
+  allPlayers.forEach(p=>(p.picks||[]).forEach(pk=>{m[pk]=(m[pk]||0)+1;}));
+  return m;
+}
+function fmtDate(str) {
+  if (!str) return '—';
+  try { return new Date(str).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); } catch { return str; }
+}
+function hideLoading() {
+  const ls = document.getElementById('loading-screen');
+  ls.classList.add('hidden');
+  setTimeout(()=>ls.remove(),600);
+}
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'alert a'+type;
+  el.textContent = msg;
+  el.style.display = 'block';
+  if (type==='s') setTimeout(()=>{el.style.display='none';},4000);
+}
+
+// ════════════════════════════════════════
+// HOME / NEWS
+// ════════════════════════════════════════
+function buildHome() {
+  allPlayers = [...allPlayers]; // ensure fresh ref
+  document.getElementById('home-year-text').textContent = gameSettings.year || '2026';
+  const playerCount = allPlayers.length;
+  const fee = gameSettings.entryFee || '£10';
+  const feeNum = parseInt(fee.replace(/[^0-9]/g,''))||10;
+  document.getElementById('home-tagline-text').textContent = `Official Game Portal · ${playerCount} Players · ${fee.replace(/[0-9]+/, String(playerCount*feeNum))} Pot`;
+
+  // News feed
+  const sorted = [...allDeaths].sort((a,b)=> (b.date||'') > (a.date||'') ? 1 : -1);
+  document.getElementById('news-count-badge').textContent = `${sorted.length} recorded`;
+  if (!sorted.length) {
+    document.getElementById('news-feed').innerHTML = `<div class="no-deaths">No deaths recorded yet.<br><br>The pool is watching...<br><span style="font-size:1.6rem;display:block;margin-top:8px;opacity:0.4">☠</span></div>`;
+  } else {
+    document.getElementById('news-feed').innerHTML = sorted.map((d,i)=>`
+      <div class="obit" style="animation-delay:${i*0.05}s">
+        <div class="obit-date">${fmtDate(d.date)}</div>
+        <div class="obit-name">${d.name}</div>
+        <div class="obit-meta">Aged <strong>${d.age}</strong> · ${d.points} points scored</div>
+        <div class="obit-pts">${d.points}<small>pts</small></div>
+        <div class="obit-picked">Picked by: <span class="obit-picked-names">${d.pickedBy?.length ? d.pickedBy.join(', ') : 'Nobody'}</span></div>
+        ${d.source ? `<div class="obit-src">Source: <a href="${d.source}" target="_blank" rel="noopener">BBC News ↗</a></div>` : ''}
+      </div>`).join('');
+  }
+
+  // Sidebar scores
+  const sp = getSortedPlayers();
+  const topScore = getScore(sp[0]);
+  document.getElementById('sidebar-scores').innerHTML = sp.map(p=>{
+    const s = getScore(p);
+    return `<div class="sb-row${s===topScore&&s>0?' leader':''}"><span class="sb-name">${p.name}</span><span class="sb-pts">${s}</span></div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// SCOREBOARD
+// ════════════════════════════════════════
+function buildScoreboard() {
+  document.getElementById('lc-display').textContent = 'Last checked: ' + (gameSettings.lastChecked||'—');
+  const sp = getSortedPlayers();
+  const board = document.getElementById('scoreboard-board');
+  board.innerHTML = '';
+  let rank=1;
+  sp.forEach((p,i)=>{
+    const s=getScore(p);
+    if(i>0&&s<getScore(sp[i-1]))rank=i+1;
+    const tied=sp.filter(x=>getScore(x)===s).length>1;
+    const dead=getDeadPicks(p);
+    const dt=dead.length?dead.map(d=>`${d.name} (${d.points}pts)`).join(', '):'—';
+    const row=document.createElement('div');
+    row.className=`pr${rank===1?' r1':''}`;
+    row.style.animationDelay=`${i*0.05}s`;
+    row.innerHTML=`<div class="pr-rank">${rank}${tied?'=':''}</div><div class="pr-name">${p.name}</div><div class="pr-dead">${dt}</div><div class="pr-sw"><div class="pr-score${s===0?' z':' h'}">${s}</div><span class="pr-pts">pts</span></div>`;
+    board.appendChild(row);
+  });
+
+  const feeNum = parseInt((gameSettings.entryFee||'10').replace(/[^0-9]/g,''))||10;
+  const pot = `${gameSettings.entryFee?.includes('£')?'£':''}${allPlayers.length*feeNum}`;
+  document.getElementById('gw-bar').innerHTML = `
+    <div class="gwi"><div class="gwi-l">Start</div><div class="gwi-v">${fmtDate(gameSettings.startDate)}</div></div>
+    <div class="gwi"><div class="gwi-l">Scoring</div><div class="gwi-v">100 − Age</div></div>
+    <div class="gwi"><div class="gwi-l">Prize Pot</div><div class="gwi-v">${pot}</div></div>
+    <div class="gwi"><div class="gwi-l">End</div><div class="gwi-v">${fmtDate(gameSettings.endDate)}</div></div>`;
+
+  // Game info panel
+  const infoItems = [
+    {l:'Season',     v: gameSettings.year||'2026'},
+    {l:'Players',    v: allPlayers.length},
+    {l:'Entry Fee',  v: gameSettings.entryFee||'£10'},
+    {l:'Prize Pot',  v: pot},
+    {l:'Deaths',     v: allDeaths.length},
+    {l:'Last Checked', v: gameSettings.lastChecked||'—'},
+  ];
+  document.getElementById('game-info-grid').innerHTML = infoItems.map(item=>
+    `<div class="gi-cell"><div class="gi-label">${item.l}</div><div class="gi-value">${item.v}</div></div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════
+// ALL PICKS
+// ════════════════════════════════════════
+function buildAllPicks() {
+  const counts = pickCounts();
+  const grid = document.getElementById('all-picks-grid');
+  grid.innerHTML = '';
+  allPlayers.forEach((p,pi)=>{
+    const picks=p.picks||[];
+    const dead=getDeadPicks(p).map(d=>d.name);
+    const s=getScore(p);
+    const div=document.createElement('div');
+    div.className='pc';
+    div.style.animationDelay=`${pi*0.05}s`;
+    div.innerHTML=`<div class="pc-head"><div class="pc-name">${p.name}</div><div class="pc-score">Score: <span>${s}pts</span></div></div><div>${
+      picks.length?picks.map((pk,i)=>`<div class="pl${dead.includes(pk)?' dead':''}"><span class="pn">${String(i+1).padStart(2,'0')}</span>${pk}${counts[pk]>1?`<span class="stag">${counts[pk]}×</span>`:''}</div>`).join('')
+      :'<div style="font-size:0.56rem;color:var(--muted);padding:8px 0">No picks yet</div>'
+    }</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ════════════════════════════════════════
+// MY PICKS
+// ════════════════════════════════════════
+function buildMyPicks() {
+  const locked = gameSettings.picksLocked;
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const picks = me.picks||[];
+  document.getElementById('mypicks-locked-note').style.display = locked?'block':'none';
+  document.getElementById('mypicks-btns').style.display = locked?'none':'flex';
+  const ed = document.getElementById('picks-editor');
+  ed.innerHTML = '';
+  for(let i=0;i<12;i++){
+    const v=picks[i]||'';
+    const slot=document.createElement('div');
+    slot.className=`pslot${v?' f':' e'}`;
+    slot.id=`pslot-${i}`;
+    slot.innerHTML=`<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="sinput-${i}" type="text" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." ${locked?'disabled':''} oninput="updateSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('sinput-${i+1}').focus()}">${locked?'':'<button class="sclear" onclick="clearSlot('+i+')">×</button>'}`;
+    ed.appendChild(slot);
+  }
+  updatePicksCount();
+}
+
+function updateSlot(i) {
+  const v=(document.getElementById(`sinput-${i}`)?.value||'').trim();
+  const s=document.getElementById(`pslot-${i}`);
+  if(s)s.className=`pslot${v?' f':' e'}`;
+  updatePicksCount();
+}
+function updatePicksCount() {
+  let c=0;
+  for(let i=0;i<12;i++)if((document.getElementById(`sinput-${i}`)?.value||'').trim())c++;
+  document.getElementById('picks-count').textContent=c;
+}
+function clearSlot(i){
+  const el=document.getElementById(`sinput-${i}`);
+  if(el)el.value='';
+  updateSlot(i);
+}
+function clearMyPicks(){for(let i=0;i<12;i++)clearSlot(i);}
+
+async function saveMyPicks() {
+  if(gameSettings.picksLocked)return;
+  const picks=[];
+  for(let i=0;i<12;i++){
+    const v=(document.getElementById(`sinput-${i}`)?.value||'').trim();
+    if(v)picks.push(v);
+  }
+  try {
+    await fsSet(`players/${currentUser.id}`,{picks});
+    // Update local state
+    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],picks};
+    currentUser={...currentUser,picks};
+    sessionStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    showAlert('mypicks-alert',`Saved ${picks.length} pick${picks.length!==1?'s':''}.`,'s');
+    buildMyPicks();
+  } catch(e){ showAlert('mypicks-alert','Failed to save. Please try again.','e'); }
+}
+
+// ════════════════════════════════════════
+// RESERVES
+// ════════════════════════════════════════
+function buildReserves() { renderResList(); }
+function switchResTab(yr,btn){
+  resTab=yr;
+  document.querySelectorAll('#page-reserves .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderResList();
+}
+
+function renderResList(){
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const all=(me.reserves||[]);
+  const filtered=resTab==='all'?all:all.filter(r=>r.year===resTab);
+  const list=document.getElementById('reserve-list');
+  if(!filtered.length){
+    list.innerHTML=`<div style="padding:28px;text-align:center;font-size:0.58rem;color:var(--muted);background:var(--ash);border:1px solid var(--gray);letter-spacing:0.1em">No reserves for ${resTab==='all'?'any year':resTab} yet.</div>`;
+    return;
+  }
+  list.innerHTML=filtered.map((r,i)=>`<div class="resitem" style="animation-delay:${i*0.04}s"><div><div class="res-name">${r.name}</div>${r.notes?`<div class="res-notes">${r.notes}</div>`:''}</div><span class="ybadge y${r.year}">${r.year}</span><button class="btn btn-danger btn-sm" onclick="deleteReserve('${r.id}')">Remove</button></div>`).join('');
+}
+
+async function addReserve(){
+  const name=document.getElementById('res-name').value.trim();
+  const year=document.getElementById('res-year').value;
+  const notes=document.getElementById('res-notes').value.trim();
+  if(!name){showAlert('reserve-alert','Please enter a celebrity name.','e');return;}
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const reserves=[...(me.reserves||[])];
+  if(reserves.find(r=>r.name.toLowerCase()===name.toLowerCase()&&r.year===year)){showAlert('reserve-alert',`${name} is already in your ${year} reserves.`,'e');return;}
+  const newRes={id:Date.now().toString(),name,year,notes,added:new Date().toISOString()};
+  reserves.push(newRes);
+  try{
+    await fsSet(`players/${currentUser.id}`,{reserves});
+    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],reserves};
+    document.getElementById('res-name').value='';
+    document.getElementById('res-notes').value='';
+    document.getElementById('reserve-alert').style.display='none';
+    renderResList();
+  }catch(e){showAlert('reserve-alert','Failed to save. Try again.','e');}
+}
+
+async function deleteReserve(rid){
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const reserves=(me.reserves||[]).filter(r=>r.id!==rid);
+  await fsSet(`players/${currentUser.id}`,{reserves});
+  const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
+  if(idx>=0)allPlayers[idx]={...allPlayers[idx],reserves};
+  renderResList();
+}
+
+// ════════════════════════════════════════
+// STATS
+// ════════════════════════════════════════
+function buildStats(){
+  const counts=pickCounts();
+  const allP=Object.keys(counts);
+  const shared=allP.filter(p=>counts[p]>1);
+  document.getElementById('stats-grid').innerHTML=[
+    {l:'Players',v:allPlayers.length,s:'in the game'},
+    {l:'Total Picks',v:allPlayers.reduce((s,p)=>s+(p.picks||[]).length,0),s:'across all players'},
+    {l:'Unique Celebs',v:allP.length,s:'distinct names'},
+    {l:'Shared Picks',v:shared.length,s:'picked by 2+ players'},
+    {l:'Deaths',v:allDeaths.length,s:'confirmed this window'},
+    {l:'Prize Pot',v:`${gameSettings.entryFee?.includes('£')?'£':''}${allPlayers.length*(parseInt((gameSettings.entryFee||'10').replace(/[^0-9]/g,''))||10)}`,s:'winner takes all'},
+  ].map((c,i)=>`<div class="stc" style="animation-delay:${i*0.05}s"><div class="stc-l">${c.l}</div><div class="stc-v">${c.v}</div><div class="stc-s">${c.s}</div></div>`).join('');
+
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const mx=sorted[0]?.[1]||1;
+  document.getElementById('freq-list').innerHTML=sorted.map(([n,c],i)=>`<div class="fr" style="animation-delay:${i*0.025}s"><div>${n}</div><div class="fr-c">${c} player${c>1?'s':''}</div><div class="frbg"><div class="frfill" style="width:${(c/mx)*100}%"></div></div></div>`).join('');
+
+  const names=allPlayers.map(p=>p.name);
+  let t=`<table class="h2ht"><thead><tr><th>Player</th>${names.map(n=>`<th>${n}</th>`).join('')}</tr></thead><tbody>`;
+  allPlayers.forEach(p1=>{
+    t+=`<tr><td>${p1.name}</td>`;
+    allPlayers.forEach(p2=>{
+      if(p1.id===p2.id){t+=`<td class="slf">—</td>`;return;}
+      const s=(p1.picks||[]).filter(pk=>(p2.picks||[]).includes(pk)).length;
+      t+=`<td class="${s>0?'sh':''}">${s>0?s:'·'}</td>`;
+    });
+    t+=`</tr>`;
+  });
+  t+=`</tbody></table>`;
+  document.getElementById('h2h-wrap').innerHTML=t;
+}
+
+// ════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════
+async function buildHistory(){
+  const list=document.getElementById('history-list');
+  list.innerHTML=`<div style="text-align:center;padding:20px;font-size:0.56rem;color:var(--muted)"><span class="spin"></span></div>`;
+  try{
+    const archives=await fsCol('archive');
+    archives.sort((a,b)=>(b.year||0)-(a.year||0));
+    if(!archives.length){
+      list.innerHTML=`<div style="padding:36px;text-align:center;background:var(--ash);border:1px solid var(--gray);font-size:0.58rem;color:var(--muted);letter-spacing:0.1em">No archived seasons yet.</div>`;
+      return;
+    }
+    list.innerHTML=archives.map((a,i)=>{
+      const winner=a.winner||'—';
+      const winScore=a.winnerScore||0;
+      const manualBadge=a.manual?`<span style="font-size:0.44rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:1px 6px;margin-left:8px">Manual Entry</span>`:'';
+      return `<div class="hyc" style="animation-delay:${i*0.06}s">
+        <div class="hyh" onclick="toggleHistory('hy-${a.id}')">
+          <div>
+            <div class="hyt">${a.year}${manualBadge}</div>
+            <div class="hym">${a.playerCount||'?'} players · ${a.deaths?.length||0} deaths</div>
+            <div class="hyw">🏆 ${winner}</div>
+          </div>
+          <div style="font-size:0.56rem;color:var(--muted);letter-spacing:0.1em">▾ Expand</div>
+        </div>
+        <div class="hyb" id="hy-${a.id}">
+          ${a.notes?`<div style="margin:14px 0 0;padding:10px 14px;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.18);font-size:0.58rem;color:#bbb;letter-spacing:0.06em;line-height:1.7">${a.notes}</div>`:''}
+          <div class="hwb"><div><div class="hwbl">🏆 Winner</div><div class="hwbn">${winner}</div></div><div class="hwbs">${winScore}<small style="font-size:0.4em;color:var(--muted);display:block;letter-spacing:0.16em">pts</small></div></div>
+          ${(a.finalScores||[]).length?`
+            <div class="sec-title" style="margin:14px 0 3px;font-size:1.1rem">Final Scoreboard</div>
+            ${a.finalScores.map(s=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.6rem"><span>${s.name}</span><span style="color:var(--red)">${s.score}pts</span></div>`).join('')}`:''}
+          ${(a.picks||[]).length?`
+            <div class="sec-title" style="margin:16px 0 3px;font-size:1.1rem">Picks</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:3px;margin-top:8px">
+              ${a.picks.map(pp=>`<div style="background:var(--dark);border:1px solid var(--gray);padding:12px 14px"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;margin-bottom:7px;letter-spacing:0.07em">${pp.name}</div>${(pp.picks||[]).map(pk=>`<div style="font-size:0.54rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);color:#aaa">${pk}</div>`).join('')}</div>`).join('')}
+            </div>`:''}
+          ${(a.deaths||[]).length?`
+            <div class="sec-title" style="margin:16px 0 3px;font-size:1.1rem">Deaths (${a.deaths.length})</div>
+            ${a.deaths.map(d=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.58rem"><span>${d.name}${d.age?` <span style="color:var(--muted);font-size:0.5rem">(aged ${d.age}${d.date?', '+fmtDate(d.date):''})</span>`:''}
+            </span><span style="color:var(--red)">${d.points}pts</span></div>`).join('')}`:''}
+          ${a.rules?.length?`<div class="sec-title" style="margin:16px 0 3px;font-size:1.1rem">Rules</div><div class="rules-list" style="margin-top:8px">${a.rules.map((r,ri)=>`<div class="rc"><div class="rnum">${ri+1}</div><div><div class="rtitle">${r.title}</div><div class="rtext">${r.text}</div></div></div>`).join('')}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){list.innerHTML=`<div class="alert ae">Failed to load history.</div>`;}
+}
+
+function toggleHistory(id){
+  const el=document.getElementById(id);
+  if(el)el.classList.toggle('open');
+}
+
+// ════════════════════════════════════════
+// RULES
+// ════════════════════════════════════════
+function buildRules(){
+  renderRulesList(currentRules, 'rules-list');
+}
+function renderRulesList(rules,elId){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  if(!rules.length){el.innerHTML=`<div class="muted" style="padding:20px">No rules published yet.</div>`;return;}
+  el.innerHTML=rules.map((r,i)=>`<div class="rc" style="animation-delay:${i*0.05}s"><div class="rnum">${i+1}</div><div><div class="rtitle">${r.title}</div><div class="rtext">${r.text}</div></div></div>`).join('');
+}
+
+// ════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════
+function buildSettings(){
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  document.getElementById('sett-name').value=me.name||'';
+}
+async function saveDisplayName(){
+  const name=document.getElementById('sett-name').value.trim();
+  if(!name||name.length<2){showAlert('settings-alert','Please enter a valid name.','e');return;}
+  try{
+    await fsSet(`players/${currentUser.id}`,{name});
+    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],name};
+    currentUser={...currentUser,name};
+    sessionStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    document.getElementById('nav-uname-text').textContent=name;
+    showAlert('settings-alert','Name updated.','s');
+  }catch(e){showAlert('settings-alert','Failed to update.','e');}
+}
+async function changePassword(){
+  const cur=document.getElementById('pw-cur').value;
+  const nw=document.getElementById('pw-new').value;
+  const con=document.getElementById('pw-con').value;
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  if(me.password!==cur){showAlert('pw-alert','Current password is incorrect.','e');return;}
+  if(nw.length<6){showAlert('pw-alert','New password must be at least 6 characters.','e');return;}
+  if(nw!==con){showAlert('pw-alert','Passwords do not match.','e');return;}
+  try{
+    await fsSet(`players/${currentUser.id}`,{password:nw});
+    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],password:nw};
+    currentUser={...currentUser,password:nw};
+    sessionStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    document.getElementById('pw-cur').value='';
+    document.getElementById('pw-new').value='';
+    document.getElementById('pw-con').value='';
+    showAlert('pw-alert','Password changed.','s');
+  }catch(e){showAlert('pw-alert','Failed to update.','e');}
+}
+
+// ════════════════════════════════════════
+// ADMIN
+// ════════════════════════════════════════
+function buildAdmin(){
+  if(currentUser.role!=='admin'){showPage('home');return;}
+  refreshAdminTab(adminTab);
+}
+
+function switchAdminTab(tab,btn){
+  adminTab=tab;
+  document.querySelectorAll('#page-admin .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#page-admin .tab-panel').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  refreshAdminTab(tab);
+}
+
+function refreshAdminTab(tab){
+  if(tab==='deaths')buildDeathLog();
+  if(tab==='players')buildPlayersAdmin();
+  if(tab==='future')buildFutureGames();
+  if(tab==='archive')buildArchiveListAdmin();
+  if(tab==='gamesettings')buildGameSettings();
+}
+
+// DEATHS
+async function recordDeath(){
+  const name=document.getElementById('d-name').value.trim();
+  const age=parseInt(document.getElementById('d-age').value);
+  const date=document.getElementById('d-date').value;
+  const source=document.getElementById('d-source').value.trim();
+  if(!name){showAlert('death-alert','Please enter a celebrity name.','e');return;}
+  if(isNaN(age)||age<0||age>130){showAlert('death-alert','Please enter a valid age.','e');return;}
+  if(!date){showAlert('death-alert','Please enter the date of death.','e');return;}
+  if(allDeaths.find(d=>d.name.toLowerCase()===name.toLowerCase())){showAlert('death-alert',`${name} has already been recorded.`,'e');return;}
+  const points=Math.max(0,100-age);
+  const pickedBy=allPlayers.filter(p=>(p.picks||[]).includes(name)).map(p=>p.name);
+  try{
+    const ref=await fsAdd('deaths',{name,age,date,points,source,pickedBy,recorded:new Date().toISOString()});
+    const newDeath={id:ref.id,name,age,date,points,source,pickedBy};
+    allDeaths.push(newDeath);
+    document.getElementById('d-name').value='';
+    document.getElementById('d-age').value='';
+    document.getElementById('d-date').value='';
+    document.getElementById('d-source').value='';
+    showAlert('death-alert',`☠ ${name} recorded. ${points} pts. Picked by: ${pickedBy.join(', ')||'nobody'}.`,'s');
+    buildDeathLog();
+  }catch(e){showAlert('death-alert','Failed to record death.','e');}
+}
+
+function buildDeathLog(){
+  const log=document.getElementById('death-log');
+  if(!allDeaths.length){log.innerHTML=`<div style="padding:18px;background:var(--ash);border:1px solid var(--gray);font-size:0.56rem;color:var(--muted);text-align:center;letter-spacing:0.1em">No deaths recorded yet.</div>`;return;}
+  log.innerHTML=[...allDeaths].reverse().map((d,i)=>`<div class="dli" style="animation-delay:${i*0.03}s"><div><div class="dli-n">${d.name}</div><div class="dli-m">Picked by: ${d.pickedBy?.join(', ')||'nobody'} · ${fmtDate(d.date)} · Age ${d.age}</div></div><div class="dli-p">+${d.points}</div><button class="btn btn-danger btn-sm" onclick="undoDeath('${d.id}','${d.name}')">Undo</button></div>`).join('');
+}
+
+async function undoDeath(id,name){
+  if(!confirm(`Remove death record for ${name}?`))return;
+  await fsDel(`deaths/${id}`);
+  allDeaths=allDeaths.filter(d=>d.id!==id);
+  buildDeathLog();
+}
+
+// PLAYERS
+function buildPlayersAdmin(){
+  const sel=document.getElementById('rp-player');
+  sel.innerHTML=allPlayers.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  document.getElementById('lock-status').textContent=gameSettings.picksLocked?'🔒 Picks are LOCKED':'🔓 Picks are UNLOCKED';
+  const list=document.getElementById('player-list-admin');
+  list.innerHTML=allPlayers.map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;font-size:0.6rem"><span>${p.name} <span style="font-size:0.48rem;color:var(--muted);margin-left:6px">${p.role||'player'}</span></span><span style="color:var(--muted);font-size:0.54rem">${(p.picks||[]).filter(Boolean).length}/12 picks</span></div>`).join('');
+}
+
+async function addPlayer(){
+  const name=document.getElementById('np-name').value.trim();
+  const pass=document.getElementById('np-pass').value.trim();
+  const role=document.getElementById('np-role').value;
+  if(!name||!pass){showAlert('np-alert','Please fill in all fields.','e');return;}
+  if(allPlayers.find(p=>p.name.toLowerCase()===name.toLowerCase())){showAlert('np-alert','A player with this name already exists.','e');return;}
+  try{
+    const ref=await fsAdd('players',{name,password:pass,role,picks:[],reserves:[]});
+    allPlayers.push({id:ref.id,name,password:pass,role,picks:[],reserves:[]});
+    document.getElementById('np-name').value='';
+    document.getElementById('np-pass').value='';
+    showAlert('np-alert',`${name} added.`,'s');
+    buildPlayersAdmin();
+  }catch(e){showAlert('np-alert','Failed to add player.','e');}
+}
+
+async function adminResetPw(){
+  const pid=document.getElementById('rp-player').value;
+  const pass=document.getElementById('rp-pass').value.trim();
+  if(!pass){showAlert('rp-alert','Enter a new password.','e');return;}
+  await fsSet(`players/${pid}`,{password:pass});
+  const idx=allPlayers.findIndex(p=>p.id===pid);
+  if(idx>=0)allPlayers[idx]={...allPlayers[idx],password:pass};
+  document.getElementById('rp-pass').value='';
+  showAlert('rp-alert','Password updated.','s');
+}
+
+async function setLock(locked){
+  gameSettings={...gameSettings,picksLocked:locked};
+  await fsSet('config/game',{picksLocked:locked});
+  document.getElementById('lock-status').textContent=locked?'🔒 Picks are LOCKED':'🔓 Picks are UNLOCKED';
+}
+
+// FUTURE GAMES
+async function buildFutureGames(){
+  const fc=document.getElementById('future-content');
+  fc.innerHTML=`<div style="text-align:center;padding:20px;font-size:0.54rem;color:var(--muted)"><span class="spin"></span></div>`;
+  try{
+    const futureGames=await fsCol('futureGames');
+    futureGames.sort((a,b)=>(a.year||0)-(b.year||0));
+    let html=`<div class="fg-panel"><div class="fg-title">➕ Create Future Game</div>
+      <div id="fg-alert" style="display:none"></div>
+      <div class="grid-3">
+        <div class="field"><label>Year</label><input type="text" id="fg-year" placeholder="2027"></div>
+        <div class="field"><label>Start Date</label><input type="date" id="fg-start"></div>
+        <div class="field"><label>End Date</label><input type="date" id="fg-end"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Entry Fee</label><input type="text" id="fg-fee" placeholder="£10"></div>
+        <div class="field"><label>Picks per Player</label><input type="number" id="fg-picks" placeholder="12" min="1" max="20" value="12"></div>
+      </div>
+      <div class="field"><label>Custom Scoring Formula</label><input type="text" id="fg-scoring" placeholder="100 - age (default)" value="100 - age"></div>
+      <button class="btn btn-gold" onclick="createFutureGame()">Create Future Game</button>
+    </div>`;
+
+    if(futureGames.length){
+      html+=`<div style="margin-top:3px">`;
+      futureGames.forEach(fg=>{
+        html+=`<div class="fg-panel" style="margin-top:3px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div class="fg-title" style="margin:0">${fg.year} — ${fg.entryFee||'£10'} entry · ${fg.picksPerPlayer||12} picks</div>
+            <button class="btn btn-danger btn-sm" onclick="deleteFutureGame('${fg.id}','${fg.year}')">Delete</button>
+          </div>
+          <div class="muted" style="margin-bottom:11px">Start: ${fmtDate(fg.startDate)} · End: ${fmtDate(fg.endDate)} · Scoring: ${fg.scoring||'100 - age'}</div>
+          <div class="sec-title" style="font-size:1rem;margin-bottom:5px">Players (${(fg.players||[]).length})</div>
+          ${allPlayers.map(p=>`<div class="psrow ${(fg.players||[]).includes(p.id)?'pf':'pe'}">${p.name}<div style="display:flex;gap:6px;margin-left:auto"><button class="btn btn-sm ${(fg.players||[]).includes(p.id)?'btn-danger':'btn-ghost'}" onclick="toggleFuturePlayer('${fg.id}','${p.id}','${(fg.players||[]).includes(p.id)}')">${(fg.players||[]).includes(p.id)?'Remove':'Add'}</button></div></div>`).join('')}
+          <div class="sec-title" style="font-size:1rem;margin:12px 0 5px">Rules</div>
+          <div class="muted" style="margin-bottom:8px">Custom rules for ${fg.year}. Leave empty to use current rules.</div>
+          <div id="fg-rules-${fg.id}">${(fg.rules||[]).map((r,ri)=>`<div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:4px"><input type="text" value="${r.title}: ${r.text}" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:6px 9px;outline:none" id="fgr-${fg.id}-${ri}"><button class="btn btn-danger btn-sm" onclick="removeFgRule('${fg.id}',${ri})">×</button></div>`).join('')}</div>
+          <div style="display:flex;gap:7px;margin-top:8px">
+            <input type="text" id="fg-newrule-${fg.id}" placeholder="Rule title: Rule text..." style="flex:1;background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:7px 10px;outline:none">
+            <button class="btn btn-ghost btn-sm" onclick="addFgRule('${fg.id}')">+ Add Rule</button>
+            <button class="btn btn-gold btn-sm" onclick="saveFgRules('${fg.id}')">Save</button>
+          </div>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+    fc.innerHTML=html;
+  }catch(e){fc.innerHTML=`<div class="alert ae">Failed to load.</div>`;}
+}
+
+async function createFutureGame(){
+  const year=document.getElementById('fg-year').value.trim();
+  const start=document.getElementById('fg-start').value;
+  const end=document.getElementById('fg-end').value;
+  const fee=document.getElementById('fg-fee').value.trim()||'£10';
+  const picks=parseInt(document.getElementById('fg-picks').value)||12;
+  const scoring=document.getElementById('fg-scoring').value.trim()||'100 - age';
+  if(!year){showAlert('fg-alert','Please enter a year.','e');return;}
+  try{
+    await fsAdd('futureGames',{year,startDate:start,endDate:end,entryFee:fee,picksPerPlayer:picks,scoring,players:[],rules:[]});
+    buildFutureGames();
+  }catch(e){showAlert('fg-alert','Failed to create.','e');}
+}
+
+async function deleteFutureGame(id,year){
+  if(!confirm(`Delete planned ${year} game?`))return;
+  await fsDel(`futureGames/${id}`);
+  buildFutureGames();
+}
+
+async function toggleFuturePlayer(fgId,pid,isIn){
+  const fgs=await fsCol('futureGames');
+  const fg=fgs.find(g=>g.id===fgId);
+  if(!fg)return;
+  let players=fg.players||[];
+  if(isIn==='true')players=players.filter(p=>p!==pid);
+  else players=[...players,pid];
+  await fsSet(`futureGames/${fgId}`,{players});
+  buildFutureGames();
+}
+
+async function addFgRule(fgId){
+  const inp=document.getElementById(`fg-newrule-${fgId}`);
+  const val=inp?.value.trim();
+  if(!val)return;
+  const parts=val.split(':');
+  const title=parts[0].trim();
+  const text=parts.slice(1).join(':').trim()||val;
+  const fgs=await fsCol('futureGames');
+  const fg=fgs.find(g=>g.id===fgId);
+  const rules=[...(fg?.rules||[]),{title,text}];
+  await fsSet(`futureGames/${fgId}`,{rules});
+  inp.value='';
+  buildFutureGames();
+}
+
+async function saveFgRules(fgId){
+  const fgs=await fsCol('futureGames');
+  const fg=fgs.find(g=>g.id===fgId);
+  const rules=(fg?.rules||[]).map((r,ri)=>{
+    const v=document.getElementById(`fgr-${fgId}-${ri}`)?.value||'';
+    const p=v.split(':');
+    return{title:p[0].trim(),text:p.slice(1).join(':').trim()||v};
+  });
+  await fsSet(`futureGames/${fgId}`,{rules});
+  buildFutureGames();
+}
+
+async function removeFgRule(fgId,ri){
+  const fgs=await fsCol('futureGames');
+  const fg=fgs.find(g=>g.id===fgId);
+  const rules=(fg?.rules||[]).filter((_,i)=>i!==ri);
+  await fsSet(`futureGames/${fgId}`,{rules});
+  buildFutureGames();
+}
+
+// ARCHIVE CURRENT SEASON
+async function archiveSeason(){
+  const year=document.getElementById('archive-year-input').value.trim();
+  if(!year){alert('Please enter the season year.');return;}
+  if(!confirm(`Archive the ${year} season? This will snapshot all data and clear current picks/deaths. This cannot be undone.`))return;
+
+  const sp=getSortedPlayers();
+  const topScore=getScore(sp[0]);
+  const winners=sp.filter(p=>getScore(p)===topScore);
+
+  const archiveData={
+    year,
+    archivedAt:new Date().toISOString(),
+    playerCount:allPlayers.length,
+    winner:winners.map(w=>w.name).join(' & '),
+    winnerScore:topScore,
+    finalScores:sp.map(p=>({name:p.name,score:getScore(p)})),
+    picks:allPlayers.map(p=>({name:p.name,picks:p.picks||[]})),
+    deaths:allDeaths,
+    rules:currentRules,
+    manual:false,
+  };
+
+  try{
+    const batch=writeBatch(db);
+    batch.set(doc(collection(db,'archive')),archiveData);
+    for(const d of allDeaths) batch.delete(doc(db,'deaths',d.id));
+    for(const p of allPlayers) batch.update(doc(db,'players',p.id),{picks:[]});
+    await batch.commit();
+
+    allDeaths=[];
+    allPlayers=allPlayers.map(p=>({...p,picks:[]}));
+    document.getElementById('archive-year-input').value='';
+    alert(`Season ${year} archived successfully! Picks and deaths have been cleared for the new season.`);
+    buildDeathLog();
+    buildArchiveListAdmin();
+  }catch(e){alert('Archive failed: '+e.message);}
+}
+
+// ADD MANUAL ARCHIVE ENTRY
+async function addManualArchive(){
+  const year=document.getElementById('manarc-year').value.trim();
+  const winner=document.getElementById('manarc-winner').value.trim();
+  const winnerScore=parseInt(document.getElementById('manarc-score').value)||0;
+  const scoresRaw=document.getElementById('manarc-scores').value.trim();
+  const picksRaw=document.getElementById('manarc-picks').value.trim();
+  const deathsRaw=document.getElementById('manarc-deaths').value.trim();
+  const notes=document.getElementById('manarc-notes').value.trim();
+
+  if(!year){showAlert('manarc-alert','Please enter the season year.','e');return;}
+  if(!winner){showAlert('manarc-alert','Please enter the winner name.','e');return;}
+
+  // Parse final scores: "Name, Score" per line
+  const finalScores=scoresRaw?scoresRaw.split('\n').map(l=>{
+    const parts=l.split(',');
+    return{name:(parts[0]||'').trim(),score:parseInt((parts[1]||'0').trim())||0};
+  }).filter(s=>s.name):[];
+
+  // Parse picks: "PlayerName: Pick1, Pick2, ..." per line
+  const picks=picksRaw?picksRaw.split('\n').map(l=>{
+    const colon=l.indexOf(':');
+    if(colon<0)return null;
+    const name=l.slice(0,colon).trim();
+    const playerPicks=l.slice(colon+1).split(',').map(p=>p.trim()).filter(Boolean);
+    return{name,picks:playerPicks};
+  }).filter(Boolean):[];
+
+  // Parse deaths: "Name, Age, Date, Points" per line
+  const deaths=deathsRaw?deathsRaw.split('\n').map(l=>{
+    const parts=l.split(',');
+    return{
+      name:(parts[0]||'').trim(),
+      age:parseInt((parts[1]||'0').trim())||0,
+      date:(parts[2]||'').trim(),
+      points:parseInt((parts[3]||'0').trim())||0,
+    };
+  }).filter(d=>d.name):[];
+
+  const archiveData={
+    year,
+    winner,
+    winnerScore,
+    finalScores,
+    picks,
+    deaths,
+    notes,
+    playerCount:finalScores.length||picks.length,
+    manual:true,
+    archivedAt:new Date().toISOString(),
+  };
+
+  try{
+    await fsAdd('archive',archiveData);
+    // Clear form
+    ['manarc-year','manarc-winner','manarc-score','manarc-scores','manarc-picks','manarc-deaths','manarc-notes'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.value='';
+    });
+    showAlert('manarc-alert',`${year} season added to history.`,'s');
+    buildArchiveListAdmin();
+  }catch(e){showAlert('manarc-alert','Failed to save. Try again.','e');}
+}
+
+// LIST EXISTING ARCHIVES IN ADMIN
+async function buildArchiveListAdmin(){
+  const el=document.getElementById('archive-list-admin');
+  if(!el)return;
+  el.innerHTML=`<div style="font-size:0.54rem;color:var(--muted);padding:10px 0"><span class="spin"></span></div>`;
+  try{
+    const archives=await fsCol('archive');
+    archives.sort((a,b)=>(b.year||0)-(a.year||0));
+    if(!archives.length){
+      el.innerHTML=`<div style="padding:18px;background:var(--ash);border:1px solid var(--gray);font-size:0.56rem;color:var(--muted);text-align:center;letter-spacing:0.1em">No archived seasons yet.</div>`;
+      return;
+    }
+    el.innerHTML=archives.map(a=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;font-size:0.6rem">
+        <div>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.06em;margin-right:12px">${a.year}</span>
+          <span style="color:var(--muted);font-size:0.52rem">🏆 ${a.winner||'—'} · ${a.winnerScore||0}pts · ${a.deaths?.length||0} deaths</span>
+          ${a.manual?`<span style="margin-left:8px;font-size:0.44rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:1px 5px">Manual</span>`:''}
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteArchive('${a.id}','${a.year}')">Delete</button>
+      </div>`).join('');
+  }catch(e){el.innerHTML=`<div class="alert ae">Failed to load.</div>`;}
+}
+
+async function deleteArchive(id,year){
+  if(!confirm(`Delete the ${year} history entry? This cannot be undone.`))return;
+  await fsDel(`archive/${id}`);
+  buildArchiveListAdmin();
+}
+
+// GAME SETTINGS
+function buildGameSettings(){
+  document.getElementById('gs-year').value=gameSettings.year||'';
+  document.getElementById('gs-start').value=gameSettings.startDate||'';
+  document.getElementById('gs-end').value=gameSettings.endDate||'';
+  document.getElementById('gs-fee').value=gameSettings.entryFee||'£10';
+  document.getElementById('gs-checked').value=gameSettings.lastChecked||'';
+  buildRulesEditor();
+}
+
+async function saveGameSettings(){
+  const d={
+    year:document.getElementById('gs-year').value.trim(),
+    startDate:document.getElementById('gs-start').value,
+    endDate:document.getElementById('gs-end').value,
+    entryFee:document.getElementById('gs-fee').value.trim(),
+    lastChecked:document.getElementById('gs-checked').value.trim(),
+  };
+  try{
+    await fsSet('config/game',d);
+    gameSettings={...gameSettings,...d};
+    showAlert('gs-alert','Settings saved.','s');
+  }catch(e){showAlert('gs-alert','Failed to save.','e');}
+}
+
+// RULES EDITOR
+function buildRulesEditor(){
+  const ed=document.getElementById('rules-editor');
+  if(!ed)return;
+  ed.innerHTML=currentRules.map((r,i)=>`
+    <div style="display:grid;grid-template-columns:1fr auto auto;gap:5px;margin-bottom:4px;align-items:start">
+      <div>
+        <input type="text" id="re-title-${i}" value="${r.title.replace(/"/g,'&quot;')}" placeholder="Rule title" style="width:100%;background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:6px 9px;outline:none;margin-bottom:3px">
+        <textarea id="re-text-${i}" placeholder="Rule text" style="width:100%;background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:6px 9px;outline:none;resize:vertical;min-height:54px;line-height:1.6">${r.text}</textarea>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeRuleEditor(${i})" style="margin-top:0">×</button>
+    </div>`).join('');
+}
+
+function addRuleEditor(){
+  currentRules.push({title:'New Rule',text:'Rule text here.',order:currentRules.length+1});
+  buildRulesEditor();
+}
+function removeRuleEditor(i){
+  currentRules.splice(i,1);
+  buildRulesEditor();
+}
+
+async function saveRules(){
+  const newRules=[];
+  for(let i=0;i<currentRules.length;i++){
+    const title=document.getElementById(`re-title-${i}`)?.value.trim();
+    const text=document.getElementById(`re-text-${i}`)?.value.trim();
+    if(title)newRules.push({title,text:text||'',order:i+1});
+  }
+  try{
+    // Delete old rules
+    const oldRules=await fsCol('rules');
+    const batch=writeBatch(db);
+    oldRules.forEach(r=>batch.delete(doc(db,'rules',r.id)));
+    newRules.forEach((r,i)=>batch.set(doc(collection(db,'rules')),r));
+    await batch.commit();
+    currentRules=newRules.map((r,i)=>({...r,id:`new-${i}`}));
+    showAlert('rules-save-alert','Rules saved.','s');
+  }catch(e){showAlert('rules-save-alert','Failed to save rules.','e');}
+}
+
+// DATA EXPORT
+async function exportData(){
+  const data={
+    gameSettings,
+    players:allPlayers.map(p=>({name:p.name,role:p.role,picks:p.picks,reserves:p.reserves})),
+    deaths:allDeaths,
+    rules:currentRules,
+    exported:new Date().toISOString(),
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`deadly-dozen-${gameSettings.year||'2026'}-backup.json`;
+  a.click();
+}
+
+// ════════════════════════════════════════
+// EXPOSE TO HTML
+// ════════════════════════════════════════
+window.doLogin=doLogin;
+window.doLogout=doLogout;
+window.showPage=showPage;
+window.openLoginModal=openLoginModal;
+window.closeLoginModal=closeLoginModal;
+window.saveMyPicks=saveMyPicks;
+window.clearMyPicks=clearMyPicks;
+window.clearSlot=clearSlot;
+window.updateSlot=updateSlot;
+window.addReserve=addReserve;
+window.deleteReserve=deleteReserve;
+window.switchResTab=switchResTab;
+window.switchAdminTab=switchAdminTab;
+window.recordDeath=recordDeath;
+window.undoDeath=undoDeath;
+window.addPlayer=addPlayer;
+window.adminResetPw=adminResetPw;
+window.setLock=setLock;
+window.createFutureGame=createFutureGame;
+window.deleteFutureGame=deleteFutureGame;
+window.toggleFuturePlayer=toggleFuturePlayer;
+window.addFgRule=addFgRule;
+window.saveFgRules=saveFgRules;
+window.removeFgRule=removeFgRule;
+window.archiveSeason=archiveSeason;
+window.addManualArchive=addManualArchive;
+window.deleteArchive=deleteArchive;
+window.saveGameSettings=saveGameSettings;
+window.saveDisplayName=saveDisplayName;
+window.changePassword=changePassword;
+window.addRuleEditor=addRuleEditor;
+window.removeRuleEditor=removeRuleEditor;
+window.saveRules=saveRules;
+window.exportData=exportData;
+window.toggleHistory=toggleHistory;
+
+// ════════════════════════════════════════
+// START
+// ════════════════════════════════════════
+init().catch(e=>{
+  console.error(e);
+  document.getElementById('loading-screen').innerHTML=`<div style="text-align:center;padding:40px"><div style="font-size:2rem;margin-bottom:16px">⚠</div><div style="font-size:0.6rem;letter-spacing:0.2em;color:#e88">Failed to connect to database.<br>Check your Firebase configuration.</div></div>`;
+});
+</script>
+</body>
+</html>
