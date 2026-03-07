@@ -770,14 +770,21 @@ const fsDel = (path) => deleteDoc(doc(db, ...path.split('/')));
 // INIT / SEED
 // ════════════════════════════════════════
 async function init() {
-  // Check if settings exist; if not, seed
+  // Check if settings exist; if not, attempt seed (only works before rules locked)
   let settings = await fsGet('config/game');
   if (!settings) {
-    await seedInitialData();
-    settings = await fsGet('config/game');
+    try {
+      await seedInitialData();
+      settings = await fsGet('config/game');
+    } catch(e) {
+      console.warn('Seed skipped (rules locked, DB likely already seeded):', e.message);
+      settings = await fsGet('config/game');
+    }
   }
+  if (!settings) throw new Error('Could not load game settings');
   gameSettings = settings;
-  allPlayers = await fsCol('players');
+  const pr = await cfCall('getPlayers', {});
+  allPlayers = pr.players;
   allDeaths = await fsCol('deaths');
   currentRules = await fsCol('rules');
   currentRules.sort((a,b) => (a.order||0) - (b.order||0));
@@ -875,20 +882,25 @@ async function doLogin() {
   btn.innerHTML = '<span class="spin"></span> Signing in...';
 
   try {
-    const players = await fsCol('players');
-    const player = players.find(p => p.name.toLowerCase() === name.toLowerCase() && p.password === pass);
-    if (!player) {
-      showAlert('login-alert','Incorrect name or password.','e');
+    const res = await fetch(`${CF_BASE}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      showAlert('login-alert', data.error || 'Incorrect name or password.', 'e');
       btn.disabled = false; btn.textContent = 'Enter the Pool';
       return;
     }
-    currentUser = player;
-    allPlayers = players;
-    sessionStorage.setItem('dd26_user', JSON.stringify(player));
+    currentUser = data.player;
+    // Merge password-free player into allPlayers
+    const idx = allPlayers.findIndex(p => p.id === data.player.id);
+    if (idx >= 0) allPlayers[idx] = { ...allPlayers[idx], ...data.player };
+    sessionStorage.setItem('dd26_user', JSON.stringify(data.player));
     closeLoginModal();
     updateNavState();
     buildFooter();
-    // Refresh current page to show auth content
     buildPage(currentPage);
   } catch(e) {
     showAlert('login-alert','Connection error. Please try again.','e');
@@ -1359,14 +1371,11 @@ async function changePassword(){
   const cur=document.getElementById('pw-cur').value;
   const nw=document.getElementById('pw-new').value;
   const con=document.getElementById('pw-con').value;
-  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
-  if(me.password!==cur){showAlert('pw-alert','Current password is incorrect.','e');return;}
+  if(currentUser.password!==cur){showAlert('pw-alert','Current password is incorrect.','e');return;}
   if(nw.length<6){showAlert('pw-alert','New password must be at least 6 characters.','e');return;}
   if(nw!==con){showAlert('pw-alert','Passwords do not match.','e');return;}
   try{
     await fsSet(`players/${currentUser.id}`,{password:nw});
-    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
-    if(idx>=0)allPlayers[idx]={...allPlayers[idx],password:nw};
     currentUser={...currentUser,password:nw};
     sessionStorage.setItem('dd26_user',JSON.stringify(currentUser));
     document.getElementById('pw-cur').value='';
