@@ -1759,6 +1759,9 @@ async function buildArchiveListAdmin(){
           <div class="field" style="margin:0 0 8px"><label>Deaths (one per line: Name, Age, Date, Points)</label>
             <textarea id="ea-deaths-${a.id}" style="min-height:80px">${(a.deaths||[]).map(d=>`${d.name}, ${d.age||''}, ${d.date||''}, ${d.points||0}`).join('\n')}</textarea>
           </div>
+          <div class="field" style="margin:0 0 8px"><label>Picks (one per line: PlayerName: Pick1, Pick2, ...)</label>
+            <textarea id="ea-picks-${a.id}" style="min-height:100px">${(a.picks||[]).map(pp=>`${pp.name}: ${(pp.picks||[]).join(', ')}`).join('\n')}</textarea>
+          </div>
           <div class="field" style="margin:0 0 12px"><label>Notes</label>
             <input type="text" id="ea-notes-${a.id}" value="${(a.notes||'').replace(/"/g,'&quot;')}">
           </div>
@@ -1783,6 +1786,7 @@ async function saveArchiveEdit(id){
   const winnerScore=parseInt(document.getElementById(`ea-score-${id}`).value)||0;
   const scoresRaw=document.getElementById(`ea-scores-${id}`).value.trim();
   const deathsRaw=document.getElementById(`ea-deaths-${id}`).value.trim();
+  const picksRaw=document.getElementById(`ea-picks-${id}`).value.trim();
   const notes=document.getElementById(`ea-notes-${id}`).value.trim();
   const alertEl=document.getElementById(`edit-alert-${id}`);
 
@@ -1808,8 +1812,16 @@ async function saveArchiveEdit(id){
     };
   }).filter(d=>d.name):[];
 
+  const picks=picksRaw?picksRaw.split('\n').filter(l=>l.trim()).map(l=>{
+    const colon=l.indexOf(':');
+    if(colon<0)return null;
+    const name=l.slice(0,colon).trim();
+    const playerPicks=l.slice(colon+1).split(',').map(p=>p.trim()).filter(Boolean);
+    return{name,picks:playerPicks};
+  }).filter(Boolean):[];
+
   try{
-    await cfCall('updateArchive',{id, data:{year,winner,winnerScore,finalScores,deaths,notes}});
+    await cfCall('updateArchive',{id, data:{year,winner,winnerScore,finalScores,deaths,picks,notes}});
     alertEl.style.display='block';
     alertEl.className='alert ag';
     alertEl.textContent='Saved.';
