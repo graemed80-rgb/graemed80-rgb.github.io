@@ -1715,7 +1715,7 @@ async function archiveSeason(){
     winnerScore:topScore,
     finalScores:sp.map(p=>({name:p.name,score:getScore(p)})),
     picks:allPlayers.map(p=>({name:p.name,picks:p.picks||[]})),
-    deaths:allDeaths,
+    deaths:allDeaths.map(d=>({...d, date:d.date?fmtDate(d.date):''})),
     rules:currentRules,
     manual:false,
   };
@@ -1762,10 +1762,11 @@ async function addManualArchive(){
   // Parse deaths: "Name, Age, Date, Points" per line
   const deaths=deathsRaw?deathsRaw.split('\n').map(l=>{
     const parts=l.split(',');
+    const rawDate=(parts[2]||'').trim();
     return{
       name:(parts[0]||'').trim(),
       age:parseInt((parts[1]||'0').trim())||0,
-      date:(parts[2]||'').trim(),
+      date:rawDate?fmtDate(rawDate):'',
       points:parseInt((parts[3]||'0').trim())||0,
     };
   }).filter(d=>d.name):[];
@@ -1879,10 +1880,11 @@ async function saveArchiveEdit(id){
 
   const deaths=deathsRaw?deathsRaw.split('\n').filter(l=>l.trim()).map(l=>{
     const parts=l.split(',');
+    const rawDate=(parts[2]||'').trim();
     return{
       name:(parts[0]||'').trim(),
       age:parseInt((parts[1]||'0').trim())||0,
-      date:(parts[2]||'').trim(),
+      date:rawDate?fmtDate(rawDate):'',
       points:parseInt((parts[3]||'0').trim())||0,
     };
   }).filter(d=>d.name):[];
