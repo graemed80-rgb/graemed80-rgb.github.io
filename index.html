@@ -409,6 +409,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
       <div id="nav-loggedin">
         <div class="nav-uname">Hi <b id="nav-uname-text"></b></div>
+        <button id="nav-admin-btn" class="btn-nav" onclick="showPage('admin')" style="display:none">Admin</button>
         <button class="btn-nav" onclick="showPage('settings')">Settings</button>
         <button class="btn-nav" onclick="doLogout()">Sign Out</button>
       </div>
@@ -424,7 +425,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <li><a onclick="showPage('stats')" data-page="stats" class="nav-auth">Stats</a></li>
       <li><a onclick="showPage('history')" data-page="history">History</a></li>
       <li><a onclick="showPage('rules')" data-page="rules">Rules</a></li>
-      <li id="nav-admin-li" style="display:none"><a onclick="showPage('admin')" data-page="admin">Admin</a></li>
     </ul>
   </div>
   </div>
@@ -951,7 +951,7 @@ function updateNavState() {
   document.querySelectorAll('.nav-auth').forEach(el => {
     el.style.display = loggedIn ? 'block' : 'none';
   });
-  document.getElementById('nav-admin-li').style.display = (loggedIn && currentUser.role === 'admin') ? 'block' : 'none';
+  document.getElementById('nav-admin-btn').style.display = (loggedIn && currentUser.role === 'admin') ? 'inline-flex' : 'none';
   document.getElementById('nav-loggedout').style.display = loggedIn ? 'none' : 'flex';
   document.getElementById('nav-loggedin').style.display = loggedIn ? 'flex' : 'none';
   if (loggedIn) document.getElementById('nav-uname-text').textContent = currentUser.name;
