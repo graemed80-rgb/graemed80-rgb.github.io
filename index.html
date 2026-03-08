@@ -1140,7 +1140,7 @@ function buildScoreboard() {
     {l:'Entry Fee',  v: gameSettings.entryFee||'£10'},
     {l:'Prize Pot',  v: pot},
     {l:'Deaths',     v: allDeaths.length},
-    {l:'Last Checked', v: gameSettings.lastChecked||'—'},
+    {l:'Last Checked', v: fmtDate(gameSettings.lastChecked)||'—'},
   ];
   document.getElementById('game-info-grid').innerHTML = infoItems.map(item=>
     `<div class="gi-cell"><div class="gi-label">${item.l}</div><div class="gi-value">${item.v}</div></div>`
