@@ -666,7 +666,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         </div>
         <div class="field"><label>Final Scores (one per line: Name, Score)</label><textarea id="manarc-scores" placeholder="Graeme, 42&#10;Gill, 35&#10;Brian, 28" style="min-height:90px"></textarea></div>
         <div class="field"><label>Picks (one per line: PlayerName: Pick1, Pick2, ...)</label><textarea id="manarc-picks" placeholder="Graeme: Keith Richards, Mick Jagger, ...&#10;Gill: Paul McCartney, ..." style="min-height:90px"></textarea></div>
-        <div class="field"><label>Deaths (one per line: Name, Age, Date, Points)</label><textarea id="manarc-deaths" placeholder="Jimmy White, 82, 2024-03-15, 18&#10;Jean-Paul Belmondo, 88, 2024-06-02, 12" style="min-height:90px"></textarea></div>
+        <div class="field"><label>Deaths (one per line: Name, Age, Date, Points)</label><textarea id="manarc-deaths" placeholder="Jimmy White, 82, 15/03/2024, 18&#10;Jean-Paul Belmondo, 88, 02/06/2024, 12" style="min-height:90px"></textarea></div>
         <div class="field"><label>Notes (optional — shown as a summary)</label><input type="text" id="manarc-notes" placeholder="e.g. First ever Deadly Dozen game. 6 players."></div>
         <button class="btn btn-gold" onclick="addManualArchive()">Add to History</button>
       </div>
@@ -682,10 +682,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <div class="acard-title">📅 Game Window</div>
           <div id="gs-alert" style="display:none"></div>
           <div class="field"><label>Current Year</label><input type="text" id="gs-year" placeholder="2026"></div>
-          <div class="field"><label>Start Date</label><input type="date" id="gs-start"></div>
-          <div class="field"><label>End Date</label><input type="date" id="gs-end"></div>
+          <div class="field"><label>Start Date</label><input type="text" id="gs-start" placeholder="01/01/2026"></div>
+          <div class="field"><label>End Date</label><input type="text" id="gs-end" placeholder="25/12/2026"></div>
           <div class="field"><label>Entry Fee</label><input type="text" id="gs-fee" placeholder="£10"></div>
-          <div class="field"><label>Last Checked</label><input type="text" id="gs-checked" placeholder="04 Mar 2026"></div>
+          <div class="field"><label>Last Checked</label><input type="text" id="gs-checked" placeholder="04/03/2026"></div>
           <button class="btn btn-primary btn-full" onclick="saveGameSettings()">Save Settings</button>
         </div>
         <div class="acard">
@@ -820,7 +820,7 @@ async function seedInitialData() {
     startDate: '2026-01-01',
     endDate: '2026-12-25',
     entryFee: '£10',
-    lastChecked: '04 Mar 2026',
+    lastChecked: '04/03/2026',
     picksLocked: false
   });
 
@@ -1583,8 +1583,8 @@ async function buildFutureGames(){
       <div id="fg-alert" style="display:none"></div>
       <div class="grid-3">
         <div class="field"><label>Year</label><input type="text" id="fg-year" placeholder="2027"></div>
-        <div class="field"><label>Start Date</label><input type="date" id="fg-start"></div>
-        <div class="field"><label>End Date</label><input type="date" id="fg-end"></div>
+        <div class="field"><label>Start Date</label><input type="text" id="fg-start" placeholder="01/01/2027"></div>
+        <div class="field"><label>End Date</label><input type="text" id="fg-end" placeholder="25/12/2027"></div>
       </div>
       <div class="grid-2">
         <div class="field"><label>Entry Fee</label><input type="text" id="fg-fee" placeholder="£10"></div>
@@ -1623,8 +1623,8 @@ async function buildFutureGames(){
 
 async function createFutureGame(){
   const year=document.getElementById('fg-year').value.trim();
-  const start=document.getElementById('fg-start').value;
-  const end=document.getElementById('fg-end').value;
+  const start=fmtDate(document.getElementById('fg-start').value.trim());
+  const end=fmtDate(document.getElementById('fg-end').value.trim());
   const fee=document.getElementById('fg-fee').value.trim()||'£10';
   const picks=parseInt(document.getElementById('fg-picks').value)||12;
   const scoring=document.getElementById('fg-scoring').value.trim()||'100 - age';
@@ -1833,7 +1833,7 @@ async function buildArchiveListAdmin(){
             <textarea id="ea-scores-${a.id}" style="min-height:80px">${(a.finalScores||[]).map(s=>`${s.name}, ${s.score}`).join('\n')}</textarea>
           </div>
           <div class="field" style="margin:0 0 8px"><label>Deaths (one per line: Name, Age, Date, Points)</label>
-            <textarea id="ea-deaths-${a.id}" style="min-height:80px">${(a.deaths||[]).map(d=>`${d.name}, ${d.age||''}, ${d.date||''}, ${d.points||0}`).join('\n')}</textarea>
+            <textarea id="ea-deaths-${a.id}" style="min-height:80px">${(a.deaths||[]).map(d=>`${d.name}, ${d.age||''}, ${d.date?fmtDate(d.date):''}, ${d.points||0}`).join('\n')}</textarea>
           </div>
           <div class="field" style="margin:0 0 8px"><label>Picks (one per line: PlayerName: Pick1, Pick2, ...)</label>
             <textarea id="ea-picks-${a.id}" style="min-height:100px">${(a.picks||[]).map(pp=>`${pp.name}: ${(pp.picks||[]).join(', ')}`).join('\n')}</textarea>
@@ -1921,20 +1921,20 @@ async function deleteArchive(id,year){
 // GAME SETTINGS
 function buildGameSettings(){
   document.getElementById('gs-year').value=gameSettings.year||'';
-  document.getElementById('gs-start').value=gameSettings.startDate||'';
-  document.getElementById('gs-end').value=gameSettings.endDate||'';
+  document.getElementById('gs-start').value=fmtDate(gameSettings.startDate)||'';
+  document.getElementById('gs-end').value=fmtDate(gameSettings.endDate)||'';
   document.getElementById('gs-fee').value=gameSettings.entryFee||'£10';
-  document.getElementById('gs-checked').value=gameSettings.lastChecked||'';
+  document.getElementById('gs-checked').value=fmtDate(gameSettings.lastChecked)||'';
   buildRulesEditor();
 }
 
 async function saveGameSettings(){
   const d={
     year:document.getElementById('gs-year').value.trim(),
-    startDate:document.getElementById('gs-start').value,
-    endDate:document.getElementById('gs-end').value,
+    startDate:fmtDate(document.getElementById('gs-start').value.trim()),
+    endDate:fmtDate(document.getElementById('gs-end').value.trim()),
     entryFee:document.getElementById('gs-fee').value.trim(),
-    lastChecked:document.getElementById('gs-checked').value.trim(),
+    lastChecked:fmtDate(document.getElementById('gs-checked').value.trim()),
   };
   try{
     await cfCall('saveGameSettings',{settings:d});
