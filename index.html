@@ -666,7 +666,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         </div>
         <div class="field"><label>Final Scores (one per line: Name, Score)</label><textarea id="manarc-scores" placeholder="Graeme, 42&#10;Gill, 35&#10;Brian, 28" style="min-height:90px"></textarea></div>
         <div class="field"><label>Picks (one per line: PlayerName: Pick1, Pick2, ...)</label><textarea id="manarc-picks" placeholder="Graeme: Keith Richards, Mick Jagger, ...&#10;Gill: Paul McCartney, ..." style="min-height:90px"></textarea></div>
-        <div class="field"><label>Deaths (one per line: Name, Age, Date, Points)</label><textarea id="manarc-deaths" placeholder="Jimmy White, 82, 15/03/2024, 18&#10;Jean-Paul Belmondo, 88, 02/06/2024, 12" style="min-height:90px"></textarea></div>
+        <div class="field"><label>Deaths (one per line: Name, Age, Date, Points)</label><textarea id="manarc-deaths" placeholder="Jimmy White, 82, 15 Mar 2024, 18&#10;Jean-Paul Belmondo, 88, 2 Jun 2024, 12" style="min-height:90px"></textarea></div>
         <div class="field"><label>Notes (optional — shown as a summary)</label><input type="text" id="manarc-notes" placeholder="e.g. First ever Deadly Dozen game. 6 players."></div>
         <button class="btn btn-gold" onclick="addManualArchive()">Add to History</button>
       </div>
@@ -682,10 +682,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <div class="acard-title">📅 Game Window</div>
           <div id="gs-alert" style="display:none"></div>
           <div class="field"><label>Current Year</label><input type="text" id="gs-year" placeholder="2026"></div>
-          <div class="field"><label>Start Date</label><input type="text" id="gs-start" placeholder="01/01/2026"></div>
-          <div class="field"><label>End Date</label><input type="text" id="gs-end" placeholder="25/12/2026"></div>
+          <div class="field"><label>Start Date</label><input type="text" id="gs-start" placeholder="1 Jan 2026"></div>
+          <div class="field"><label>End Date</label><input type="text" id="gs-end" placeholder="25 Dec 2026"></div>
           <div class="field"><label>Entry Fee</label><input type="text" id="gs-fee" placeholder="£10"></div>
-          <div class="field"><label>Last Checked</label><input type="text" id="gs-checked" placeholder="04/03/2026"></div>
+          <div class="field"><label>Last Checked</label><input type="text" id="gs-checked" placeholder="4 Mar 2026"></div>
           <button class="btn btn-primary btn-full" onclick="saveGameSettings()">Save Settings</button>
         </div>
         <div class="acard">
@@ -820,7 +820,7 @@ async function seedInitialData() {
     startDate: '2026-01-01',
     endDate: '2026-12-25',
     entryFee: '£10',
-    lastChecked: '04/03/2026',
+    lastChecked: '4 Mar 2026',
     picksLocked: false
   });
 
@@ -998,24 +998,31 @@ function pickCounts() {
 }
 function fmtDate(str) {
   if (!str) return '—';
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   try {
     // Handle Firestore Timestamp objects
     if (str && typeof str === 'object' && str.seconds) {
       const dt = new Date(str.seconds * 1000);
-      return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+      return `${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
     }
     const s = String(str).trim();
-    // YYYY-MM-DD or YYYY/MM/DD — parse manually to avoid timezone shift
+    // YYYY-MM-DD or YYYY/MM/DD input
     const iso = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
     if (iso) {
       const [,y,m,d] = iso;
-      return `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+      return `${parseInt(d)} ${MONTHS[parseInt(m)-1]} ${y}`;
     }
-    // DD/MM/YYYY already formatted
-    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
+    // DD/MM/YYYY
+    const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (dmy) {
+      const [,d,m,y] = dmy;
+      return `${parseInt(d)} ${MONTHS[parseInt(m)-1]} ${y}`;
+    }
+    // Already "D Mon YYYY" format
+    if (/^\d{1,2} [A-Za-z]{3} \d{4}$/.test(s)) return s;
     // Fallback
     const dt = new Date(s);
-    if (!isNaN(dt)) return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+    if (!isNaN(dt)) return `${dt.getDate()} ${MONTHS[dt.getMonth()]} ${dt.getFullYear()}`;
     return s;
   } catch { return String(str); }
 }
@@ -1583,8 +1590,8 @@ async function buildFutureGames(){
       <div id="fg-alert" style="display:none"></div>
       <div class="grid-3">
         <div class="field"><label>Year</label><input type="text" id="fg-year" placeholder="2027"></div>
-        <div class="field"><label>Start Date</label><input type="text" id="fg-start" placeholder="01/01/2027"></div>
-        <div class="field"><label>End Date</label><input type="text" id="fg-end" placeholder="25/12/2027"></div>
+        <div class="field"><label>Start Date</label><input type="text" id="fg-start" placeholder="1 Jan 2027"></div>
+        <div class="field"><label>End Date</label><input type="text" id="fg-end" placeholder="25 Dec 2027"></div>
       </div>
       <div class="grid-2">
         <div class="field"><label>Entry Fee</label><input type="text" id="fg-fee" placeholder="£10"></div>
