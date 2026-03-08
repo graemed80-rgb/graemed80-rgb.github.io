@@ -2,7 +2,7 @@
   "name": "Deadly Dozen 2026",
   "short_name": "Deadly Dozen",
   "description": "Official Deadly Dozen celebrity death pool game portal",
-  "start_url": "./deadly-dozen.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

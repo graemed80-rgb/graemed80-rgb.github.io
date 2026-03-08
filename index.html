@@ -999,20 +999,25 @@ function pickCounts() {
 function fmtDate(str) {
   if (!str) return '—';
   try {
-    const parts = String(str).split(/[-\/]/);
-    if (parts.length === 3) {
-      const [y, m, d] = parts.map(Number);
-      if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
-        return `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
-      }
-    }
-    // Fallback for ISO strings with time component
-    const dt = new Date(str);
-    if (!isNaN(dt)) {
+    // Handle Firestore Timestamp objects
+    if (str && typeof str === 'object' && str.seconds) {
+      const dt = new Date(str.seconds * 1000);
       return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
     }
-    return str;
-  } catch { return str; }
+    const s = String(str).trim();
+    // YYYY-MM-DD or YYYY/MM/DD — parse manually to avoid timezone shift
+    const iso = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+    if (iso) {
+      const [,y,m,d] = iso;
+      return `${String(d).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+    }
+    // DD/MM/YYYY already formatted
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) return s;
+    // Fallback
+    const dt = new Date(s);
+    if (!isNaN(dt)) return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+    return s;
+  } catch { return String(str); }
 }
 function hideLoading() {
   const ls = document.getElementById('loading-screen');
