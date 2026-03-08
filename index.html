@@ -221,10 +221,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .resitem:hover{border-color:var(--gray2);}
 .res-name{font-size:0.68rem;letter-spacing:0.03em;}
 .res-notes{font-size:0.48rem;color:var(--muted);margin-top:2px;letter-spacing:0.04em;}
-.ybadge{font-size:0.46rem;letter-spacing:0.14em;text-transform:uppercase;padding:2px 7px;border:1px solid;}
-.ybadge.y2027{color:var(--gold);border-color:rgba(201,168,76,0.28);background:rgba(201,168,76,0.07);}
-.ybadge.y2028{color:#7eb8c9;border-color:rgba(126,184,201,0.26);background:rgba(126,184,201,0.06);}
-.ybadge.y2029{color:#a88fd4;border-color:rgba(168,143,212,0.26);background:rgba(168,143,212,0.06);}
+
 
 /* ══ STATS ══ */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:3px;margin-bottom:24px;}
@@ -322,7 +319,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* RESPONSIVE GRID HELPERS */
-.res-form{display:grid;grid-template-columns:1fr 100px 1fr auto;gap:8px;align-items:end;}
+.res-form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;}
 .res-add-btn{white-space:nowrap;align-self:end;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -360,10 +357,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   .fr{grid-template-columns:1fr 58px;}
   .frbg{display:none;}
   /* Reserves form */
-  .res-form{grid-template-columns:1fr 90px;}
-  .res-form .field:first-child{grid-column:1/-1;}
-  .res-form .field:nth-child(3){grid-column:1/2;}
-  .res-add-btn{grid-column:2/3;grid-row:3;}
+  .res-form{grid-template-columns:1fr;}
+  .res-form .field{grid-column:1/-1;}
+  .res-add-btn{grid-column:1/-1;}
   /* Responsive grids */
   .grid-3{grid-template-columns:1fr 1fr;}
   .grid-2{grid-template-columns:1fr;}
@@ -424,7 +420,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <li><a onclick="showPage('scoreboard')" data-page="scoreboard">Scoreboard</a></li>
       <li><a onclick="showPage('allpicks')" data-page="allpicks" class="nav-auth">Picks</a></li>
       <li><a onclick="showPage('mypicks')" data-page="mypicks" class="nav-auth">My Picks</a></li>
-      <li><a onclick="showPage('reserves')" data-page="reserves" class="nav-auth">Reserves</a></li>
+      <li><a onclick="showPage('reserves')" data-page="reserves" class="nav-auth">Planning</a></li>
       <li><a onclick="showPage('stats')" data-page="stats" class="nav-auth">Stats</a></li>
       <li><a onclick="showPage('history')" data-page="history">History</a></li>
       <li><a onclick="showPage('rules')" data-page="rules">Rules</a></li>
@@ -509,6 +505,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Your Selections</div><div class="page-title">My Picks</div><div class="divider"></div><div class="muted" id="mypicks-sub">Enter your 12 celebrity picks.</div></div><br>
     <div id="mypicks-locked-note" class="alert ag" style="display:none">🔒 Picks are locked. Contact Graeme to request a change.</div>
     <div id="mypicks-alert" style="display:none"></div>
+    <datalist id="mypicks-datalist"></datalist>
     <div class="picks-meta">Filled: <b id="picks-count">0</b> / 12</div>
     <div id="picks-editor"></div>
     <div id="mypicks-btns" style="display:flex;gap:8px;flex-wrap:wrap">
@@ -521,24 +518,42 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- ══ RESERVES ══ -->
 <div class="page" id="page-reserves">
   <div class="container">
-    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Future Games</div><div class="page-title">My Reserves</div><div class="divider"></div><div class="muted">Build your shortlist for future years. Only you can see this.</div></div><br>
-    <div class="panel" style="border-top:2px solid var(--blood)">
-      <div class="panel-title">Add Reserve</div>
-      <div id="reserve-alert" style="display:none"></div>
-      <div class="res-form">
-        <div class="field" style="margin:0"><label>Celebrity</label><input type="text" id="res-name" placeholder="e.g. Keith Richards" onkeydown="if(event.key==='Enter')addReserve()"></div>
-        <div class="field" style="margin:0"><label>Year</label><select id="res-year"><option>2027</option><option>2028</option><option>2029</option></select></div>
-        <div class="field" style="margin:0"><label>Notes</label><input type="text" id="res-notes" placeholder="Age, notes..."></div>
-        <button class="btn btn-primary res-add-btn" onclick="addReserve()">+ Add</button>
+    <div style="animation:fd 0.5s ease both"><div class="eyebrow">Future Games</div><div class="page-title">Planning</div><div class="divider"></div><div class="muted">Plan your picks for future years. Only you can see this.</div></div><br>
+
+    <!-- Year tabs -->
+    <div class="tabs" id="planning-year-tabs">
+      <button class="tab active" onclick="switchPlanTab('2027',this)">2027</button>
+      <button class="tab" onclick="switchPlanTab('2028',this)">2028</button>
+      <button class="tab" onclick="switchPlanTab('2029',this)">2029</button>
+      <button class="tab" onclick="switchPlanTab('reserves',this)">📋 Reserve Bank</button>
+    </div>
+
+    <!-- Planning slots panel -->
+    <div id="plan-panel">
+      <div id="plan-alert" style="display:none"></div>
+      <div class="picks-meta" id="plan-count-bar">Planned: <b id="plan-count">0</b> / 12</div>
+      <datalist id="reserves-datalist"></datalist>
+      <div id="plan-slots-editor"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn btn-primary" onclick="savePlanningPicks()">Save Plan</button>
+        <button class="btn btn-ghost" onclick="clearPlanningPicks()">Clear All</button>
       </div>
     </div>
-    <div class="tabs">
-      <button class="tab active" onclick="switchResTab('2027',this)">2027</button>
-      <button class="tab" onclick="switchResTab('2028',this)">2028</button>
-      <button class="tab" onclick="switchResTab('2029',this)">2029</button>
-      <button class="tab" onclick="switchResTab('all',this)">All</button>
+
+    <!-- Reserve Bank panel -->
+    <div id="reserve-bank-panel" style="display:none">
+      <div class="panel" style="border-top:2px solid var(--blood);margin-bottom:14px">
+        <div class="panel-title">Add to Reserve Bank</div>
+        <div id="reserve-alert" style="display:none"></div>
+        <div class="res-form">
+          <div class="field" style="margin:0"><label>Celebrity</label><input type="text" id="res-name" placeholder="e.g. Keith Richards" onkeydown="if(event.key==='Enter')addReserve()"></div>
+          <div class="field" style="margin:0"><label>Notes</label><input type="text" id="res-notes" placeholder="Age, notes..."></div>
+          <button class="btn btn-primary res-add-btn" onclick="addReserve()">+ Add</button>
+        </div>
+      </div>
+      <div id="reserve-list"></div>
     </div>
-    <div id="reserve-list"></div>
+
   </div>
 </div>
 
@@ -627,13 +642,18 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <button class="btn btn-primary btn-full" onclick="addPlayer()">Add Player</button>
         </div>
         <div class="acard">
-          <div class="acard-title">🔑 Reset Password</div>
+          <div class="acard-title">⚙ Manage Player</div>
           <div id="rp-alert" style="display:none"></div>
-          <div class="field"><label>Player</label><select id="rp-player"></select></div>
+          <div class="field"><label>Player</label><select id="rp-player" onchange="onPlayerSelect()"></select></div>
           <div class="field"><label>New Password</label><input type="text" id="rp-pass" placeholder="New password"></div>
-          <button class="btn btn-ghost btn-full" onclick="adminResetPw()">Reset Password</button>
-          <div style="margin-top:16px;padding-top:13px;border-top:1px solid var(--gray)">
-            <div class="acard-title" style="margin-bottom:9px">🔒 Lock / Unlock Picks</div>
+          <div class="field"><label>Role</label><select id="rp-role"><option value="player">Player</option><option value="admin">Admin</option></select></div>
+          <div class="field"><label>Picks</label><select id="rp-lock"><option value="unlocked">🔓 Picks Unlocked</option><option value="locked">🔒 Picks Locked</option></select></div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn btn-ghost btn-sm" onclick="adminResetPw()">Save Changes</button>
+            <button class="btn btn-danger btn-sm" onclick="adminArchivePlayer()">Archive Player</button>
+          </div>
+          <div style="padding-top:13px;border-top:1px solid var(--gray)">
+            <div class="acard-title" style="margin-bottom:9px">🔒 Global Lock</div>
             <div style="display:flex;gap:8px;margin-bottom:9px"><button class="btn btn-danger btn-sm" onclick="setLock(true)">Lock All</button><button class="btn btn-ghost btn-sm" onclick="setLock(false)">Unlock All</button></div>
             <div id="lock-status" style="font-size:0.52rem;color:var(--muted);letter-spacing:0.09em"></div>
           </div>
@@ -737,7 +757,7 @@ let gameSettings = {};
 let allPlayers = [];
 let allDeaths = [];
 let currentRules = [];
-let resTab = '2027';
+let planTab = '2027';
 let adminTab = 'deaths';
 
 // ════════════════════════════════════════
@@ -799,7 +819,7 @@ async function init() {
   currentRules.sort((a,b) => (a.order||0) - (b.order||0));
 
   // Check session
-  const sess = sessionStorage.getItem('dd26_user');
+  const sess = localStorage.getItem('dd26_user');
   if (sess) {
     try { currentUser = JSON.parse(sess); } catch {}
   }
@@ -906,7 +926,7 @@ async function doLogin() {
     // Merge password-free player into allPlayers
     const idx = allPlayers.findIndex(p => p.id === data.player.id);
     if (idx >= 0) allPlayers[idx] = { ...allPlayers[idx], ...data.player };
-    sessionStorage.setItem('dd26_user', JSON.stringify(data.player));
+    localStorage.setItem('dd26_user', JSON.stringify(data.player));
     closeLoginModal();
     updateNavState();
     buildFooter();
@@ -919,7 +939,7 @@ async function doLogin() {
 
 function doLogout() {
   currentUser = null;
-  sessionStorage.removeItem('dd26_user');
+  localStorage.removeItem('dd26_user');
   updateNavState();
   buildFooter();
   showPage('home');
@@ -1040,7 +1060,7 @@ function buildFooter() {
     {id:'scoreboard', label:'Scoreboard', pub:true},
     {id:'allpicks', label:'Picks', pub:false},
     {id:'mypicks', label:'My Picks', pub:false},
-    {id:'reserves', label:'Reserves', pub:false},
+    {id:'reserves', label:'Planning', pub:false},
     {id:'stats', label:'Stats', pub:false},
     {id:'history', label:'History', pub:true},
     {id:'rules', label:'Rules', pub:true},
@@ -1173,9 +1193,23 @@ function buildAllPicks() {
 // MY PICKS
 // ════════════════════════════════════════
 function buildMyPicks() {
-  const locked = gameSettings.picksLocked;
+  const locked = gameSettings.picksLocked || (allPlayers.find(p=>p.id===currentUser.id)||currentUser).picksLocked;
   const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
-  const picks = me.picks||[];
+  let picks = me.picks||[];
+
+  // Auto-import planned picks for current game year if picks are empty
+  const gameYear = String(gameSettings.year||'2026');
+  if (!picks.filter(Boolean).length) {
+    const planned = (me.plannedPicks||{})[gameYear]||[];
+    if (planned.length) {
+      picks = planned;
+      showAlert('mypicks-alert', `Your ${gameYear} planned picks have been loaded. Review and save to confirm.`, 's');
+    }
+  }
+
+  // Populate reserve bank datalist
+  updateReservesDatalist('mypicks-datalist');
+
   document.getElementById('mypicks-locked-note').style.display = locked?'block':'none';
   document.getElementById('mypicks-btns').style.display = locked?'none':'flex';
   const ed = document.getElementById('picks-editor');
@@ -1185,7 +1219,7 @@ function buildMyPicks() {
     const slot=document.createElement('div');
     slot.className=`pslot${v?' f':' e'}`;
     slot.id=`pslot-${i}`;
-    slot.innerHTML=`<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="sinput-${i}" type="text" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." ${locked?'disabled':''} oninput="updateSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('sinput-${i+1}').focus()}">${locked?'':'<button class="sclear" onclick="clearSlot('+i+')">×</button>'}`;
+    slot.innerHTML=`<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="sinput-${i}" type="text" list="mypicks-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." ${locked?'disabled':''} oninput="updateSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('sinput-${i+1}').focus()}">${locked?'':'<button class="sclear" onclick="clearSlot('+i+')">×</button>'}`;
     ed.appendChild(slot);
   }
   updatePicksCount();
@@ -1222,63 +1256,155 @@ async function saveMyPicks() {
     const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
     if(idx>=0)allPlayers[idx]={...allPlayers[idx],picks};
     currentUser={...currentUser,picks};
-    sessionStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    localStorage.setItem('dd26_user',JSON.stringify(currentUser));
     showAlert('mypicks-alert',`Saved ${picks.length} pick${picks.length!==1?'s':''}.`,'s');
     buildMyPicks();
   } catch(e){ showAlert('mypicks-alert','Failed to save. Please try again.','e'); }
 }
 
 // ════════════════════════════════════════
-// RESERVES
+// PLANNING & RESERVE BANK
 // ════════════════════════════════════════
-function buildReserves() { renderResList(); }
-function switchResTab(yr,btn){
-  resTab=yr;
-  document.querySelectorAll('#page-reserves .tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  renderResList();
+
+function buildReserves() {
+  planTab = '2027';
+  document.querySelectorAll('#planning-year-tabs .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  renderPlanningTab();
 }
 
-function renderResList(){
-  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
-  const all=(me.reserves||[]);
-  const filtered=resTab==='all'?all:all.filter(r=>r.year===resTab);
-  const list=document.getElementById('reserve-list');
-  if(!filtered.length){
-    list.innerHTML=`<div style="padding:28px;text-align:center;font-size:0.58rem;color:var(--muted);background:var(--ash);border:1px solid var(--gray);letter-spacing:0.1em">No reserves for ${resTab==='all'?'any year':resTab} yet.</div>`;
+function switchPlanTab(yr, btn) {
+  planTab = yr;
+  document.querySelectorAll('#planning-year-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderPlanningTab();
+}
+
+function renderPlanningTab() {
+  const planPanel = document.getElementById('plan-panel');
+  const bankPanel = document.getElementById('reserve-bank-panel');
+  if (planTab === 'reserves') {
+    planPanel.style.display = 'none';
+    bankPanel.style.display = 'block';
+    renderResList();
+  } else {
+    planPanel.style.display = 'block';
+    bankPanel.style.display = 'none';
+    renderPlanSlots();
+  }
+}
+
+function getReserveNames() {
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  return (me.reserves||[]).map(r=>r.name);
+}
+
+function updateReservesDatalist(datalistId) {
+  const dl = document.getElementById(datalistId);
+  if (!dl) return;
+  const names = getReserveNames();
+  dl.innerHTML = names.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+}
+
+function renderPlanSlots() {
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const planned = (me.plannedPicks||{})[planTab] || [];
+  updateReservesDatalist('reserves-datalist');
+  const ed = document.getElementById('plan-slots-editor');
+  ed.innerHTML = '';
+  for (let i=0; i<12; i++) {
+    const v = planned[i] || '';
+    const slot = document.createElement('div');
+    slot.className = `pslot${v?' f':' e'}`;
+    slot.id = `pplan-${i}`;
+    slot.innerHTML = `<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="pplaninput-${i}" type="text" list="reserves-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." oninput="updatePlanSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('pplaninput-${i+1}').focus()}"><button class="sclear" onclick="clearPlanSlot(${i})">×</button>`;
+    ed.appendChild(slot);
+  }
+  updatePlanCount();
+}
+
+function updatePlanSlot(i) {
+  const v = (document.getElementById(`pplaninput-${i}`)?.value||'').trim();
+  const s = document.getElementById(`pplan-${i}`);
+  if (s) s.className = `pslot${v?' f':' e'}`;
+  updatePlanCount();
+}
+
+function updatePlanCount() {
+  let c = 0;
+  for (let i=0; i<12; i++) if ((document.getElementById(`pplaninput-${i}`)?.value||'').trim()) c++;
+  const el = document.getElementById('plan-count');
+  if (el) el.textContent = c;
+}
+
+function clearPlanSlot(i) {
+  const el = document.getElementById(`pplaninput-${i}`);
+  if (el) el.value = '';
+  updatePlanSlot(i);
+}
+
+function clearPlanningPicks() { for (let i=0; i<12; i++) clearPlanSlot(i); }
+
+async function savePlanningPicks() {
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const picks = [];
+  for (let i=0; i<12; i++) {
+    const v = (document.getElementById(`pplaninput-${i}`)?.value||'').trim();
+    if (v) picks.push(v);
+  }
+  const plannedPicks = {...(me.plannedPicks||{})};
+  plannedPicks[planTab] = picks;
+  try {
+    await fsSet(`players/${currentUser.id}`, {plannedPicks});
+    const idx = allPlayers.findIndex(p=>p.id===currentUser.id);
+    if (idx>=0) allPlayers[idx] = {...allPlayers[idx], plannedPicks};
+    showAlert('plan-alert', `${planTab} plan saved — ${picks.length} pick${picks.length!==1?'s':''}.`, 's');
+  } catch(e) { showAlert('plan-alert', 'Failed to save. Try again.', 'e'); }
+}
+
+// Reserve Bank (year-free list)
+function renderResList() {
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const reserves = me.reserves||[];
+  const list = document.getElementById('reserve-list');
+  if (!reserves.length) {
+    list.innerHTML = `<div style="padding:28px;text-align:center;font-size:0.58rem;color:var(--muted);background:var(--ash);border:1px solid var(--gray);letter-spacing:0.1em">Your reserve bank is empty. Add names to use as suggestions when planning.</div>`;
     return;
   }
-  list.innerHTML=filtered.map((r,i)=>`<div class="resitem" style="animation-delay:${i*0.04}s"><div><div class="res-name">${r.name}</div>${r.notes?`<div class="res-notes">${r.notes}</div>`:''}</div><span class="ybadge y${r.year}">${r.year}</span><button class="btn btn-danger btn-sm" onclick="deleteReserve('${r.id}')">Remove</button></div>`).join('');
+  list.innerHTML = reserves.map((r,i)=>`<div class="resitem" style="animation-delay:${i*0.04}s"><div><div class="res-name">${r.name}</div>${r.notes?`<div class="res-notes">${r.notes}</div>`:''}</div><button class="btn btn-danger btn-sm" onclick="deleteReserve('${r.id}')">Remove</button></div>`).join('');
 }
 
-async function addReserve(){
-  const name=document.getElementById('res-name').value.trim();
-  const year=document.getElementById('res-year').value;
-  const notes=document.getElementById('res-notes').value.trim();
-  if(!name){showAlert('reserve-alert','Please enter a celebrity name.','e');return;}
-  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
-  const reserves=[...(me.reserves||[])];
-  if(reserves.find(r=>r.name.toLowerCase()===name.toLowerCase()&&r.year===year)){showAlert('reserve-alert',`${name} is already in your ${year} reserves.`,'e');return;}
-  const newRes={id:Date.now().toString(),name,year,notes,added:new Date().toISOString()};
+async function addReserve() {
+  const name = document.getElementById('res-name').value.trim();
+  const notes = document.getElementById('res-notes').value.trim();
+  if (!name) { showAlert('reserve-alert','Please enter a celebrity name.','e'); return; }
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const reserves = [...(me.reserves||[])];
+  if (reserves.find(r=>r.name.toLowerCase()===name.toLowerCase())) { showAlert('reserve-alert',`${name} is already in your reserve bank.`,'e'); return; }
+  const newRes = {id:Date.now().toString(), name, notes, added:new Date().toISOString()};
   reserves.push(newRes);
-  try{
-    await fsSet(`players/${currentUser.id}`,{reserves});
-    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
-    if(idx>=0)allPlayers[idx]={...allPlayers[idx],reserves};
-    document.getElementById('res-name').value='';
-    document.getElementById('res-notes').value='';
-    document.getElementById('reserve-alert').style.display='none';
+  try {
+    await fsSet(`players/${currentUser.id}`, {reserves});
+    const idx = allPlayers.findIndex(p=>p.id===currentUser.id);
+    if (idx>=0) allPlayers[idx] = {...allPlayers[idx], reserves};
+    document.getElementById('res-name').value = '';
+    document.getElementById('res-notes').value = '';
+    document.getElementById('reserve-alert').style.display = 'none';
     renderResList();
-  }catch(e){showAlert('reserve-alert','Failed to save. Try again.','e');}
+    // Refresh datalists so new name appears immediately
+    updateReservesDatalist('reserves-datalist');
+    updateReservesDatalist('mypicks-datalist');
+  } catch(e) { showAlert('reserve-alert','Failed to save. Try again.','e'); }
 }
 
-async function deleteReserve(rid){
-  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
-  const reserves=(me.reserves||[]).filter(r=>r.id!==rid);
-  await fsSet(`players/${currentUser.id}`,{reserves});
-  const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
-  if(idx>=0)allPlayers[idx]={...allPlayers[idx],reserves};
+async function deleteReserve(rid) {
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const reserves = (me.reserves||[]).filter(r=>r.id!==rid);
+  await fsSet(`players/${currentUser.id}`, {reserves});
+  const idx = allPlayers.findIndex(p=>p.id===currentUser.id);
+  if (idx>=0) allPlayers[idx] = {...allPlayers[idx], reserves};
   renderResList();
+  updateReservesDatalist('reserves-datalist');
+  updateReservesDatalist('mypicks-datalist');
 }
 
 // ════════════════════════════════════════
@@ -1445,7 +1571,7 @@ async function saveDisplayName(){
     const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
     if(idx>=0)allPlayers[idx]={...allPlayers[idx],name};
     currentUser={...currentUser,name};
-    sessionStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    localStorage.setItem('dd26_user',JSON.stringify(currentUser));
     document.getElementById('nav-uname-text').textContent=name;
     showAlert('settings-alert','Name updated.','s');
   }catch(e){showAlert('settings-alert','Failed to update.','e');}
@@ -1460,7 +1586,7 @@ async function changePassword(){
   try{
     await fsSet(`players/${currentUser.id}`,{password:nw});
     currentUser={...currentUser,password:nw};
-    sessionStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    localStorage.setItem('dd26_user',JSON.stringify(currentUser));
     document.getElementById('pw-cur').value='';
     document.getElementById('pw-new').value='';
     document.getElementById('pw-con').value='';
@@ -1538,8 +1664,27 @@ function buildPlayersAdmin(){
   const sel=document.getElementById('rp-player');
   sel.innerHTML=allPlayers.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
   document.getElementById('lock-status').textContent=gameSettings.picksLocked?'🔒 Picks are LOCKED':'🔓 Picks are UNLOCKED';
+  onPlayerSelect();
   const list=document.getElementById('player-list-admin');
-  list.innerHTML=allPlayers.map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;font-size:0.6rem"><span>${p.name} <span style="font-size:0.48rem;color:var(--muted);margin-left:6px">${p.role||'player'}</span></span><span style="color:var(--muted);font-size:0.54rem">${(p.picks||[]).filter(Boolean).length}/12 picks</span></div>`).join('');
+  list.innerHTML=allPlayers.map(p=>{
+    const pickCount=(p.picks||[]).filter(Boolean).length;
+    const isLocked=p.picksLocked||gameSettings.picksLocked;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;font-size:0.6rem">
+      <span>${p.name} <span style="font-size:0.48rem;color:var(--muted);margin-left:6px">${p.role||'player'}</span></span>
+      <span style="display:flex;align-items:center;gap:10px">
+        <span style="color:var(--muted);font-size:0.54rem">${pickCount}/12 picks</span>
+        <span style="font-size:0.48rem;color:${isLocked?'var(--red)':'var(--green)'}">${isLocked?'🔒 locked':'🔓 unlocked'}</span>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function onPlayerSelect(){
+  const pid=document.getElementById('rp-player').value;
+  const p=allPlayers.find(x=>x.id===pid);
+  if(!p)return;
+  document.getElementById('rp-role').value=p.role||'player';
+  document.getElementById('rp-lock').value=(p.picksLocked||gameSettings.picksLocked)?'locked':'unlocked';
 }
 
 async function addPlayer(){
@@ -1561,13 +1706,29 @@ async function addPlayer(){
 async function adminResetPw(){
   const pid=document.getElementById('rp-player').value;
   const pass=document.getElementById('rp-pass').value.trim();
-  if(!pass){showAlert('rp-alert','Enter a new password.','e');return;}
+  const role=document.getElementById('rp-role').value;
+  const picksLocked=document.getElementById('rp-lock').value==='locked';
+  const idx=allPlayers.findIndex(p=>p.id===pid);
   try{
-    await cfCall('resetPassword',{playerId:pid,password:pass});
-    const idx=allPlayers.findIndex(p=>p.id===pid);
-    if(idx>=0)allPlayers[idx]={...allPlayers[idx],password:pass};
+    if(pass) await cfCall('resetPassword',{playerId:pid,password:pass});
+    await cfCall('updatePlayer',{playerId:pid,updates:{role,picksLocked}});
+    if(idx>=0) allPlayers[idx]={...allPlayers[idx],role,picksLocked,...(pass?{password:pass}:{})};
     document.getElementById('rp-pass').value='';
-    showAlert('rp-alert','Password updated.','s');
+    showAlert('rp-alert','Player updated.','s');
+    buildPlayersAdmin();
+  }catch(e){showAlert('rp-alert','Failed: '+e.message,'e');}
+}
+
+async function adminArchivePlayer(){
+  const pid=document.getElementById('rp-player').value;
+  const p=allPlayers.find(x=>x.id===pid);
+  if(!p)return;
+  if(!confirm(`Archive ${p.name}? They will be removed from the active player list but their data is preserved.`))return;
+  try{
+    await cfCall('updatePlayer',{playerId:pid,updates:{archived:true}});
+    allPlayers=allPlayers.filter(x=>x.id!==pid);
+    showAlert('rp-alert',`${p.name} archived.`,'s');
+    buildPlayersAdmin();
   }catch(e){showAlert('rp-alert','Failed: '+e.message,'e');}
 }
 
@@ -1576,6 +1737,7 @@ async function setLock(locked){
     await cfCall('setPicksLock',{locked});
     gameSettings={...gameSettings,picksLocked:locked};
     document.getElementById('lock-status').textContent=locked?'🔒 Picks are LOCKED':'🔓 Picks are UNLOCKED';
+    buildPlayersAdmin();
   }catch(e){alert('Failed: '+e.message);}
 }
 
@@ -1609,9 +1771,21 @@ async function buildFutureGames(){
             <div class="fg-title" style="margin:0">${fg.year} — ${fg.entryFee||'£10'} entry · ${fg.picksPerPlayer||12} picks</div>
             <button class="btn btn-danger btn-sm" onclick="deleteFutureGame('${fg.id}','${fg.year}')">Delete</button>
           </div>
-          <div class="muted" style="margin-bottom:11px">Start: ${fmtDate(fg.startDate)} · End: ${fmtDate(fg.endDate)} · Scoring: ${fg.scoring||'100 - age'}</div>
+          <div class="muted" style="margin-bottom:11px">Start: ${fg.startDate?fmtDate(fg.startDate):'—'} · End: ${fg.endDate?fmtDate(fg.endDate):'—'} · Scoring: ${fg.scoring||'100 - age'}</div>
           <div class="sec-title" style="font-size:1rem;margin-bottom:5px">Players (${(fg.players||[]).length})</div>
-          ${allPlayers.map(p=>`<div class="psrow ${(fg.players||[]).includes(p.id)?'pf':'pe'}">${p.name}<div style="display:flex;gap:6px;margin-left:auto"><button class="btn btn-sm ${(fg.players||[]).includes(p.id)?'btn-danger':'btn-ghost'}" onclick="toggleFuturePlayer('${fg.id}','${p.id}','${(fg.players||[]).includes(p.id)}')">${(fg.players||[]).includes(p.id)?'Remove':'Add'}</button></div></div>`).join('')}
+          ${allPlayers.map(p=>{
+            const inGame=(fg.players||[]).includes(p.id);
+            const planned=((p.plannedPicks||{})[fg.year]||[]);
+            return `<div class="psrow ${inGame?'pf':'pe'}">
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                  <span>${p.name}</span>
+                  <button class="btn btn-sm ${inGame?'btn-danger':'btn-ghost'}" onclick="toggleFuturePlayer('${fg.id}','${p.id}','${inGame}')">${inGame?'Remove':'Add'}</button>
+                </div>
+                ${planned.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px">${planned.map(pk=>`<span style="font-size:0.46rem;background:var(--dark);border:1px solid var(--gray);padding:2px 7px;color:#aaa;letter-spacing:0.05em">${pk}</span>`).join('')}</div>`:`<div style="font-size:0.48rem;color:var(--muted);margin-top:4px;letter-spacing:0.07em">No ${fg.year} plan saved yet</div>`}
+              </div>
+            </div>`;
+          }).join('')}
           <div class="sec-title" style="font-size:1rem;margin:12px 0 5px">Rules</div>
           <div class="muted" style="margin-bottom:8px">Custom rules for ${fg.year}. Leave empty to use current rules.</div>
           <div id="fg-rules-${fg.id}">${(fg.rules||[]).map((r,ri)=>`<div style="display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:4px"><input type="text" value="${r.title}: ${r.text}" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:6px 9px;outline:none" id="fgr-${fg.id}-${ri}"><button class="btn btn-danger btn-sm" onclick="removeFgRule('${fg.id}',${ri})">×</button></div>`).join('')}</div>
@@ -1637,7 +1811,7 @@ async function createFutureGame(){
   const scoring=document.getElementById('fg-scoring').value.trim()||'100 - age';
   if(!year){showAlert('fg-alert','Please enter a year.','e');return;}
   try{
-    await cfCall('saveFutureGame',{data:{year,startDate:start,endDate:end,entryFee:fee,picksPerPlayer:picks,scoring,players:[],rules:[]}});
+    await cfCall('saveFutureGame',{id:String(year),data:{year,startDate:start,endDate:end,entryFee:fee,picksPerPlayer:picks,scoring,players:[],rules:[]}});
     buildFutureGames();
   }catch(e){showAlert('fg-alert','Failed to create: '+e.message,'e');}
 }
@@ -1662,6 +1836,7 @@ async function toggleFuturePlayer(fgId,pid,isIn){
     buildFutureGames();
   }catch(e){alert('Failed: '+e.message);}
 }
+
 
 async function addFgRule(fgId){
   const inp=document.getElementById(`fg-newrule-${fgId}`);
@@ -2018,12 +2193,18 @@ window.clearSlot=clearSlot;
 window.updateSlot=updateSlot;
 window.addReserve=addReserve;
 window.deleteReserve=deleteReserve;
-window.switchResTab=switchResTab;
+window.switchPlanTab=switchPlanTab;
+window.savePlanningPicks=savePlanningPicks;
+window.clearPlanningPicks=clearPlanningPicks;
+window.updatePlanSlot=updatePlanSlot;
+window.clearPlanSlot=clearPlanSlot;
 window.switchAdminTab=switchAdminTab;
 window.recordDeath=recordDeath;
 window.undoDeath=undoDeath;
 window.addPlayer=addPlayer;
 window.adminResetPw=adminResetPw;
+window.adminArchivePlayer=adminArchivePlayer;
+window.onPlayerSelect=onPlayerSelect;
 window.setLock=setLock;
 window.createFutureGame=createFutureGame;
 window.deleteFutureGame=deleteFutureGame;
