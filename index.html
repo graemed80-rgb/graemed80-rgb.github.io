@@ -222,6 +222,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .sclear{background:none;border:none;color:var(--gray2);cursor:pointer;font-size:0.85rem;padding:2px 3px;transition:color 0.2s;}
 .sclear:hover{color:var(--red);}
 .sbadge{font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;border:1px solid;white-space:nowrap;}
+.active-pending{border-color:var(--muted)!important;color:var(--bone)!important;}
 .sbadge.sp{color:var(--muted);border-color:var(--gray);}
 .sbadge.sv{color:var(--green);border-color:rgba(39,174,96,0.35);background:rgba(39,174,96,0.08);}
 .sbadge.sr{color:var(--red);border-color:rgba(224,80,80,0.35);background:rgba(224,80,80,0.08);}
@@ -1299,7 +1300,9 @@ function buildMyPicks() {
     // Show status badges only when reviewed, highlight replace slots
     const hasReview = reviewStatus==='reviewed' && v;
     const slotClass = locked ? (v?'f':'e') : (hasReview && st==='replace' ? 'sr' : (v?'f':'e'));
-    const badgeHtml = hasReview ? `<span class="sbadge ${st==='verified'?'sv':st==='replace'?'sr':'sp'}">${st==='verified'?'✓ Verified':st==='replace'?'✗ Replace':'⏳ Pending'}</span>` : '';
+    const badgeClass = hasReview ? (st==='verified'?'sv':st==='replace'?'sr':'sp') : 'sp';
+    const badgeText = hasReview ? (st==='verified'?'✓ Verified':st==='replace'?'✗ Replace':'⏳ Pending') : '';
+    const badgeHtml = `<span class="sbadge ${badgeClass}" style="${hasReview?'':'visibility:hidden'}">${badgeText || '⏳ Pending'}</span>`;
     const slot=document.createElement('div');
     slot.className=`pslot ${slotClass}`;
     slot.id=`pslot-${i}`;
@@ -2022,12 +2025,12 @@ function renderAdminPicksReview(p) {
 
   listEl.innerHTML = picks.map((pk, i) => {
     const st = pickStatuses[i]||'pending';
-    return `<div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--gray)">
+    return `<div id="admin-pick-row-${i}" style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--gray)">
       <div style="font-size:0.6rem;letter-spacing:0.04em">${String(i+1).padStart(2,'0')}. ${pk}</div>
       <div style="display:flex;gap:5px">
-        <button class="btn btn-sm ${st==='verified'?'btn-gold':''}" onclick="setPickStatus('${p.id}',${i},'verified')" title="Verify">✓</button>
-        <button class="btn btn-sm ${st==='replace'?'btn-danger':''}" onclick="setPickStatus('${p.id}',${i},'replace')" title="Needs replacing">✗</button>
-        <button class="btn btn-sm ${st==='pending'?'btn-ghost':''}" onclick="setPickStatus('${p.id}',${i},'pending')" title="Reset to pending">—</button>
+        <button class="btn btn-sm apick-btn-v ${st==='verified'?'btn-gold':'btn-ghost'}" onclick="setPickStatus('${p.id}',${i},'verified')" title="Verify">✓</button>
+        <button class="btn btn-sm apick-btn-r ${st==='replace'?'btn-danger':'btn-ghost'}" onclick="setPickStatus('${p.id}',${i},'replace')" title="Needs replacing">✗</button>
+        <button class="btn btn-sm apick-btn-p ${st==='pending'?'btn-ghost active-pending':'btn-ghost'}" onclick="setPickStatus('${p.id}',${i},'pending')" title="Reset to pending">—</button>
       </div>
     </div>`;
   }).join('');
@@ -2040,7 +2043,13 @@ function setPickStatus(pid, idx, status) {
   pickStatuses[idx] = status;
   const playerIdx = allPlayers.findIndex(x=>x.id===pid);
   if (playerIdx>=0) allPlayers[playerIdx] = {...allPlayers[playerIdx], pickStatuses};
-  renderAdminPicksReview(allPlayers[playerIdx]);
+
+  // Update button styles in-place — no full rebuild
+  const row = document.getElementById(`admin-pick-row-${idx}`);
+  if (!row) return;
+  row.querySelector('.apick-btn-v').className = `btn btn-sm apick-btn-v ${status==='verified'?'btn-gold':'btn-ghost'}`;
+  row.querySelector('.apick-btn-r').className = `btn btn-sm apick-btn-r ${status==='replace'?'btn-danger':'btn-ghost'}`;
+  row.querySelector('.apick-btn-p').className = `btn btn-sm apick-btn-p ${status==='pending'?'btn-ghost active-pending':'btn-ghost'}`;
 }
 
 async function adminSavePickReview() {
