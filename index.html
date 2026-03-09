@@ -540,7 +540,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div id="mypicks-submit-wrap" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray)">
       <div style="font-size:0.56rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:10px">When you're happy with your picks, submit them for Graeme to review before the season begins.</div>
       <div id="mypicks-review-status" style="margin-bottom:10px"></div>
-      <button id="mypicks-submit-btn" class="btn btn-gold" onclick="submitPicksForReview()">Submit for Review</button>
+      <button id="mypicks-submit-btn" class="btn btn-gold">Submit for Review</button>
     </div>
   </div>
 </div>
@@ -2616,6 +2616,7 @@ window.saveMyPicks=saveMyPicks;
 window.clearMyPicks=clearMyPicks;
 window.clearSlot=clearSlot;
 window.submitPicksForReview=submitPicksForReview;
+document.getElementById('mypicks-submit-btn').addEventListener('click', submitPicksForReview);
 window.updateSlot=updateSlot;
 window.addReserve=addReserve;
 window.deleteReserve=deleteReserve;
