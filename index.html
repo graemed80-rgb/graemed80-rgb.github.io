@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#1a1a1a">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Deadly Dozen">
@@ -871,7 +872,7 @@ async function init() {
   const pr = await cfCall('getPlayers', {});
   allPlayers = pr.players;
   allDeaths = await fsCol('deaths');
-  allNotableDeaths = await fsCol('notableDeaths');
+  try { allNotableDeaths = await fsCol('notableDeaths'); } catch(e) { allNotableDeaths = []; }
   currentRules = await fsCol('rules');
   currentRules.sort((a,b) => (a.order||0) - (b.order||0));
 
@@ -1848,6 +1849,8 @@ async function sendDeathNoticeEmails(death){
     await cfCall('sendDeathNotice',{death,standings});
   }catch(e){ console.warn('Email notification failed:',e.message); }
 }
+
+function buildDeathLog(){
   const log=document.getElementById('death-log');
   if(!allDeaths.length){log.innerHTML=`<div style="padding:18px;background:var(--ash);border:1px solid var(--gray);font-size:0.56rem;color:var(--muted);text-align:center;letter-spacing:0.1em">No deaths recorded yet.</div>`;return;}
   log.innerHTML=[...allDeaths].reverse().map((d,i)=>`<div class="dli" style="animation-delay:${i*0.03}s"><div><div class="dli-n">${d.name}</div><div class="dli-m">Picked by: ${d.pickedBy?.join(', ')||'nobody'} · ${fmtDate(d.date)} · Age ${d.age}</div></div><div class="dli-p">+${d.points}</div><button class="btn btn-danger btn-sm" onclick="undoDeath('${d.id}','${d.name}')">Undo</button></div>`).join('');
