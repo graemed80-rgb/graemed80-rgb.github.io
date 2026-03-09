@@ -1273,7 +1273,6 @@ function buildMyPicks() {
   let picks = me.picks||[];
   const reviewStatus = me.picksReviewStatus||'draft';
   const pickStatuses = me.pickStatuses||[];
-  const submitted = reviewStatus === 'submitted' || reviewStatus === 'reviewed';
 
   // Auto-import planned picks for current game year if picks are empty
   const gameYear = String(gameSettings.year||'2026');
@@ -1289,24 +1288,27 @@ function buildMyPicks() {
   updateReservesDatalist('mypicks-datalist');
 
   document.getElementById('mypicks-locked-note').style.display = locked?'block':'none';
-  document.getElementById('mypicks-btns').style.display = (locked||submitted)?'none':'flex';
+  // Always show save/clear buttons unless globally locked
+  document.getElementById('mypicks-btns').style.display = locked?'none':'flex';
 
   const ed = document.getElementById('picks-editor');
   ed.innerHTML = '';
   for(let i=0;i<12;i++){
     const v=picks[i]||'';
     const st=pickStatuses[i]||'pending';
-    const slotClass = submitted ? (st==='verified'?'sv':st==='replace'?'sr':'f') : (v?'f':'e');
-    const badgeHtml = submitted && v ? `<span class="sbadge ${st==='verified'?'sv':st==='replace'?'sr':'sp'}">${st==='verified'?'✓ Verified':st==='replace'?'✗ Replace':'⏳ Pending'}</span>` : '';
+    // Show status badges only when reviewed, highlight replace slots
+    const hasReview = reviewStatus==='reviewed' && v;
+    const slotClass = locked ? (v?'f':'e') : (hasReview && st==='replace' ? 'sr' : (v?'f':'e'));
+    const badgeHtml = hasReview ? `<span class="sbadge ${st==='verified'?'sv':st==='replace'?'sr':'sp'}">${st==='verified'?'✓ Verified':st==='replace'?'✗ Replace':'⏳ Pending'}</span>` : '';
     const slot=document.createElement('div');
     slot.className=`pslot ${slotClass}`;
     slot.id=`pslot-${i}`;
-    slot.innerHTML=`<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="sinput-${i}" type="text" list="mypicks-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." ${locked||submitted?'disabled':''} oninput="updateSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('sinput-${i+1}').focus()}">${badgeHtml}${(!locked&&!submitted)?'<button class="sclear" onclick="clearSlot('+i+')">×</button>':''}`;
+    slot.innerHTML=`<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="sinput-${i}" type="text" list="mypicks-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." ${locked?'disabled':''} oninput="updateSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('sinput-${i+1}').focus()}">${badgeHtml}${!locked?'<button class="sclear" onclick="clearSlot('+i+')">×</button>':''}`;
     ed.appendChild(slot);
   }
   updatePicksCount();
 
-  // Submit for review section
+  // Submit / review status section
   const submitWrap = document.getElementById('mypicks-submit-wrap');
   const reviewStatusEl = document.getElementById('mypicks-review-status');
   const submitBtn = document.getElementById('mypicks-submit-btn');
@@ -1315,15 +1317,14 @@ function buildMyPicks() {
   if (!locked && hasPicks) {
     submitWrap.style.display = 'block';
     if (reviewStatus === 'submitted') {
-      reviewStatusEl.innerHTML = `<div class="review-banner submitted">⏳ Picks submitted — awaiting review by Graeme.</div>`;
-      submitBtn.style.display = 'none';
+      reviewStatusEl.innerHTML = `<div class="review-banner submitted">⏳ Picks submitted — awaiting review by Graeme. You can still edit and resubmit.</div>`;
+      submitBtn.style.display = 'inline-flex';
+      submitBtn.textContent = 'Resubmit for Review';
     } else if (reviewStatus === 'reviewed') {
       const needsReplace = pickStatuses.some(s=>s==='replace');
-      reviewStatusEl.innerHTML = `<div class="review-banner reviewed">${needsReplace ? '⚠ Review complete — some picks need replacing. Edit and resubmit.' : '✓ All picks verified by Graeme.'}</div>`;
-      submitBtn.textContent = needsReplace ? 'Resubmit for Review' : 'Resubmit for Review';
-      submitBtn.style.display = needsReplace ? 'inline-flex' : 'none';
-      // Re-enable editing if replacements needed
-      if (needsReplace) document.getElementById('mypicks-btns').style.display = 'flex';
+      reviewStatusEl.innerHTML = `<div class="review-banner reviewed">${needsReplace ? '⚠ Some picks need replacing — edit them above and resubmit.' : '✓ All picks verified by Graeme.'}</div>`;
+      submitBtn.style.display = 'inline-flex';
+      submitBtn.textContent = 'Resubmit for Review';
     } else {
       reviewStatusEl.innerHTML = '';
       submitBtn.style.display = 'inline-flex';
@@ -1359,11 +1360,17 @@ async function saveMyPicks() {
     const v=(document.getElementById(`sinput-${i}`)?.value||'').trim();
     if(v)picks.push(v);
   }
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  // Only reset review status if picks have actually changed
+  const prevPicks=me.picks||[];
+  const picksChanged=JSON.stringify(picks)!==JSON.stringify(prevPicks);
+  const newStatus=picksChanged?'draft':(me.picksReviewStatus||'draft');
+  const newStatuses=picksChanged?[]:(me.pickStatuses||[]);
   try {
-    await fsSet(`players/${currentUser.id}`,{picks, picksReviewStatus:'draft', pickStatuses:[]});
+    await fsSet(`players/${currentUser.id}`,{picks, picksReviewStatus:newStatus, pickStatuses:newStatuses});
     const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
-    if(idx>=0)allPlayers[idx]={...allPlayers[idx],picks,picksReviewStatus:'draft',pickStatuses:[]};
-    currentUser={...currentUser,picks,picksReviewStatus:'draft',pickStatuses:[]};
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],picks,picksReviewStatus:newStatus,pickStatuses:newStatuses};
+    currentUser={...currentUser,picks,picksReviewStatus:newStatus,pickStatuses:newStatuses};
     localStorage.setItem('dd26_user',JSON.stringify(currentUser));
     showAlert('mypicks-alert',`Saved ${picks.length} pick${picks.length!==1?'s':''}.`,'s');
     buildMyPicks();
@@ -1374,7 +1381,6 @@ async function submitPicksForReview() {
   const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
   const picks = me.picks||[];
   if (!picks.filter(Boolean).length) { showAlert('mypicks-alert','Save your picks first.','e'); return; }
-  if (!confirm('Submit your picks for Graeme to review?\n\nYou won\'t be able to edit them until the review is complete.')) return;
   try {
     const pickStatuses = picks.map(()=>'pending');
     await fsSet(`players/${currentUser.id}`, {picksReviewStatus:'submitted', pickStatuses});
@@ -1804,10 +1810,17 @@ function switchAdminTab(tab,btn){
 
 function refreshAdminTab(tab){
   if(tab==='deaths'){buildDeathLog();buildNotableLog();}
-  if(tab==='players')buildPlayersAdmin();
+  if(tab==='players') refreshPlayersFromServer().then(()=>buildPlayersAdmin());
   if(tab==='future')buildFutureGames();
   if(tab==='archive')buildArchiveListAdmin();
   if(tab==='gamesettings')buildGameSettings();
+}
+
+async function refreshPlayersFromServer(){
+  try{
+    const pr = await cfCall('getPlayers',{});
+    allPlayers = pr.players;
+  }catch(e){ console.warn('Could not refresh players:',e.message); }
 }
 
 // DEATHS
