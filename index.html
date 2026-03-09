@@ -133,6 +133,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .news-hdr{padding:12px 17px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
 .news-hdr span{color:var(--bone);}
 .obit{background:var(--ash);border:1px solid var(--gray);padding:19px 20px 17px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
+.notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
+.notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
+.notable-meta{font-size:0.52rem;color:var(--muted);margin-top:3px;letter-spacing:0.05em;}
+.notable-note{font-size:0.52rem;color:#aaa;margin-top:4px;font-style:italic;}
+.no-notable{padding:22px;text-align:center;font-size:0.54rem;color:var(--muted);letter-spacing:0.09em;}
 .obit:hover{border-color:var(--gray2);}
 .obit::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blood);}
 .obit-date{font-size:0.48rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
@@ -203,9 +208,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .stag{margin-left:auto;font-size:0.4rem;letter-spacing:0.12em;text-transform:uppercase;background:rgba(192,57,43,0.09);color:var(--blood);border:1px solid rgba(192,57,43,0.2);padding:1px 4px;}
 
 /* ══ MY PICKS ══ */
-.pslot{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:8px 12px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;transition:border-color 0.2s;}
+.pslot{display:grid;grid-template-columns:30px 1fr auto auto;gap:8px;align-items:center;padding:8px 12px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;transition:border-color 0.2s;}
 .pslot.f{border-left:3px solid var(--blood);}
 .pslot.e{border-left:3px solid var(--gray);opacity:0.48;}
+.pslot.sv{border-left:3px solid var(--green);}
+.pslot.sr{border-left:3px solid var(--red);}
 .pslot:hover{border-color:var(--gray2);}
 .snum{font-family:'Bebas Neue',Impact,sans-serif;font-size:1rem;color:var(--muted);text-align:center;}
 .sinput{background:none;border:none;color:var(--bone);font-family:'DM Mono',monospace;font-size:0.66rem;letter-spacing:0.03em;outline:none;width:100%;}
@@ -213,6 +220,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .sinput:disabled{opacity:0.55;}
 .sclear{background:none;border:none;color:var(--gray2);cursor:pointer;font-size:0.85rem;padding:2px 3px;transition:color 0.2s;}
 .sclear:hover{color:var(--red);}
+.sbadge{font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;border:1px solid;white-space:nowrap;}
+.sbadge.sp{color:var(--muted);border-color:var(--gray);}
+.sbadge.sv{color:var(--green);border-color:rgba(39,174,96,0.35);background:rgba(39,174,96,0.08);}
+.sbadge.sr{color:var(--red);border-color:rgba(224,80,80,0.35);background:rgba(224,80,80,0.08);}
+.review-banner{padding:10px 14px;font-size:0.54rem;letter-spacing:0.07em;border:1px solid;margin-bottom:10px;}
+.review-banner.submitted{color:#7eb8c9;border-color:rgba(126,184,201,0.3);background:rgba(126,184,201,0.06);}
+.review-banner.reviewed{color:var(--green);border-color:rgba(39,174,96,0.3);background:rgba(39,174,96,0.06);}
 .picks-meta{padding:10px 0;font-size:0.54rem;letter-spacing:0.09em;color:var(--muted);margin-bottom:13px;}
 .picks-meta b{color:var(--bone);}
 
@@ -277,6 +291,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 /* ══ SETTINGS ══ */
 .sset{background:var(--ash);border:1px solid var(--gray);padding:20px 22px;margin-bottom:3px;}
+.toggle-wrap{display:inline-flex;align-items:center;cursor:pointer;}
+.toggle-wrap input{display:none;}
+.toggle-track{width:36px;height:20px;background:var(--gray);border-radius:10px;position:relative;transition:background 0.2s;}
+.toggle-wrap input:checked+.toggle-track{background:var(--blood);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left 0.2s;}
+.toggle-wrap input:checked+.toggle-track .toggle-thumb{left:19px;}
 .sset-title{font-size:0.53rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--blood);margin-bottom:14px;padding-bottom:9px;border-top:0;border-bottom:1px solid var(--gray);}
 
 /* ══ ADMIN ══ */
@@ -409,7 +429,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
       <div id="nav-loggedin">
         <div class="nav-uname">Hi <b id="nav-uname-text"></b></div>
-        <button id="nav-admin-btn" class="btn-nav" onclick="showPage('admin')" style="display:none">Admin</button>
+        <button id="nav-admin-btn" class="btn-nav" onclick="showPage('admin')" style="display:none">Admin <span id="admin-notify" style="display:none;background:var(--red);color:#fff;border-radius:50%;font-size:0.42rem;padding:1px 5px;margin-left:3px;vertical-align:middle"></span></button>
         <button class="btn-nav" onclick="showPage('settings')">Settings</button>
         <button class="btn-nav" onclick="doLogout()">Sign Out</button>
       </div>
@@ -466,6 +486,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="news-hdr"><span>☠ Death Notices</span><span id="news-count-badge"></span></div>
         <div id="news-feed"></div>
       </div>
+      <div class="news-feed" style="margin-top:3px">
+        <div class="news-hdr" style="border-top-color:var(--gray)"><span>📰 Notable Deaths</span><span id="notable-count-badge"></span></div>
+        <div id="notable-feed"></div>
+      </div>
     </div>
     <div class="home-sidebar">
       <div class="sidebar-sb">
@@ -511,6 +535,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div id="mypicks-btns" style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-primary" onclick="saveMyPicks()">Save Picks</button>
       <button class="btn btn-ghost" onclick="clearMyPicks()">Clear All</button>
+    </div>
+    <div id="mypicks-submit-wrap" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray)">
+      <div style="font-size:0.56rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:10px">When you're happy with your picks, submit them for Graeme to review before the season begins.</div>
+      <div id="mypicks-review-status" style="margin-bottom:10px"></div>
+      <button id="mypicks-submit-btn" class="btn btn-gold" onclick="submitPicksForReview()">Submit for Review</button>
     </div>
   </div>
 </div>
@@ -592,6 +621,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="container">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Account</div><div class="page-title">Settings</div><div class="divider"></div></div><br>
     <div class="sset"><div class="sset-title">Profile</div><div id="settings-alert" style="display:none"></div><div class="field"><label>Display Name</label><input type="text" id="sett-name"></div><button class="btn btn-primary" onclick="saveDisplayName()">Update Name</button></div>
+    <div class="sset"><div class="sset-title">Email Address</div><div id="email-alert" style="display:none"></div><div class="muted" style="margin-bottom:12px;line-height:1.9">Used to log in and receive death notices. Only visible to you and Graeme.</div><div class="field"><label>Email</label><input type="email" id="sett-email" placeholder="you@example.com"></div><button class="btn btn-primary" onclick="saveEmail()">Save Email</button></div>
+    <div class="sset"><div class="sset-title">Notifications</div><div id="notif-alert" style="display:none"></div><div class="muted" style="margin-bottom:12px;line-height:1.9">Receive an email when a scoring death is recorded, including an updated leaderboard.</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><label class="toggle-wrap"><input type="checkbox" id="sett-notif" onchange="saveNotifPref()"><span class="toggle-track"><span class="toggle-thumb"></span></span></label><span style="font-size:0.58rem;letter-spacing:0.06em;color:var(--bone)" id="notif-label">Email notifications off</span></div></div>
     <div class="sset"><div class="sset-title">Change Password</div><div id="pw-alert" style="display:none"></div><div class="field"><label>Current Password</label><input type="password" id="pw-cur" placeholder="Current password"></div><div class="field"><label>New Password</label><input type="password" id="pw-new" placeholder="New password (min 6 chars)"></div><div class="field"><label>Confirm Password</label><input type="password" id="pw-con" placeholder="Confirm new password"></div><button class="btn btn-primary" onclick="changePassword()">Change Password</button></div>
   </div>
 </div>
@@ -629,6 +660,21 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="sec-title" style="margin-bottom:3px">Death Log</div>
       <div class="muted" style="margin-bottom:11px">All confirmed deaths this game window.</div>
       <div id="death-log"></div>
+
+      <div class="sec-title" style="margin:24px 0 3px">📰 Notable Deaths</div>
+      <div class="muted" style="margin-bottom:11px">Post deaths of interest that aren't on anyone's list.</div>
+      <div class="acard" style="margin-bottom:11px">
+        <div class="acard-title">Post a Notable Death</div>
+        <div id="notable-alert" style="display:none"></div>
+        <div class="field"><label>Name</label><input type="text" id="nd-name" placeholder="e.g. Keith Richards"></div>
+        <div class="grid-2">
+          <div class="field"><label>Age</label><input type="number" id="nd-age" placeholder="80" min="0" max="130"></div>
+          <div class="field"><label>Date</label><input type="date" id="nd-date"></div>
+        </div>
+        <div class="field"><label>Note (optional)</label><input type="text" id="nd-note" placeholder="Brief context..."></div>
+        <button class="btn btn-ghost btn-full" onclick="postNotableDeath()">Post Notable Death</button>
+      </div>
+      <div id="notable-log"></div>
     </div>
 
     <div class="tab-panel" id="tab-players">
@@ -651,6 +697,15 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
             <button class="btn btn-ghost btn-sm" onclick="adminResetPw()">Save Changes</button>
             <button class="btn btn-danger btn-sm" onclick="adminArchivePlayer()">Archive Player</button>
+          </div>
+          <div id="rp-picks-review" style="display:none;padding-top:13px;border-top:1px solid var(--gray)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <div class="acard-title" style="margin:0">📋 Picks Review</div>
+              <button class="btn btn-ghost btn-sm" onclick="copyPicksForReview()" title="Copy picks to clipboard for pasting into review chat">⧉ Copy for Review</button>
+            </div>
+            <div id="rp-review-status" style="font-size:0.52rem;color:var(--muted);letter-spacing:0.08em;margin-bottom:10px"></div>
+            <div id="rp-picks-list" style="margin-bottom:10px"></div>
+            <button class="btn btn-gold btn-sm" onclick="adminSavePickReview()">Save Review</button>
           </div>
           <div style="padding-top:13px;border-top:1px solid var(--gray)">
             <div class="acard-title" style="margin-bottom:9px">🔒 Global Lock</div>
@@ -756,6 +811,7 @@ let currentUser = null;
 let gameSettings = {};
 let allPlayers = [];
 let allDeaths = [];
+let allNotableDeaths = [];
 let currentRules = [];
 let planTab = '2027';
 let adminTab = 'deaths';
@@ -815,6 +871,7 @@ async function init() {
   const pr = await cfCall('getPlayers', {});
   allPlayers = pr.players;
   allDeaths = await fsCol('deaths');
+  allNotableDeaths = await fsCol('notableDeaths');
   currentRules = await fsCol('rules');
   currentRules.sort((a,b) => (a.order||0) - (b.order||0));
 
@@ -1114,6 +1171,23 @@ function buildHome() {
       </div>`).join('');
   }
 
+  // Notable deaths feed
+  const sortedNotable = [...allNotableDeaths].sort((a,b)=>(b.date||'')>(a.date||'')?1:-1);
+  document.getElementById('notable-count-badge').textContent = sortedNotable.length ? `${sortedNotable.length} posted` : '';
+  if (!sortedNotable.length) {
+    document.getElementById('notable-feed').innerHTML = `<div class="no-notable">None posted yet.</div>`;
+  } else {
+    document.getElementById('notable-feed').innerHTML = sortedNotable.map((d,i)=>`
+      <div class="notable" style="animation-delay:${i*0.04}s">
+        <div>
+          <div class="notable-name">${d.name}</div>
+          <div class="notable-meta">Aged ${d.age} · ${fmtDate(d.date)} · Not on anyone's list</div>
+          ${d.note?`<div class="notable-note">${d.note}</div>`:''}
+        </div>
+        <div class="obit-date" style="text-align:right">${fmtDate(d.date)}</div>
+      </div>`).join('');
+  }
+
   // Sidebar scores
   const sp = getSortedPlayers();
   const topScore = getScore(sp[0]);
@@ -1196,6 +1270,9 @@ function buildMyPicks() {
   const locked = gameSettings.picksLocked || (allPlayers.find(p=>p.id===currentUser.id)||currentUser).picksLocked;
   const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
   let picks = me.picks||[];
+  const reviewStatus = me.picksReviewStatus||'draft';
+  const pickStatuses = me.pickStatuses||[];
+  const submitted = reviewStatus === 'submitted' || reviewStatus === 'reviewed';
 
   // Auto-import planned picks for current game year if picks are empty
   const gameYear = String(gameSettings.year||'2026');
@@ -1211,18 +1288,49 @@ function buildMyPicks() {
   updateReservesDatalist('mypicks-datalist');
 
   document.getElementById('mypicks-locked-note').style.display = locked?'block':'none';
-  document.getElementById('mypicks-btns').style.display = locked?'none':'flex';
+  document.getElementById('mypicks-btns').style.display = (locked||submitted)?'none':'flex';
+
   const ed = document.getElementById('picks-editor');
   ed.innerHTML = '';
   for(let i=0;i<12;i++){
     const v=picks[i]||'';
+    const st=pickStatuses[i]||'pending';
+    const slotClass = submitted ? (st==='verified'?'sv':st==='replace'?'sr':'f') : (v?'f':'e');
+    const badgeHtml = submitted && v ? `<span class="sbadge ${st==='verified'?'sv':st==='replace'?'sr':'sp'}">${st==='verified'?'✓ Verified':st==='replace'?'✗ Replace':'⏳ Pending'}</span>` : '';
     const slot=document.createElement('div');
-    slot.className=`pslot${v?' f':' e'}`;
+    slot.className=`pslot ${slotClass}`;
     slot.id=`pslot-${i}`;
-    slot.innerHTML=`<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="sinput-${i}" type="text" list="mypicks-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." ${locked?'disabled':''} oninput="updateSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('sinput-${i+1}').focus()}">${locked?'':'<button class="sclear" onclick="clearSlot('+i+')">×</button>'}`;
+    slot.innerHTML=`<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="sinput-${i}" type="text" list="mypicks-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." ${locked||submitted?'disabled':''} oninput="updateSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('sinput-${i+1}').focus()}">${badgeHtml}${(!locked&&!submitted)?'<button class="sclear" onclick="clearSlot('+i+')">×</button>':''}`;
     ed.appendChild(slot);
   }
   updatePicksCount();
+
+  // Submit for review section
+  const submitWrap = document.getElementById('mypicks-submit-wrap');
+  const reviewStatusEl = document.getElementById('mypicks-review-status');
+  const submitBtn = document.getElementById('mypicks-submit-btn');
+  const hasPicks = picks.filter(Boolean).length > 0;
+
+  if (!locked && hasPicks) {
+    submitWrap.style.display = 'block';
+    if (reviewStatus === 'submitted') {
+      reviewStatusEl.innerHTML = `<div class="review-banner submitted">⏳ Picks submitted — awaiting review by Graeme.</div>`;
+      submitBtn.style.display = 'none';
+    } else if (reviewStatus === 'reviewed') {
+      const needsReplace = pickStatuses.some(s=>s==='replace');
+      reviewStatusEl.innerHTML = `<div class="review-banner reviewed">${needsReplace ? '⚠ Review complete — some picks need replacing. Edit and resubmit.' : '✓ All picks verified by Graeme.'}</div>`;
+      submitBtn.textContent = needsReplace ? 'Resubmit for Review' : 'Resubmit for Review';
+      submitBtn.style.display = needsReplace ? 'inline-flex' : 'none';
+      // Re-enable editing if replacements needed
+      if (needsReplace) document.getElementById('mypicks-btns').style.display = 'flex';
+    } else {
+      reviewStatusEl.innerHTML = '';
+      submitBtn.style.display = 'inline-flex';
+      submitBtn.textContent = 'Submit for Review';
+    }
+  } else {
+    submitWrap.style.display = 'none';
+  }
 }
 
 function updateSlot(i) {
@@ -1251,15 +1359,31 @@ async function saveMyPicks() {
     if(v)picks.push(v);
   }
   try {
-    await fsSet(`players/${currentUser.id}`,{picks});
-    // Update local state
+    await fsSet(`players/${currentUser.id}`,{picks, picksReviewStatus:'draft', pickStatuses:[]});
     const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
-    if(idx>=0)allPlayers[idx]={...allPlayers[idx],picks};
-    currentUser={...currentUser,picks};
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],picks,picksReviewStatus:'draft',pickStatuses:[]};
+    currentUser={...currentUser,picks,picksReviewStatus:'draft',pickStatuses:[]};
     localStorage.setItem('dd26_user',JSON.stringify(currentUser));
     showAlert('mypicks-alert',`Saved ${picks.length} pick${picks.length!==1?'s':''}.`,'s');
     buildMyPicks();
   } catch(e){ showAlert('mypicks-alert','Failed to save. Please try again.','e'); }
+}
+
+async function submitPicksForReview() {
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const picks = me.picks||[];
+  if (!picks.filter(Boolean).length) { showAlert('mypicks-alert','Save your picks first.','e'); return; }
+  if (!confirm('Submit your picks for Graeme to review?\n\nYou won\'t be able to edit them until the review is complete.')) return;
+  try {
+    const pickStatuses = picks.map(()=>'pending');
+    await fsSet(`players/${currentUser.id}`, {picksReviewStatus:'submitted', pickStatuses});
+    const idx = allPlayers.findIndex(p=>p.id===currentUser.id);
+    if (idx>=0) allPlayers[idx] = {...allPlayers[idx], picksReviewStatus:'submitted', pickStatuses};
+    currentUser = {...currentUser, picksReviewStatus:'submitted', pickStatuses};
+    localStorage.setItem('dd26_user', JSON.stringify(currentUser));
+    showAlert('mypicks-alert','Picks submitted for review.','s');
+    buildMyPicks();
+  } catch(e) { showAlert('mypicks-alert','Failed to submit. Try again.','e'); }
 }
 
 // ════════════════════════════════════════
@@ -1298,11 +1422,37 @@ function getReserveNames() {
   return (me.reserves||[]).map(r=>r.name);
 }
 
-function updateReservesDatalist(datalistId) {
+async function updateReservesDatalist(datalistId) {
   const dl = document.getElementById(datalistId);
   if (!dl) return;
-  const names = getReserveNames();
-  dl.innerHTML = names.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+  const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  const reserveNames = (me.reserves||[]).map(r=>r.name);
+
+  // Get last season's picks that are still alive (not in current deaths)
+  let survivors = [];
+  try {
+    const archives = await fsCol('archive');
+    if (archives.length) {
+      // Find most recent archive by year
+      const latest = archives.sort((a,b)=>String(b.year).localeCompare(String(a.year)))[0];
+      const lastPicks = (latest.picks||{})[me.id] || (latest.picks||{})[me.name] || [];
+      const deadNames = allDeaths.map(d=>d.name.toLowerCase());
+      survivors = lastPicks.filter(pk => pk && !deadNames.includes(pk.toLowerCase()));
+    }
+  } catch(e) { /* silently skip if archive unavailable */ }
+
+  let options = '';
+  if (survivors.length) {
+    survivors.forEach(n => {
+      options += `<option value="${n.replace(/"/g,'&quot;')}" label="↩ Last season">`;
+    });
+    // Separator — browsers don't support <hr> in datalist, so use a dashed label trick
+    options += `<option value="" disabled label="─────────────────">`;
+  }
+  reserveNames.forEach(n => {
+    options += `<option value="${n.replace(/"/g,'&quot;')}" label="📋 Reserve">`;
+  });
+  dl.innerHTML = options;
 }
 
 function renderPlanSlots() {
@@ -1562,6 +1712,46 @@ function renderRulesList(rules,elId){
 function buildSettings(){
   const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
   document.getElementById('sett-name').value=me.name||'';
+  document.getElementById('sett-email').value=me.email||'';
+  const notif=me.emailNotifications||false;
+  document.getElementById('sett-notif').checked=notif;
+  document.getElementById('notif-label').textContent=notif?'Email notifications on':'Email notifications off';
+}
+
+async function saveEmail(){
+  const email=document.getElementById('sett-email').value.trim().toLowerCase();
+  if(!email||!email.includes('@')){showAlert('email-alert','Please enter a valid email address.','e');return;}
+  // Check no other player already uses this email
+  const taken=allPlayers.find(p=>p.id!==currentUser.id&&(p.email||'').toLowerCase()===email);
+  if(taken){showAlert('email-alert','That email is already in use.','e');return;}
+  try{
+    await fsSet(`players/${currentUser.id}`,{email});
+    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],email};
+    currentUser={...currentUser,email};
+    localStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    showAlert('email-alert','Email saved.','s');
+  }catch(e){showAlert('email-alert','Failed to save.','e');}
+}
+
+async function saveNotifPref(){
+  const emailNotifications=document.getElementById('sett-notif').checked;
+  document.getElementById('notif-label').textContent=emailNotifications?'Email notifications on':'Email notifications off';
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  if(!me.email&&emailNotifications){
+    showAlert('notif-alert','Please save an email address first.','e');
+    document.getElementById('sett-notif').checked=false;
+    document.getElementById('notif-label').textContent='Email notifications off';
+    return;
+  }
+  try{
+    await fsSet(`players/${currentUser.id}`,{emailNotifications});
+    const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],emailNotifications};
+    currentUser={...currentUser,emailNotifications};
+    localStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    showAlert('notif-alert',emailNotifications?'Notifications enabled.':'Notifications disabled.','s');
+  }catch(e){showAlert('notif-alert','Failed to update.','e');}
 }
 async function saveDisplayName(){
   const name=document.getElementById('sett-name').value.trim();
@@ -1612,7 +1802,7 @@ function switchAdminTab(tab,btn){
 }
 
 function refreshAdminTab(tab){
-  if(tab==='deaths')buildDeathLog();
+  if(tab==='deaths'){buildDeathLog();buildNotableLog();}
   if(tab==='players')buildPlayersAdmin();
   if(tab==='future')buildFutureGames();
   if(tab==='archive')buildArchiveListAdmin();
@@ -1641,10 +1831,23 @@ async function recordDeath(){
     document.getElementById('d-source').value='';
     showAlert('death-alert',`☠ ${name} recorded. ${points} pts. Picked by: ${pickedBy.join(', ')||'nobody'}.`,'s');
     buildDeathLog();
+    buildHome();
+    buildScoreboard();
+    // Fire and forget email notifications
+    sendDeathNoticeEmails(newDeath).catch(()=>{});
   }catch(e){showAlert('death-alert','Failed to record death: '+e.message,'e');}
 }
 
-function buildDeathLog(){
+async function sendDeathNoticeEmails(death){
+  // Build current standings for the email
+  const standings = getSortedPlayers().map((p,i)=>{
+    const s=getScore(p);
+    return {rank:i+1,name:p.name,score:s};
+  });
+  try{
+    await cfCall('sendDeathNotice',{death,standings});
+  }catch(e){ console.warn('Email notification failed:',e.message); }
+}
   const log=document.getElementById('death-log');
   if(!allDeaths.length){log.innerHTML=`<div style="padding:18px;background:var(--ash);border:1px solid var(--gray);font-size:0.56rem;color:var(--muted);text-align:center;letter-spacing:0.1em">No deaths recorded yet.</div>`;return;}
   log.innerHTML=[...allDeaths].reverse().map((d,i)=>`<div class="dli" style="animation-delay:${i*0.03}s"><div><div class="dli-n">${d.name}</div><div class="dli-m">Picked by: ${d.pickedBy?.join(', ')||'nobody'} · ${fmtDate(d.date)} · Age ${d.age}</div></div><div class="dli-p">+${d.points}</div><button class="btn btn-danger btn-sm" onclick="undoDeath('${d.id}','${d.name}')">Undo</button></div>`).join('');
@@ -1656,7 +1859,52 @@ async function undoDeath(id,name){
     await cfCall('deleteDeath',{id});
     allDeaths=allDeaths.filter(d=>d.id!==id);
     buildDeathLog();
+    buildHome();
   }catch(e){alert('Failed to undo: '+e.message);}
+}
+
+// ════════════════════════════════════════
+// NOTABLE DEATHS
+// ════════════════════════════════════════
+async function postNotableDeath(){
+  const name=document.getElementById('nd-name').value.trim();
+  const age=parseInt(document.getElementById('nd-age').value);
+  const date=document.getElementById('nd-date').value;
+  const note=document.getElementById('nd-note').value.trim();
+  if(!name||!age||!date){showAlert('notable-alert','Please fill in name, age and date.','e');return;}
+  try{
+    const ref=await fsAdd('notableDeaths',{name,age,date:fmtDate(date),note});
+    allNotableDeaths.push({id:ref.id,name,age,date:fmtDate(date),note});
+    ['nd-name','nd-age','nd-date','nd-note'].forEach(id=>{document.getElementById(id).value='';});
+    document.getElementById('notable-alert').style.display='none';
+    buildNotableLog();
+    buildHome();
+    showAlert('notable-alert',`${name} posted to Notable Deaths.`,'s');
+  }catch(e){showAlert('notable-alert','Failed: '+e.message,'e');}
+}
+
+async function deleteNotableDeath(id,name){
+  if(!confirm(`Remove ${name} from Notable Deaths?`))return;
+  try{
+    await fsDel(`notableDeaths/${id}`);
+    allNotableDeaths=allNotableDeaths.filter(d=>d.id!==id);
+    buildNotableLog();
+    buildHome();
+  }catch(e){alert('Failed: '+e.message);}
+}
+
+function buildNotableLog(){
+  const log=document.getElementById('notable-log');
+  if(!log)return;
+  if(!allNotableDeaths.length){
+    log.innerHTML=`<div style="padding:18px;background:var(--ash);border:1px solid var(--gray);font-size:0.56rem;color:var(--muted);text-align:center;letter-spacing:0.1em">No notable deaths posted yet.</div>`;
+    return;
+  }
+  log.innerHTML=[...allNotableDeaths].sort((a,b)=>(b.date||'')>(a.date||'')?1:-1).map((d,i)=>
+    `<div class="dli" style="animation-delay:${i*0.03}s">
+      <div><div class="dli-n">${d.name}</div><div class="dli-m">Age ${d.age} · ${fmtDate(d.date)}${d.note?` · ${d.note}`:''}</div></div>
+      <button class="btn btn-danger btn-sm" onclick="deleteNotableDeath('${d.id}','${d.name}')">Remove</button>
+    </div>`).join('');
 }
 
 // PLAYERS
@@ -1665,18 +1913,30 @@ function buildPlayersAdmin(){
   sel.innerHTML=allPlayers.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
   document.getElementById('lock-status').textContent=gameSettings.picksLocked?'🔒 Picks are LOCKED':'🔓 Picks are UNLOCKED';
   onPlayerSelect();
+  const pending = allPlayers.filter(p=>(p.picksReviewStatus||'draft')==='submitted');
   const list=document.getElementById('player-list-admin');
-  list.innerHTML=allPlayers.map(p=>{
+  let html = '';
+  if (pending.length) {
+    html += `<div class="review-banner submitted" style="margin-bottom:8px">⏳ ${pending.length} player${pending.length>1?'s':''} waiting for review: ${pending.map(p=>p.name).join(', ')}</div>`;
+  }
+  html += allPlayers.map(p=>{
     const pickCount=(p.picks||[]).filter(Boolean).length;
     const isLocked=p.picksLocked||gameSettings.picksLocked;
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid var(--gray);margin-bottom:3px;font-size:0.6rem">
-      <span>${p.name} <span style="font-size:0.48rem;color:var(--muted);margin-left:6px">${p.role||'player'}</span></span>
+    const rs = p.picksReviewStatus||'draft';
+    const reviewBadge = rs==='submitted'
+      ? `<span style="font-size:0.46rem;color:#7eb8c9;background:rgba(126,184,201,0.1);border:1px solid rgba(126,184,201,0.3);padding:1px 6px;letter-spacing:0.07em">⏳ REVIEW PENDING</span>`
+      : rs==='reviewed'
+      ? `<span style="font-size:0.46rem;color:var(--green);background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.3);padding:1px 6px;letter-spacing:0.07em">✓ REVIEWED</span>`
+      : '';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--ash);border:1px solid ${rs==='submitted'?'rgba(126,184,201,0.4)':'var(--gray)'};margin-bottom:3px;font-size:0.6rem">
+      <span style="display:flex;align-items:center;gap:8px">${p.name} <span style="font-size:0.48rem;color:var(--muted)">${p.role||'player'}</span>${reviewBadge}</span>
       <span style="display:flex;align-items:center;gap:10px">
         <span style="color:var(--muted);font-size:0.54rem">${pickCount}/12 picks</span>
         <span style="font-size:0.48rem;color:${isLocked?'var(--red)':'var(--green)'}">${isLocked?'🔒 locked':'🔓 unlocked'}</span>
       </span>
     </div>`;
   }).join('');
+  list.innerHTML = html;
 }
 
 function onPlayerSelect(){
@@ -1685,6 +1945,91 @@ function onPlayerSelect(){
   if(!p)return;
   document.getElementById('rp-role').value=p.role||'player';
   document.getElementById('rp-lock').value=(p.picksLocked||gameSettings.picksLocked)?'locked':'unlocked';
+  renderAdminPicksReview(p);
+}
+
+function renderAdminPicksReview(p) {
+  const panel = document.getElementById('rp-picks-review');
+  const statusEl = document.getElementById('rp-review-status');
+  const listEl = document.getElementById('rp-picks-list');
+  const picks = p.picks||[];
+  const pickStatuses = p.pickStatuses||picks.map(()=>'pending');
+  const reviewStatus = p.picksReviewStatus||'draft';
+
+  if (!picks.filter(Boolean).length) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const statusLabels = {
+    draft: 'Not yet submitted',
+    submitted: '⏳ Awaiting review',
+    reviewed: '✓ Review sent'
+  };
+  statusEl.textContent = `Status: ${statusLabels[reviewStatus]||reviewStatus}`;
+
+  listEl.innerHTML = picks.map((pk, i) => {
+    const st = pickStatuses[i]||'pending';
+    return `<div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--gray)">
+      <div style="font-size:0.6rem;letter-spacing:0.04em">${String(i+1).padStart(2,'0')}. ${pk}</div>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-sm ${st==='verified'?'btn-gold':''}" onclick="setPickStatus('${p.id}',${i},'verified')" title="Verify">✓</button>
+        <button class="btn btn-sm ${st==='replace'?'btn-danger':''}" onclick="setPickStatus('${p.id}',${i},'replace')" title="Needs replacing">✗</button>
+        <button class="btn btn-sm ${st==='pending'?'btn-ghost':''}" onclick="setPickStatus('${p.id}',${i},'pending')" title="Reset to pending">—</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setPickStatus(pid, idx, status) {
+  const p = allPlayers.find(x=>x.id===pid);
+  if (!p) return;
+  const pickStatuses = [...(p.pickStatuses||p.picks.map(()=>'pending'))];
+  pickStatuses[idx] = status;
+  const playerIdx = allPlayers.findIndex(x=>x.id===pid);
+  if (playerIdx>=0) allPlayers[playerIdx] = {...allPlayers[playerIdx], pickStatuses};
+  renderAdminPicksReview(allPlayers[playerIdx]);
+}
+
+async function adminSavePickReview() {
+  const pid = document.getElementById('rp-player').value;
+  const p = allPlayers.find(x=>x.id===pid);
+  if (!p) return;
+  const pickStatuses = p.pickStatuses||p.picks.map(()=>'pending');
+  try {
+    await cfCall('updatePlayer', {playerId:pid, updates:{pickStatuses, picksReviewStatus:'reviewed'}});
+    const idx = allPlayers.findIndex(x=>x.id===pid);
+    if (idx>=0) allPlayers[idx] = {...allPlayers[idx], pickStatuses, picksReviewStatus:'reviewed'};
+    showAlert('rp-alert', `Review saved for ${p.name}.`, 's');
+    renderAdminPicksReview(allPlayers[idx]);
+    buildPlayersAdmin();
+  } catch(e) { showAlert('rp-alert','Failed: '+e.message,'e'); }
+}
+
+async function copyPicksForReview() {
+  const pid = document.getElementById('rp-player').value;
+  const p = allPlayers.find(x=>x.id===pid);
+  if (!p || !p.picks?.filter(Boolean).length) {
+    showAlert('rp-alert', 'No picks to copy.', 'e');
+    return;
+  }
+
+  const picksList = p.picks.filter(Boolean).map((pk,i)=>`${i+1}. ${pk}`).join('\n');
+  const year = gameSettings.year || '2026';
+
+  const text =
+`Deadly Dozen ${year} — ${p.name}'s Picks
+
+${picksList}`;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    showAlert('rp-alert', `Copied ${p.name}'s picks to clipboard.`, 's');
+  } catch(e) {
+    // Fallback: show in a prompt so they can manually copy
+    prompt('Copy this text:', text);
+  }
 }
 
 async function addPlayer(){
@@ -1769,7 +2114,10 @@ async function buildFutureGames(){
         html+=`<div class="fg-panel" style="margin-top:3px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
             <div class="fg-title" style="margin:0">${fg.year} — ${fg.entryFee||'£10'} entry · ${fg.picksPerPlayer||12} picks</div>
-            <button class="btn btn-danger btn-sm" onclick="deleteFutureGame('${fg.id}','${fg.year}')">Delete</button>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-gold btn-sm" onclick="promoteFutureGame('${fg.id}')">▶ Promote to Live</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteFutureGame('${fg.id}','${fg.year}')">Delete</button>
+            </div>
           </div>
           <div class="muted" style="margin-bottom:11px">Start: ${fg.startDate?fmtDate(fg.startDate):'—'} · End: ${fg.endDate?fmtDate(fg.endDate):'—'} · Scoring: ${fg.scoring||'100 - age'}</div>
           <div class="sec-title" style="font-size:1rem;margin-bottom:5px">Players (${(fg.players||[]).length})</div>
@@ -1822,6 +2170,32 @@ async function deleteFutureGame(id,year){
     await cfCall('deleteFutureGame',{id});
     buildFutureGames();
   }catch(e){alert('Failed: '+e.message);}
+}
+
+async function promoteFutureGame(fgId){
+  const fgs=await fsCol('futureGames');
+  const fg=fgs.find(g=>g.id===fgId);
+  if(!fg)return;
+  if(!confirm(`Promote ${fg.year} to the live game?\n\nThis will update the game settings (year, dates, entry fee) to match this planned game.\n\nMake sure you have archived the current season first.`))return;
+  try{
+    const settings={
+      year: fg.year,
+      startDate: fg.startDate||'',
+      endDate: fg.endDate||'',
+      entryFee: fg.entryFee||'£10',
+      picksLocked: false,
+      lastChecked: fmtDate(new Date().toISOString()),
+    };
+    await cfCall('saveGameSettings',{settings});
+    gameSettings={...gameSettings,...settings};
+    // Optionally delete the future game doc now it's live
+    if(confirm(`${fg.year} is now the live game. Remove it from the future games list?`)){
+      await cfCall('deleteFutureGame',{id:fgId});
+    }
+    showAlert('fg-alert',`${fg.year} promoted to live game successfully.`,'s');
+    buildFutureGames();
+    buildScoreboard();
+  }catch(e){alert('Failed to promote: '+e.message);}
 }
 
 async function toggleFuturePlayer(fgId,pid,isIn){
@@ -2201,13 +2575,19 @@ window.clearPlanSlot=clearPlanSlot;
 window.switchAdminTab=switchAdminTab;
 window.recordDeath=recordDeath;
 window.undoDeath=undoDeath;
+window.postNotableDeath=postNotableDeath;
+window.deleteNotableDeath=deleteNotableDeath;
 window.addPlayer=addPlayer;
 window.adminResetPw=adminResetPw;
 window.adminArchivePlayer=adminArchivePlayer;
 window.onPlayerSelect=onPlayerSelect;
+window.adminSavePickReview=adminSavePickReview;
+window.setPickStatus=setPickStatus;
+window.copyPicksForReview=copyPicksForReview;
 window.setLock=setLock;
 window.createFutureGame=createFutureGame;
 window.deleteFutureGame=deleteFutureGame;
+window.promoteFutureGame=promoteFutureGame;
 window.toggleFuturePlayer=toggleFuturePlayer;
 window.addFgRule=addFgRule;
 window.saveFgRules=saveFgRules;
@@ -2220,6 +2600,8 @@ window.saveArchiveEdit=saveArchiveEdit;
 window.saveGameSettings=saveGameSettings;
 window.saveDisplayName=saveDisplayName;
 window.changePassword=changePassword;
+window.saveEmail=saveEmail;
+window.saveNotifPref=saveNotifPref;
 window.addRuleEditor=addRuleEditor;
 window.removeRuleEditor=removeRuleEditor;
 window.saveRules=saveRules;
