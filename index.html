@@ -1378,32 +1378,52 @@ async function saveMyPicks() {
 }
 
 async function submitPicksForReview() {
-  if(gameSettings.picksLocked) return;
-  // Read picks from inputs (not stale me.picks)
+  // Debug
+  console.log('submitPicksForReview called');
+  console.log('currentUser:', currentUser);
+  console.log('gameSettings.picksLocked:', gameSettings.picksLocked);
+
+  if(!currentUser || !currentUser.id) {
+    showAlert('mypicks-alert','You must be logged in to submit picks.','e');
+    return;
+  }
+  if(gameSettings.picksLocked) {
+    showAlert('mypicks-alert','Picks are currently locked.','e');
+    return;
+  }
+
+  // Read picks from inputs
   const picks=[];
   for(let i=0;i<12;i++){
     const v=(document.getElementById(`sinput-${i}`)?.value||'').trim();
     if(v) picks.push(v);
   }
-  if(!picks.length){ showAlert('mypicks-alert','Please enter at least one pick before submitting.','e'); return; }
+  console.log('picks to submit:', picks);
+
+  if(!picks.length){
+    showAlert('mypicks-alert','Please enter at least one pick before submitting.','e');
+    return;
+  }
 
   const btn = document.getElementById('mypicks-submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Submitting…';
+  if(btn){ btn.disabled=true; btn.textContent='Submitting…'; }
 
   try {
-    // Save picks and set submitted status in one write
     const pickStatuses = picks.map(()=>'pending');
-    await fsSet(`players/${currentUser.id}`, {picks, picksReviewStatus:'submitted', pickStatuses});
+    const path = `players/${currentUser.id}`;
+    console.log('Writing to Firestore path:', path);
+    await fsSet(path, {picks, picksReviewStatus:'submitted', pickStatuses});
+    console.log('Firestore write succeeded');
+
     const idx = allPlayers.findIndex(p=>p.id===currentUser.id);
     if(idx>=0) allPlayers[idx] = {...allPlayers[idx], picks, picksReviewStatus:'submitted', pickStatuses};
     currentUser = {...currentUser, picks, picksReviewStatus:'submitted', pickStatuses};
     localStorage.setItem('dd26_user', JSON.stringify(currentUser));
     buildMyPicks();
-    showAlert('mypicks-alert','✓ Picks submitted for review. Graeme has been notified.','s');
+    showAlert('mypicks-alert','✓ Picks submitted for review.','s');
   } catch(e) {
-    btn.disabled = false;
-    btn.textContent = 'Submit for Review';
+    console.error('Submit failed:', e);
+    if(btn){ btn.disabled=false; btn.textContent='Submit for Review'; }
     showAlert('mypicks-alert','Failed to submit: '+e.message,'e');
   }
 }
