@@ -133,6 +133,15 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .news-feed{display:flex;flex-direction:column;gap:3px;}
 .news-hdr{padding:12px 17px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
 .news-hdr span{color:var(--bone);}
+.news-section-hdr{display:flex;align-items:baseline;gap:11px;margin-bottom:8px;}
+.news-section-hdr .sec-title{margin-bottom:0;}
+.news-section-hdr .news-count{font-size:0.46rem;letter-spacing:0.14em;color:var(--muted);}
+.news-sep{height:2px;background:var(--blood);margin:22px 0 18px;}
+.obit-notable{border-left-color:var(--gold);}
+.obit-notable::before{background:var(--gold) !important;}
+.obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
+.obit-notable .obit-meta strong{color:var(--gold);}
+.obit-notable .obit-photo{filter:grayscale(0.5) brightness(0.85);}
 .obit{background:var(--ash);border:1px solid var(--gray);padding:19px 20px 17px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
 .notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
@@ -489,11 +498,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="home-layout">
     <div>
       <div class="news-feed">
-        <div class="news-hdr"><span>☠ Death Notices</span><span id="news-count-badge"></span></div>
+        <div class="news-section-hdr">
+          <div class="sec-title">☠ Death Notices</div>
+          <span class="news-count" id="news-count-badge"></span>
+        </div>
         <div id="news-feed"></div>
-      </div>
-      <div class="news-feed" style="margin-top:3px">
-        <div class="news-hdr" style="border-top-color:var(--gray)"><span>📰 Notable Deaths</span><span id="notable-count-badge"></span></div>
+        <div class="news-sep"></div>
+        <div class="news-section-hdr">
+          <div class="sec-title" style="color:var(--gold)">📰 Notable Deaths</div>
+          <span class="news-count" id="notable-count-badge"></span>
+        </div>
         <div id="notable-feed"></div>
       </div>
     </div>
@@ -1297,7 +1311,7 @@ function buildHome() {
     document.getElementById('notable-feed').innerHTML = `<div class="no-notable">None posted yet.</div>`;
   } else {
     document.getElementById('notable-feed').innerHTML = sortedNotable.map((d,i)=>`
-      <div class="obit" style="animation-delay:${i*0.04}s">
+      <div class="obit obit-notable" style="animation-delay:${i*0.04}s">
         <div class="obit-header">
           ${d.photo ? `<img class="obit-photo" src="${d.photo}" alt="${d.name}" onerror="this.style.display='none'">` : ''}
           <div class="obit-header-text">
