@@ -22,6 +22,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 /* LOADING */
 #loading-screen{position:fixed;inset:0;background:var(--dark);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity 0.5s;}
 #loading-screen.hidden{opacity:0;pointer-events:none;}
+.skull{filter:grayscale(1) brightness(0.65);display:inline-block;line-height:1;}
 .ls-skull{font-size:3rem;animation:pulse 1.4s ease-in-out infinite;}
 .ls-text{font-size:0.56rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);}
 .ls-bar{width:180px;height:2px;background:var(--gray);overflow:hidden;}
@@ -133,10 +134,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .news-feed{display:flex;flex-direction:column;gap:3px;}
 .news-hdr{padding:12px 17px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
 .news-hdr span{color:var(--bone);}
-.news-section-hdr{display:flex;align-items:baseline;gap:11px;margin-bottom:8px;}
+.news-section-hdr{display:flex;align-items:baseline;gap:11px;margin-bottom:0;}
 .news-section-hdr .sec-title{margin-bottom:0;}
 .news-section-hdr .news-count{font-size:0.46rem;letter-spacing:0.14em;color:var(--muted);}
-.news-sep{height:2px;background:var(--blood);margin:22px 0 18px;}
+.news-title-sep{height:2px;background:var(--blood);margin:8px 0 14px;}
+.news-sep{height:1px;background:var(--gray);margin:24px 0 24px;}
 .obit-notable{border-left-color:var(--gold);}
 .obit-notable::before{background:var(--gold) !important;}
 .obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
@@ -168,7 +170,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .no-deaths{padding:36px 20px;background:var(--ash);border:1px solid var(--gray);text-align:center;font-size:0.58rem;color:var(--muted);letter-spacing:0.11em;line-height:2;}
 .home-sidebar{display:flex;flex-direction:column;gap:3px;}
 .sidebar-sb{background:var(--ash);border:1px solid var(--gray);}
-.sidebar-sb-hdr{padding:11px 15px;border-bottom:1px solid var(--gray);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);}
+.sidebar-sb-hdr{padding:12px 15px 10px;border-bottom:1px solid var(--gray);}
 .sb-row{display:flex;justify-content:space-between;align-items:center;padding:9px 15px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.6rem;transition:background 0.15s;}
 .sb-row:last-child{border-bottom:none;}
 .sb-row:hover{background:var(--ash2);}
@@ -428,7 +430,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- LOADING -->
 <div id="loading-screen">
-  <div class="ls-skull">☠</div>
+  <div class="ls-skull skull">☠</div>
   <div class="ls-text">Loading Deadly Dozen</div>
   <div class="ls-bar"><div class="ls-fill"></div></div>
 </div>
@@ -437,7 +439,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <nav id="main-nav">
   <div class="nav-inner">
   <div class="nav-top">
-    <div class="nav-logo" onclick="showPage('home')"><span style="font-size:1.1em;filter:grayscale(1) brightness(0.65);display:inline-block;vertical-align:middle;margin-right:4px;line-height:1">☠</span><em>Deadly</em> Dozen</div>
+    <div class="nav-logo" onclick="showPage('home')"><span class="skull" style="font-size:1.1em;vertical-align:middle;margin-right:4px;">☠</span><em>Deadly</em> Dozen</div>
     <div class="nav-right">
       <div id="nav-loggedout">
         <button class="btn-nav" onclick="openLoginModal()">Sign In</button>
@@ -469,7 +471,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div id="login-modal" onclick="if(event.target===this)closeLoginModal()">
   <div class="lmodal-box">
     <div class="lmodal-header">
-      <div class="lmodal-title">☠ Sign In</div>
+      <div class="lmodal-title"><span class="skull" style="font-size:0.85em;vertical-align:middle;margin-right:6px;">☠</span>Sign In</div>
       <button class="lmodal-close" onclick="closeLoginModal()">✕</button>
     </div>
     <div id="login-alert" class="alert ae" style="display:none"></div>
@@ -502,18 +504,22 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <div class="sec-title">☠ Death Notices</div>
           <span class="news-count" id="news-count-badge"></span>
         </div>
+        <div class="news-title-sep"></div>
         <div id="news-feed"></div>
         <div class="news-sep"></div>
         <div class="news-section-hdr">
           <div class="sec-title" style="color:var(--gold)">📰 Notable Deaths</div>
           <span class="news-count" id="notable-count-badge"></span>
         </div>
+        <div class="news-title-sep" style="background:var(--gold)"></div>
         <div id="notable-feed"></div>
       </div>
     </div>
     <div class="home-sidebar">
       <div class="sidebar-sb">
-        <div class="sidebar-sb-hdr">Live Standings</div>
+        <div class="sidebar-sb-hdr">
+          <div class="sec-title" style="font-size:1rem;margin-bottom:0;">Live Standings</div>
+        </div>
         <div id="sidebar-scores"></div>
       </div>
     </div>
@@ -1253,7 +1259,7 @@ function buildFooter() {
 
   document.getElementById('site-footer').innerHTML = `
     <div class="sf-inner">
-      <div class="sf-brand">☠ <em>Deadly</em> Dozen <span>Official Game Portal · ${year}</span></div>
+      <div class="sf-brand"><span class="skull" style="margin-right:5px;">☠</span><em>Deadly</em> Dozen <span>Official Game Portal · ${year}</span></div>
       <div class="sf-links">${linksHtml}</div>
       <div class="sf-copy">Deaths verified via BBC News &amp; reputable sources</div>
     </div>`;
