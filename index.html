@@ -70,7 +70,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .eyebrow{font-size:0.5rem;letter-spacing:0.36em;text-transform:uppercase;color:var(--blood);margin-bottom:7px;}
 .page-title{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(2rem,5.5vw,3.2rem);letter-spacing:0.06em;line-height:0.92;}
 .sec-title{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.35rem;letter-spacing:0.09em;margin-bottom:3px;}
-.divider{width:34px;height:2px;background:var(--blood);margin:15px 0;}
+.divider{width:100%;height:2px;background:var(--blood);margin:15px 0;}
 .muted{font-size:0.58rem;color:var(--muted);letter-spacing:0.07em;line-height:1.8;}
 
 /* PANELS */
@@ -152,6 +152,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-src{font-size:0.48rem;color:var(--muted);margin-top:7px;letter-spacing:0.07em;}
 .obit-src a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--gray);}
 .obit-src a:hover{color:var(--bone);}
+.obit-photo{width:72px;height:90px;object-fit:cover;object-position:top center;border:1px solid var(--gray);flex-shrink:0;display:block;filter:grayscale(0.2);}
+.obit-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:9px;}
+.obit-header-text{flex:1;min-width:0;padding-right:60px;}
+.obit-note{font-size:0.55rem;color:#aaa;line-height:1.8;letter-spacing:0.03em;margin-top:10px;padding-top:10px;border-top:1px solid var(--gray);font-style:italic;}
 .no-deaths{padding:36px 20px;background:var(--ash);border:1px solid var(--gray);text-align:center;font-size:0.58rem;color:var(--muted);letter-spacing:0.11em;line-height:2;}
 .home-sidebar{display:flex;flex-direction:column;gap:3px;}
 .sidebar-sb{background:var(--ash);border:1px solid var(--gray);}
@@ -424,7 +428,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <nav id="main-nav">
   <div class="nav-inner">
   <div class="nav-top">
-    <div class="nav-logo" onclick="showPage('home')">☠ <em>Deadly</em> Dozen</div>
+    <div class="nav-logo" onclick="showPage('home')"><span style="font-size:1.1em;filter:grayscale(1) brightness(0.65);display:inline-block;vertical-align:middle;margin-right:4px;line-height:1">☠</span><em>Deadly</em> Dozen</div>
     <div class="nav-right">
       <div id="nav-loggedout">
         <button class="btn-nav" onclick="openLoginModal()">Sign In</button>
@@ -521,6 +525,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="page" id="page-allpicks">
   <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">All Selections</div><div class="page-title">Picks</div><div class="divider"></div><div class="muted">All players · 12 picks each.</div></div><br>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <input type="text" id="picks-search" placeholder="Search celebrity..." oninput="filterAllPicks()" style="background:var(--ash);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.56rem;padding:7px 10px;outline:none;flex:1;min-width:160px">
+      <select id="picks-sort" onchange="buildAllPicks()" style="background:var(--ash);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.54rem;padding:7px 10px;outline:none">
+        <option value="player">Sort by player</option>
+        <option value="score">Sort by score</option>
+      </select>
+    </div>
+    <div id="picks-popularity" style="margin-bottom:12px"></div>
     <div class="picks-grid" id="all-picks-grid"></div>
   </div>
 </div>
@@ -624,7 +636,38 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Account</div><div class="page-title">Settings</div><div class="divider"></div></div><br>
     <div class="sset"><div class="sset-title">Profile</div><div id="settings-alert" style="display:none"></div><div class="field"><label>Display Name</label><input type="text" id="sett-name"></div><button class="btn btn-primary" onclick="saveDisplayName()">Update Name</button></div>
     <div class="sset"><div class="sset-title">Email Address</div><div id="email-alert" style="display:none"></div><div class="muted" style="margin-bottom:12px;line-height:1.9">Used to log in and receive death notices. Only visible to you and Graeme.</div><div class="field"><label>Email</label><input type="email" id="sett-email" placeholder="you@example.com"></div><button class="btn btn-primary" onclick="saveEmail()">Save Email</button></div>
-    <div class="sset"><div class="sset-title">Notifications</div><div id="notif-alert" style="display:none"></div><div class="muted" style="margin-bottom:12px;line-height:1.9">Receive an email when a scoring death is recorded, including an updated leaderboard.</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><label class="toggle-wrap"><input type="checkbox" id="sett-notif" onchange="saveNotifPref()"><span class="toggle-track"><span class="toggle-thumb"></span></span></label><span style="font-size:0.58rem;letter-spacing:0.06em;color:var(--bone)" id="notif-label">Email notifications off</span></div></div>
+    <div class="sset">
+      <div class="sset-title">Notifications</div>
+      <div id="notif-alert" style="display:none"></div>
+      <div class="muted" style="margin-bottom:14px;line-height:1.9">Choose which emails you receive. An email address must be saved above.</div>
+      <div style="display:flex;align-items:center;gap:12px;padding-bottom:13px;margin-bottom:13px;border-bottom:1px solid var(--gray)">
+        <label class="toggle-wrap"><input type="checkbox" id="sett-notif-master" onchange="saveNotifPref()"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
+        <span style="font-size:0.58rem;letter-spacing:0.06em;color:var(--bone)" id="notif-label">Email notifications off</span>
+      </div>
+      <div id="notif-prefs" style="display:none;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:0.42rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Choose what to receive</div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="np-deaths" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
+          <div><div style="font-size:0.56rem;letter-spacing:0.04em;color:var(--bone)">☠ Death notices</div><div style="font-size:0.48rem;color:var(--muted);margin-top:1px">Email when a scoring death is recorded, with updated standings</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="np-reviewed" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
+          <div><div style="font-size:0.56rem;letter-spacing:0.04em;color:var(--bone)">✓ Picks reviewed</div><div style="font-size:0.48rem;color:var(--muted);margin-top:1px">Email when Graeme reviews your picks, showing what's verified or needs replacing</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="np-seasonstart" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
+          <div><div style="font-size:0.56rem;letter-spacing:0.04em;color:var(--bone)">🏁 Season start</div><div style="font-size:0.48rem;color:var(--muted);margin-top:1px">Email when the game window opens, with your confirmed pick list</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="np-seasonend" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
+          <div><div style="font-size:0.56rem;letter-spacing:0.04em;color:var(--bone)">🏆 Season end &amp; results</div><div style="font-size:0.48rem;color:var(--muted);margin-top:1px">Email with final standings and winner when the season is archived</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="np-reminder" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
+          <div><div style="font-size:0.56rem;letter-spacing:0.04em;color:var(--bone)">⏰ Picks deadline reminder</div><div style="font-size:0.48rem;color:var(--muted);margin-top:1px">Reminder email if you haven't submitted picks before the deadline</div></div>
+        </label>
+      </div>
+    </div>
     <div class="sset"><div class="sset-title">Change Password</div><div id="pw-alert" style="display:none"></div><div class="field"><label>Current Password</label><input type="password" id="pw-cur" placeholder="Current password"></div><div class="field"><label>New Password</label><input type="password" id="pw-new" placeholder="New password (min 6 chars)"></div><div class="field"><label>Confirm Password</label><input type="password" id="pw-con" placeholder="Confirm new password"></div><button class="btn btn-primary" onclick="changePassword()">Change Password</button></div>
   </div>
 </div>
@@ -646,17 +689,40 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="acard">
           <div class="acard-title">⚰ Record a Death</div>
           <div id="death-alert" style="display:none"></div>
-          <div class="field"><label>Celebrity Name</label><input type="text" id="d-name" placeholder="Exact name as in picks"></div>
+          <div class="field"><label>Celebrity Name</label><input type="text" id="d-name" placeholder="Exact name as in picks" oninput="fetchWikiPhoto()"></div>
           <div class="grid-2">
             <div class="field"><label>Age at Death</label><input type="number" id="d-age" placeholder="84" min="0" max="130"></div>
             <div class="field"><label>Date of Death</label><input type="date" id="d-date"></div>
           </div>
           <div class="field"><label>Source URL (optional)</label><input type="text" id="d-source" placeholder="https://bbc.co.uk/..."></div>
+          <div class="field">
+            <label>Photo URL <span style="color:var(--muted);font-size:0.42rem;letter-spacing:0.06em">(auto-fetched from Wikipedia · paste to override)</span></label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="text" id="d-photo" placeholder="https://..." style="flex:1" oninput="previewPhoto()">
+              <button class="btn btn-ghost btn-sm" onclick="fetchWikiPhoto(true)" style="white-space:nowrap">&#8635; Wiki</button>
+            </div>
+            <div id="d-photo-preview" style="margin-top:8px;display:none;gap:10px;align-items:flex-start">
+              <img id="d-photo-img" src="" alt="" style="width:56px;height:70px;object-fit:cover;object-position:top;border:1px solid var(--gray);display:block">
+              <span id="d-photo-status" style="font-size:0.46rem;color:var(--muted);letter-spacing:0.07em;line-height:1.8"></span>
+            </div>
+          </div>
+          <div class="field"><label>Obituary Note <span style="color:var(--muted);font-size:0.42rem;letter-spacing:0.06em">(optional)</span></label><textarea id="d-obit" placeholder="Brief tribute, career highlight or context..." rows="3" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:7px 9px;outline:none;resize:vertical;width:100%;line-height:1.7;letter-spacing:0.03em"></textarea></div>
+          <div class="field"><label>Admin Note <span style="color:var(--muted);font-size:0.42rem;letter-spacing:0.06em">(private · not shown to players)</span></label><input type="text" id="d-adminnote" placeholder="e.g. Age disputed, using BBC figure..."></div>
           <button class="btn btn-primary btn-full" onclick="recordDeath()">Record Death</button>
         </div>
         <div class="acard">
-          <div class="acard-title">ℹ How It Works</div>
-          <div class="muted" style="line-height:2.1">• Matched automatically to all picks<br>• Points = 100 − age at death<br>• Obituary posts to homepage news feed<br>• Scoreboard updates immediately<br>• Deaths can be undone from log below</div>
+          <div class="acard-title">✅ Verification Checklist</div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-top:2px" id="vchecklist">
+            <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input type="checkbox" id="vc1" style="accent-color:var(--blood);margin-top:2px;flex-shrink:0"><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.04em;line-height:1.7">Confirmed on <strong>BBC News</strong> as primary source</span></label>
+            <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input type="checkbox" id="vc2" style="accent-color:var(--blood);margin-top:2px;flex-shrink:0"><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.04em;line-height:1.7">Age verified — matches BBC or Wikipedia figure</span></label>
+            <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input type="checkbox" id="vc3" style="accent-color:var(--blood);margin-top:2px;flex-shrink:0"><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.04em;line-height:1.7">Name spelling checked against player picks exactly</span></label>
+            <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input type="checkbox" id="vc4" style="accent-color:var(--blood);margin-top:2px;flex-shrink:0"><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.04em;line-height:1.7">Death date falls within game window (1 Jan – 24 Dec 2026)</span></label>
+            <label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer"><input type="checkbox" id="vc5" style="accent-color:var(--blood);margin-top:2px;flex-shrink:0"><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.04em;line-height:1.7">Not already recorded in the death log below</span></label>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--gray)">
+            <div style="font-size:0.46rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">How it works</div>
+            <div class="muted" style="line-height:2.1;font-size:0.52rem">Points = 100 − age · Matched to picks automatically · Scoreboard updates immediately</div>
+          </div>
         </div>
       </div>
       <div class="sec-title" style="margin-bottom:3px">Death Log</div>
@@ -668,12 +734,23 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="acard" style="margin-bottom:11px">
         <div class="acard-title">Post a Notable Death</div>
         <div id="notable-alert" style="display:none"></div>
-        <div class="field"><label>Name</label><input type="text" id="nd-name" placeholder="e.g. Keith Richards"></div>
+        <div class="field"><label>Name</label><input type="text" id="nd-name" placeholder="e.g. Keith Richards" oninput="fetchWikiPhotoNotable()"></div>
         <div class="grid-2">
           <div class="field"><label>Age</label><input type="number" id="nd-age" placeholder="80" min="0" max="130"></div>
           <div class="field"><label>Date</label><input type="date" id="nd-date"></div>
         </div>
-        <div class="field"><label>Note (optional)</label><input type="text" id="nd-note" placeholder="Brief context..."></div>
+        <div class="field">
+          <label>Photo URL <span style="color:var(--muted);font-size:0.42rem;letter-spacing:0.06em">(auto-fetched from Wikipedia · paste to override)</span></label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="text" id="nd-photo" placeholder="https://..." style="flex:1" oninput="previewPhotoNotable()">
+            <button class="btn btn-ghost btn-sm" onclick="fetchWikiPhotoNotable(true)" style="white-space:nowrap">&#8635; Wiki</button>
+          </div>
+          <div id="nd-photo-preview" style="margin-top:8px;display:none;gap:10px;align-items:flex-start">
+            <img id="nd-photo-img" src="" alt="" style="width:56px;height:70px;object-fit:cover;object-position:top;border:1px solid var(--gray);display:block">
+            <span id="nd-photo-status" style="font-size:0.46rem;color:var(--muted);letter-spacing:0.07em;line-height:1.8"></span>
+          </div>
+        </div>
+        <div class="field"><label>Note <span style="color:var(--muted);font-size:0.42rem;letter-spacing:0.06em">(optional — shown on card)</span></label><textarea id="nd-note" placeholder="Brief context or tribute..." rows="2" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:7px 9px;outline:none;resize:vertical;width:100%;line-height:1.7;letter-spacing:0.03em"></textarea></div>
         <button class="btn btn-ghost btn-full" onclick="postNotableDeath()">Post Notable Death</button>
       </div>
       <div id="notable-log"></div>
@@ -730,6 +807,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="muted" style="margin-bottom:14px;line-height:1.9">Snapshots the current game (scores, picks, deaths, rules) into the History archive. All current picks and deaths are cleared for the new season. <strong style="color:var(--red)">This cannot be undone.</strong></div>
         <div class="field"><label>Season Year to Archive</label><input type="text" id="archive-year-input" placeholder="e.g. 2026"></div>
         <button class="btn btn-danger" onclick="archiveSeason()">Archive &amp; Start New Season</button>
+        <div style="margin-top:8px;font-size:0.46rem;color:var(--muted);letter-spacing:0.08em;line-height:1.8">After archiving, send the season end email to notify all players of the final result.</div>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="triggerSeasonEnd()">📧 Send Season End Email</button>
       </div>
 
       <div class="fg-panel" style="margin-top:3px;border-top-color:var(--gold)">
@@ -777,6 +856,31 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <div class="acard-title">💾 Data Export</div>
           <div class="muted" style="margin-bottom:11px">JSON backup of all game data.</div>
           <button class="btn btn-ghost btn-full" onclick="exportData()">Export JSON</button>
+        </div>
+        <div class="acard">
+          <div class="acard-title">📧 Broadcast Emails</div>
+          <div id="broadcast-alert" style="display:none;margin-bottom:10px"></div>
+          <div class="muted" style="margin-bottom:14px;line-height:1.9">Send season-wide email broadcasts to all opted-in players.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div>
+              <div style="font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Season Start</div>
+              <div class="muted" style="margin-bottom:6px;font-size:0.5rem">Sends each player their confirmed pick list and game details.</div>
+              <button class="btn btn-ghost btn-full" onclick="triggerSeasonStart()">📧 Send Season Start Email</button>
+            </div>
+            <div style="height:1px;background:var(--gray)"></div>
+            <div>
+              <div style="font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Test Email</div>
+              <div class="muted" style="margin-bottom:6px;font-size:0.5rem">Send a test death notice email to yourself only, to verify formatting before a real death.</div>
+              <button class="btn btn-ghost btn-full" onclick="sendTestEmail()">📧 Send Test to Me</button>
+            </div>
+            <div style="height:1px;background:var(--gray)"></div>
+            <div>
+              <div style="font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Picks Lock Reminder</div>
+              <div class="muted" style="margin-bottom:6px;font-size:0.5rem">Only sent to players who haven't submitted picks yet.</div>
+              <div class="field" style="margin-bottom:6px"><label>Deadline (shown in email)</label><input type="text" id="reminder-deadline" placeholder="e.g. 1 Jan 2026" style="font-size:0.54rem"></div>
+              <button class="btn btn-ghost btn-full" onclick="triggerPicksReminder()">📧 Send Picks Reminder</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1026,6 +1130,10 @@ const PUBLIC_PAGES = new Set(['home','scoreboard','history','rules']);
 let currentPage = 'home';
 
 function showPage(id) {
+  if(id!=='mypicks'&&picksUnsaved){
+    if(!confirm('You have unsaved pick changes. Leave without saving?'))return;
+    picksUnsaved=false;
+  }
   // Auth-only pages: open login modal if not signed in
   if (!currentUser && !PUBLIC_PAGES.has(id)) {
     openLoginModal();
@@ -1164,10 +1272,19 @@ function buildHome() {
   } else {
     document.getElementById('news-feed').innerHTML = sorted.map((d,i)=>`
       <div class="obit" style="animation-delay:${i*0.05}s">
-        <div class="obit-date">${fmtDate(d.date)}</div>
-        <div class="obit-name">${d.name}</div>
-        <div class="obit-meta">Aged <strong>${d.age}</strong> · ${d.points} points scored</div>
         <div class="obit-pts">${d.points}<small>pts</small></div>
+        <div class="obit-header">
+          ${d.photo ? `<img class="obit-photo" src="${d.photo}" alt="${d.name}" onerror="this.style.display='none'">` : ''}
+          <div class="obit-header-text">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+              <div class="obit-date" style="margin-bottom:0">${fmtDate(d.date)}</div>
+              ${d.recorded ? `<div style="font-size:0.42rem;letter-spacing:0.12em;color:var(--muted)">Added ${fmtDate(d.recorded)}</div>` : ''}
+            </div>
+            <div class="obit-name" style="padding-right:0">${d.name}</div>
+            <div class="obit-meta">Aged <strong>${d.age}</strong> · ${d.points} points scored</div>
+          </div>
+        </div>
+        ${d.obit ? `<div class="obit-note">${d.obit}</div>` : ''}
         <div class="obit-picked">Picked by: <span class="obit-picked-names">${d.pickedBy?.length ? d.pickedBy.join(', ') : 'Nobody'}</span></div>
         ${d.source ? `<div class="obit-src">Source: <a href="${d.source}" target="_blank" rel="noopener">BBC News ↗</a></div>` : ''}
       </div>`).join('');
@@ -1180,13 +1297,17 @@ function buildHome() {
     document.getElementById('notable-feed').innerHTML = `<div class="no-notable">None posted yet.</div>`;
   } else {
     document.getElementById('notable-feed').innerHTML = sortedNotable.map((d,i)=>`
-      <div class="notable" style="animation-delay:${i*0.04}s">
-        <div>
-          <div class="notable-name">${d.name}</div>
-          <div class="notable-meta">Aged ${d.age} · ${fmtDate(d.date)} · Not on anyone's list</div>
-          ${d.note?`<div class="notable-note">${d.note}</div>`:''}
+      <div class="obit" style="animation-delay:${i*0.04}s">
+        <div class="obit-header">
+          ${d.photo ? `<img class="obit-photo" src="${d.photo}" alt="${d.name}" onerror="this.style.display='none'">` : ''}
+          <div class="obit-header-text">
+            <div class="obit-date">${fmtDate(d.date)}</div>
+            <div class="obit-name" style="padding-right:0">${d.name}</div>
+            <div class="obit-meta">Aged <strong>${d.age}</strong> · Not on anyone's list</div>
+          </div>
         </div>
-        <div class="obit-date" style="text-align:right">${fmtDate(d.date)}</div>
+        ${d.note?`<div class="obit-note">${d.note}</div>`:''}
+        <div class="obit-picked" style="color:var(--muted)">Not picked by anyone</div>
       </div>`).join('');
   }
 
@@ -1217,7 +1338,8 @@ function buildScoreboard() {
     const row=document.createElement('div');
     row.className=`pr${rank===1?' r1':''}`;
     row.style.animationDelay=`${i*0.05}s`;
-    row.innerHTML=`<div class="pr-rank">${rank}${tied?'=':''}</div><div class="pr-name">${p.name}</div><div class="pr-dead">${dt}</div><div class="pr-sw"><div class="pr-score${s===0?' z':' h'}">${s}</div><span class="pr-pts">pts</span></div>`;
+    const deadCount=dead.length;
+    row.innerHTML=`<div class="pr-rank">${rank}${tied?'=':''}</div><div class="pr-name">${p.name}${deadCount?`<span style="font-size:0.42rem;color:var(--muted);letter-spacing:0.1em;margin-left:7px">${deadCount} scored</span>`:''}</div><div class="pr-dead">${dt}</div><div class="pr-sw"><div class="pr-score${s===0?' z':' h'}">${s}</div><span class="pr-pts">pts</span></div>`;
     board.appendChild(row);
   });
 
@@ -1248,20 +1370,61 @@ function buildScoreboard() {
 // ════════════════════════════════════════
 function buildAllPicks() {
   const counts = pickCounts();
+  const sortBy = document.getElementById('picks-sort')?.value||'player';
+  let players = [...allPlayers];
+  if(sortBy==='score') players.sort((a,b)=>getScore(b)-getScore(a));
+
+  // Popularity panel — top shared picks
+  const popEl = document.getElementById('picks-popularity');
+  if(popEl){
+    const shared = Object.entries(counts).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
+    if(shared.length){
+      const maxN = shared[0][1];
+      popEl.innerHTML = `<div style="font-size:0.44rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Most picked</div>`
+        + shared.map(([name,n])=>{
+            const isDead = allDeaths.some(d=>d.name===name);
+            const pct = Math.round((n/maxN)*100);
+            return `<div style="display:flex;align-items:center;gap:9px;margin-bottom:5px">
+              <div style="font-size:0.54rem;letter-spacing:0.04em;color:${isDead?'var(--muted)':'var(--bone)'};width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${isDead?'text-decoration:line-through;':''}">${name}</div>
+              <div style="flex:1;background:var(--gray);height:4px;border-radius:2px;overflow:hidden"><div style="width:${pct}%;height:100%;background:var(--blood);"></div></div>
+              <div style="font-size:0.5rem;color:var(--muted);width:28px;text-align:right">${n}×</div>
+            </div>`;
+          }).join('');
+    } else {
+      popEl.innerHTML = '';
+    }
+  }
+
   const grid = document.getElementById('all-picks-grid');
   grid.innerHTML = '';
-  allPlayers.forEach((p,pi)=>{
+  players.forEach((p,pi)=>{
     const picks=p.picks||[];
     const dead=getDeadPicks(p).map(d=>d.name);
     const s=getScore(p);
+    const deadCount=dead.length;
     const div=document.createElement('div');
     div.className='pc';
     div.style.animationDelay=`${pi*0.05}s`;
-    div.innerHTML=`<div class="pc-head"><div class="pc-name">${p.name}</div><div class="pc-score">Score: <span>${s}pts</span></div></div><div>${
+    div.innerHTML=`<div class="pc-head"><div class="pc-name">${p.name}</div><div class="pc-score">${deadCount?`<span style="font-size:0.46rem;color:var(--muted);margin-right:6px">${deadCount} scored</span>`:''}Score: <span>${s}pts</span></div></div><div>${
       picks.length?picks.map((pk,i)=>`<div class="pl${dead.includes(pk)?' dead':''}"><span class="pn">${String(i+1).padStart(2,'0')}</span>${pk}${counts[pk]>1?`<span class="stag">${counts[pk]}×</span>`:''}</div>`).join('')
       :'<div style="font-size:0.56rem;color:var(--muted);padding:8px 0">No picks yet</div>'
     }</div>`;
     grid.appendChild(div);
+  });
+  filterAllPicks();
+}
+
+function filterAllPicks(){
+  const q=(document.getElementById('picks-search')?.value||'').toLowerCase().trim();
+  document.querySelectorAll('.pl').forEach(el=>{
+    if(!q){el.style.display='';return;}
+    el.style.display=el.textContent.toLowerCase().includes(q)?'':'none';
+  });
+  // Show/hide player cards if none of their picks match
+  document.querySelectorAll('.pc').forEach(card=>{
+    const rows=card.querySelectorAll('.pl');
+    const anyVisible=[...rows].some(r=>r.style.display!=='none');
+    card.style.display=(rows.length===0||anyVisible)?'':'none';
   });
 }
 
@@ -1338,11 +1501,13 @@ function buildMyPicks() {
   }
 }
 
+let picksUnsaved=false;
 function updateSlot(i) {
   const v=(document.getElementById(`sinput-${i}`)?.value||'').trim();
   const s=document.getElementById(`pslot-${i}`);
   if(s)s.className=`pslot${v?' f':' e'}`;
   updatePicksCount();
+  picksUnsaved=true;
 }
 function updatePicksCount() {
   let c=0;
@@ -1375,6 +1540,7 @@ async function saveMyPicks() {
     if(idx>=0)allPlayers[idx]={...allPlayers[idx],picks,picksReviewStatus:newStatus,pickStatuses:newStatuses};
     currentUser={...currentUser,picks,picksReviewStatus:newStatus,pickStatuses:newStatuses};
     localStorage.setItem('dd26_user',JSON.stringify(currentUser));
+    picksUnsaved=false;
     showAlert('mypicks-alert',`Saved ${picks.length} pick${picks.length!==1?'s':''}.${picksChanged&&newStatus==='draft'&&(me.picksReviewStatus==='submitted'||me.picksReviewStatus==='reviewed')?' Review status reset — please resubmit.':''}`,'s');
     buildMyPicks();
   } catch(e){ showAlert('mypicks-alert','Failed to save. Please try again.','e'); }
@@ -1424,6 +1590,8 @@ async function submitPicksForReview() {
     localStorage.setItem('dd26_user', JSON.stringify(currentUser));
     buildMyPicks();
     showAlert('mypicks-alert','✓ Picks submitted for review.','s');
+    // Notify admin
+    cfCall('sendPicksSubmitted',{playerName:currentUser.name,picks}).catch(()=>{});
   } catch(e) {
     console.error('Submit failed:', e);
     if(btn){ btn.disabled=false; btn.textContent='Submit for Review'; }
@@ -1758,9 +1926,19 @@ function buildSettings(){
   const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
   document.getElementById('sett-name').value=me.name||'';
   document.getElementById('sett-email').value=me.email||'';
-  const notif=me.emailNotifications||false;
-  document.getElementById('sett-notif').checked=notif;
-  document.getElementById('notif-label').textContent=notif?'Email notifications on':'Email notifications off';
+  // Master toggle — on if any pref is enabled
+  const prefs=me.notifPrefs||{};
+  const masterOn=me.emailNotifications||false;
+  document.getElementById('sett-notif-master').checked=masterOn;
+  document.getElementById('notif-label').textContent=masterOn?'Email notifications on':'Email notifications off';
+  document.getElementById('notif-prefs').style.display=masterOn?'flex':'none';
+  // Individual prefs — default deaths+reviewed to on for existing users who had notifs on
+  const defaultOn=masterOn&&!me.notifPrefs;
+  document.getElementById('np-deaths').checked   = prefs.deaths    !==undefined ? prefs.deaths    : defaultOn;
+  document.getElementById('np-reviewed').checked = prefs.reviewed  !==undefined ? prefs.reviewed  : defaultOn;
+  document.getElementById('np-seasonstart').checked = prefs.seasonStart!==undefined ? prefs.seasonStart : false;
+  document.getElementById('np-seasonend').checked   = prefs.seasonEnd  !==undefined ? prefs.seasonEnd   : false;
+  document.getElementById('np-reminder').checked    = prefs.reminder   !==undefined ? prefs.reminder    : false;
 }
 
 async function saveEmail(){
@@ -1780,22 +1958,31 @@ async function saveEmail(){
 }
 
 async function saveNotifPref(){
-  const emailNotifications=document.getElementById('sett-notif').checked;
+  const emailNotifications=document.getElementById('sett-notif-master').checked;
   document.getElementById('notif-label').textContent=emailNotifications?'Email notifications on':'Email notifications off';
+  document.getElementById('notif-prefs').style.display=emailNotifications?'flex':'none';
   const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
   if(!me.email&&emailNotifications){
     showAlert('notif-alert','Please save an email address first.','e');
-    document.getElementById('sett-notif').checked=false;
+    document.getElementById('sett-notif-master').checked=false;
     document.getElementById('notif-label').textContent='Email notifications off';
+    document.getElementById('notif-prefs').style.display='none';
     return;
   }
+  const notifPrefs={
+    deaths:      document.getElementById('np-deaths').checked,
+    reviewed:    document.getElementById('np-reviewed').checked,
+    seasonStart: document.getElementById('np-seasonstart').checked,
+    seasonEnd:   document.getElementById('np-seasonend').checked,
+    reminder:    document.getElementById('np-reminder').checked,
+  };
   try{
-    await fsSet(`players/${currentUser.id}`,{emailNotifications});
+    await fsSet(`players/${currentUser.id}`,{emailNotifications,notifPrefs});
     const idx=allPlayers.findIndex(p=>p.id===currentUser.id);
-    if(idx>=0)allPlayers[idx]={...allPlayers[idx],emailNotifications};
-    currentUser={...currentUser,emailNotifications};
+    if(idx>=0)allPlayers[idx]={...allPlayers[idx],emailNotifications,notifPrefs};
+    currentUser={...currentUser,emailNotifications,notifPrefs};
     localStorage.setItem('dd26_user',JSON.stringify(currentUser));
-    showAlert('notif-alert',emailNotifications?'Notifications enabled.':'Notifications disabled.','s');
+    showAlert('notif-alert',emailNotifications?'Preferences saved.':'Notifications disabled.','s');
   }catch(e){showAlert('notif-alert','Failed to update.','e');}
 }
 async function saveDisplayName(){
@@ -1826,6 +2013,8 @@ async function changePassword(){
     document.getElementById('pw-new').value='';
     document.getElementById('pw-con').value='';
     showAlert('pw-alert','Password changed.','s');
+    // Security alert — fire regardless of notification prefs
+    cfCall('sendPasswordChanged',{playerId:currentUser.id,playerName:currentUser.name}).catch(()=>{});
   }catch(e){showAlert('pw-alert','Failed to update.','e');}
 }
 
@@ -1862,11 +2051,115 @@ async function refreshPlayersFromServer(){
 }
 
 // DEATHS
+// ════════════════════════════════════════
+// WIKIPEDIA PHOTO FETCH
+// ════════════════════════════════════════
+let wikiDebounce=null;
+let wikiDebounceNotable=null;
+
+async function _fetchWiki(name, photoInputId, imgId, statusId, previewId){
+  const status=document.getElementById(statusId);
+  const preview=document.getElementById(previewId);
+  const img=document.getElementById(imgId);
+  if(!name){return;}
+  status.textContent='Searching Wikipedia...';
+  preview.style.display='flex';
+  img.style.display='none';
+  try{
+    const res=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`);
+    if(!res.ok)throw new Error('Not found');
+    const data=await res.json();
+    const thumb=data.thumbnail?.source||data.originalimage?.source;
+    if(thumb){
+      const bigThumb=thumb.replace(/\/\d+px-/,'/200px-');
+      document.getElementById(photoInputId).value=bigThumb;
+      img.src=bigThumb; img.style.display='block';
+      status.textContent=`Found: ${data.title}`;
+    }else{
+      status.textContent='No photo on Wikipedia.\nPaste a URL manually.';
+    }
+  }catch(e){
+    status.textContent='Not found on Wikipedia.\nPaste a URL manually.';
+  }
+}
+
+function fetchWikiPhotoNotable(force=false){
+  clearTimeout(wikiDebounceNotable);
+  wikiDebounceNotable=setTimeout(()=>{
+    _fetchWiki(document.getElementById('nd-name').value.trim(),'nd-photo','nd-photo-img','nd-photo-status','nd-photo-preview');
+  }, force?0:900);
+}
+
+function previewPhotoNotable(){
+  const url=document.getElementById('nd-photo').value.trim();
+  const preview=document.getElementById('nd-photo-preview');
+  const img=document.getElementById('nd-photo-img');
+  if(!url){preview.style.display='none';return;}
+  preview.style.display='flex'; img.src=url; img.style.display='block';
+  img.onerror=()=>{img.style.display='none';};
+}
+function fetchWikiPhoto(force=false){
+  clearTimeout(wikiDebounce);
+  const delay = force ? 0 : 900;
+  wikiDebounce = setTimeout(async ()=>{
+    const name = document.getElementById('d-name').value.trim();
+    if(!name) return;
+    const photoInput = document.getElementById('d-photo');
+    const status = document.getElementById('d-photo-status');
+    const preview = document.getElementById('d-photo-preview');
+    const img = document.getElementById('d-photo-img');
+    status.textContent = 'Searching Wikipedia...';
+    preview.style.display = 'flex';
+    img.style.display = 'none';
+    try{
+      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('Not found');
+      const data = await res.json();
+      const thumb = data.thumbnail?.source || data.originalimage?.source;
+      if(thumb){
+        // Use a slightly larger version if available (replace size param)
+        const bigThumb = thumb.replace(/\/\d+px-/, '/200px-');
+        photoInput.value = bigThumb;
+        img.src = bigThumb;
+        img.style.display = 'block';
+        status.textContent = `Found on Wikipedia\n${data.title}`;
+      } else {
+        status.textContent = 'No photo on Wikipedia.\nPaste a URL manually.';
+        img.style.display = 'none';
+      }
+    }catch(e){
+      status.textContent = 'Not found on Wikipedia.\nPaste a URL manually.';
+      img.style.display = 'none';
+    }
+  }, delay);
+}
+
+function previewPhoto(){
+  const url = document.getElementById('d-photo').value.trim();
+  const preview = document.getElementById('d-photo-preview');
+  const img = document.getElementById('d-photo-img');
+  const status = document.getElementById('d-photo-status');
+  if(!url){ preview.style.display='none'; return; }
+  preview.style.display='flex';
+  img.src = url;
+  img.style.display='block';
+  img.onerror = ()=>{ status.textContent='Image failed to load.'; img.style.display='none'; };
+  img.onload = ()=>{ status.textContent=''; };
+}
+
 async function recordDeath(){
   const name=document.getElementById('d-name').value.trim();
   const age=parseInt(document.getElementById('d-age').value);
   const date=document.getElementById('d-date').value;
   const source=document.getElementById('d-source').value.trim();
+  const photo=document.getElementById('d-photo').value.trim();
+  const obit=document.getElementById('d-obit').value.trim();
+  const adminNote=document.getElementById('d-adminnote').value.trim();
+  // Verification checklist warning
+  const checks=['vc1','vc2','vc3','vc4','vc5'];
+  const unchecked=checks.filter(id=>!document.getElementById(id)?.checked);
+  if(unchecked.length&&!confirm(`${unchecked.length} verification item${unchecked.length>1?'s':''} not ticked. Record anyway?`))return;
   if(!name){showAlert('death-alert','Please enter a celebrity name.','e');return;}
   if(isNaN(age)||age<0||age>130){showAlert('death-alert','Please enter a valid age.','e');return;}
   if(!date){showAlert('death-alert','Please enter the date of death.','e');return;}
@@ -1874,13 +2167,18 @@ async function recordDeath(){
   const points=Math.max(0,100-age);
   const pickedBy=allPlayers.filter(p=>(p.picks||[]).includes(name)).map(p=>p.name);
   try{
-    const res=await cfCall('recordDeath',{name,age,date,points,source,pickedBy});
-    const newDeath={id:res.id,name,age,date,points,source,pickedBy};
+    const res=await cfCall('recordDeath',{name,age,date,points,source,pickedBy,photo,obit,adminNote});
+    const newDeath={id:res.id,name,age,date,points,source,pickedBy,photo,obit,adminNote};
     allDeaths.push(newDeath);
     document.getElementById('d-name').value='';
     document.getElementById('d-age').value='';
     document.getElementById('d-date').value='';
     document.getElementById('d-source').value='';
+    document.getElementById('d-photo').value='';
+    document.getElementById('d-obit').value='';
+    document.getElementById('d-adminnote').value='';
+    document.getElementById('d-photo-preview').style.display='none';
+    ['vc1','vc2','vc3','vc4','vc5'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
     showAlert('death-alert',`☠ ${name} recorded. ${points} pts. Picked by: ${pickedBy.join(', ')||'nobody'}.`,'s');
     buildDeathLog();
     buildHome();
@@ -1904,7 +2202,62 @@ async function sendDeathNoticeEmails(death){
 function buildDeathLog(){
   const log=document.getElementById('death-log');
   if(!allDeaths.length){log.innerHTML=`<div style="padding:18px;background:var(--ash);border:1px solid var(--gray);font-size:0.56rem;color:var(--muted);text-align:center;letter-spacing:0.1em">No deaths recorded yet.</div>`;return;}
-  log.innerHTML=[...allDeaths].reverse().map((d,i)=>`<div class="dli" style="animation-delay:${i*0.03}s"><div><div class="dli-n">${d.name}</div><div class="dli-m">Picked by: ${d.pickedBy?.join(', ')||'nobody'} · ${fmtDate(d.date)} · Age ${d.age}</div></div><div class="dli-p">+${d.points}</div><button class="btn btn-danger btn-sm" onclick="undoDeath('${d.id}','${d.name}')">Undo</button></div>`).join('');
+  log.innerHTML=[...allDeaths].reverse().map((d,i)=>`
+    <div class="dli" id="dli-${d.id}" style="animation-delay:${i*0.03}s">
+      <div><div class="dli-n">${d.name}</div><div class="dli-m">Picked by: ${d.pickedBy?.join(', ')||'nobody'} · ${fmtDate(d.date)} · Age ${d.age}</div></div>
+      <div class="dli-p">+${d.points}</div>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-sm" onclick="editDeathInline('${d.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="undoDeath('${d.id}','${d.name}')">Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+function editDeathInline(id){
+  const d=allDeaths.find(x=>x.id===id);
+  if(!d)return;
+  const row=document.getElementById(`dli-${id}`);
+  if(!row)return;
+  // Parse date back to yyyy-mm-dd for input
+  const dateVal=(()=>{try{const p=new Date(d.date);if(!isNaN(p))return p.toISOString().split('T')[0];}catch(e){}return '';})();
+  const iStyle="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:5px 8px;outline:none;width:100%";
+  row.innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:7px;width:100%">
+      <div style="font-size:0.44rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted)">Editing: ${d.name}</div>
+      <div style="display:grid;grid-template-columns:1fr 80px 140px;gap:6px">
+        <input id="ed-name-${id}" value="${d.name}" style="${iStyle}" placeholder="Name">
+        <input id="ed-age-${id}" type="number" value="${d.age}" min="0" max="130" style="${iStyle}" placeholder="Age">
+        <input id="ed-date-${id}" type="date" value="${dateVal}" style="${iStyle}">
+      </div>
+      <input id="ed-src-${id}" value="${d.source||''}" style="${iStyle}" placeholder="Source URL (optional)">
+      <input id="ed-photo-${id}" value="${d.photo||''}" style="${iStyle}" placeholder="Photo URL (optional)">
+      <textarea id="ed-obit-${id}" rows="2" style="${iStyle};resize:vertical;line-height:1.7" placeholder="Obituary note (optional)">${d.obit||''}</textarea>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-primary btn-sm" onclick="saveDeathEdit('${id}')">Save</button>
+        <button class="btn btn-ghost btn-sm" onclick="buildDeathLog()">Cancel</button>
+      </div>
+      <div id="ed-alert-${id}" style="display:none;font-size:0.48rem;color:var(--red);letter-spacing:0.06em"></div>
+    </div>`;
+}
+
+async function saveDeathEdit(id){
+  const name=document.getElementById(`ed-name-${id}`).value.trim();
+  const age=parseInt(document.getElementById(`ed-age-${id}`).value);
+  const date=document.getElementById(`ed-date-${id}`).value;
+  const source=document.getElementById(`ed-src-${id}`).value.trim();
+  const photo=document.getElementById(`ed-photo-${id}`).value.trim();
+  const obit=document.getElementById(`ed-obit-${id}`).value.trim();
+  const alertEl=document.getElementById(`ed-alert-${id}`);
+  if(!name||isNaN(age)||!date){alertEl.textContent='Name, age and date are required.';alertEl.style.display='block';return;}
+  alertEl.style.display='none';
+  try{
+    const res=await cfCall('updateDeath',{id,name,age,date,source,photo,obit});
+    const idx=allDeaths.findIndex(d=>d.id===id);
+    if(idx>-1) allDeaths[idx]={...allDeaths[idx],name,age,date,source,photo,obit,points:res.points,pickedBy:res.pickedBy};
+    buildDeathLog();
+    buildHome();
+    buildScoreboard();
+  }catch(e){alertEl.textContent='Save failed: '+e.message;alertEl.style.display='block';}
 }
 
 async function undoDeath(id,name){
@@ -1925,11 +2278,13 @@ async function postNotableDeath(){
   const age=parseInt(document.getElementById('nd-age').value);
   const date=document.getElementById('nd-date').value;
   const note=document.getElementById('nd-note').value.trim();
+  const photo=document.getElementById('nd-photo').value.trim();
   if(!name||!age||!date){showAlert('notable-alert','Please fill in name, age and date.','e');return;}
   try{
-    const ref=await fsAdd('notableDeaths',{name,age,date:fmtDate(date),note});
-    allNotableDeaths.push({id:ref.id,name,age,date:fmtDate(date),note});
-    ['nd-name','nd-age','nd-date','nd-note'].forEach(id=>{document.getElementById(id).value='';});
+    const ref=await fsAdd('notableDeaths',{name,age,date:fmtDate(date),note,photo});
+    allNotableDeaths.push({id:ref.id,name,age,date:fmtDate(date),note,photo});
+    ['nd-name','nd-age','nd-date','nd-note','nd-photo'].forEach(id=>{document.getElementById(id).value='';});
+    document.getElementById('nd-photo-preview').style.display='none';
     document.getElementById('notable-alert').style.display='none';
     buildNotableLog();
     buildHome();
@@ -1955,10 +2310,57 @@ function buildNotableLog(){
     return;
   }
   log.innerHTML=[...allNotableDeaths].sort((a,b)=>(b.date||'')>(a.date||'')?1:-1).map((d,i)=>
-    `<div class="dli" style="animation-delay:${i*0.03}s">
-      <div><div class="dli-n">${d.name}</div><div class="dli-m">Age ${d.age} · ${fmtDate(d.date)}${d.note?` · ${d.note}`:''}</div></div>
-      <button class="btn btn-danger btn-sm" onclick="deleteNotableDeath('${d.id}','${d.name}')">Remove</button>
+    `<div class="dli" id="ndli-${d.id}" style="animation-delay:${i*0.03}s">
+      <div style="display:flex;gap:9px;align-items:center">${d.photo?`<img src="${d.photo}" style="width:32px;height:40px;object-fit:cover;object-position:top;border:1px solid var(--gray);flex-shrink:0" onerror="this.style.display='none'">`:''}
+        <div><div class="dli-n">${d.name}</div><div class="dli-m">Age ${d.age} · ${fmtDate(d.date)}${d.note?` · ${d.note}`:''}</div></div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-sm" onclick="editNotableInline('${d.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteNotableDeath('${d.id}','${d.name}')">Remove</button>
+      </div>
     </div>`).join('');
+}
+
+function editNotableInline(id){
+  const d=allNotableDeaths.find(x=>x.id===id);
+  if(!d)return;
+  const row=document.getElementById(`ndli-${id}`);
+  if(!row)return;
+  const dateVal=(()=>{try{const p=new Date(d.date);if(!isNaN(p))return p.toISOString().split('T')[0];}catch(e){}return '';})();
+  row.innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:7px;width:100%">
+      <div style="font-size:0.44rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted)">Editing: ${d.name}</div>
+      <div style="display:grid;grid-template-columns:1fr 80px 140px;gap:6px">
+        <input id="en-name-${id}" value="${d.name}" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:5px 8px;outline:none" placeholder="Name">
+        <input id="en-age-${id}" type="number" value="${d.age}" min="0" max="130" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:5px 8px;outline:none" placeholder="Age">
+        <input id="en-date-${id}" type="date" value="${dateVal}" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:5px 8px;outline:none">
+      </div>
+      <input id="en-photo-${id}" value="${d.photo||''}" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:5px 8px;outline:none;width:100%" placeholder="Photo URL (optional)">
+      <textarea id="en-note-${id}" rows="2" style="background:var(--dark);border:1px solid var(--gray);color:var(--bone);font-family:'DM Mono',monospace;font-size:0.58rem;padding:5px 8px;outline:none;resize:vertical;width:100%;line-height:1.7" placeholder="Note (optional)">${d.note||''}</textarea>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-primary btn-sm" onclick="saveNotableEdit('${id}')">Save</button>
+        <button class="btn btn-ghost btn-sm" onclick="buildNotableLog()">Cancel</button>
+      </div>
+      <div id="en-alert-${id}" style="display:none;font-size:0.48rem;color:var(--red);letter-spacing:0.06em"></div>
+    </div>`;
+}
+
+async function saveNotableEdit(id){
+  const name=document.getElementById(`en-name-${id}`).value.trim();
+  const age=parseInt(document.getElementById(`en-age-${id}`).value);
+  const date=document.getElementById(`en-date-${id}`).value;
+  const note=document.getElementById(`en-note-${id}`).value.trim();
+  const photo=document.getElementById(`en-photo-${id}`).value.trim();
+  const alertEl=document.getElementById(`en-alert-${id}`);
+  if(!name||isNaN(age)||!date){alertEl.textContent='Name, age and date are required.';alertEl.style.display='block';return;}
+  alertEl.style.display='none';
+  try{
+    await fsSet(`notableDeaths/${id}`,{name,age,date:fmtDate(date),note,photo});
+    const idx=allNotableDeaths.findIndex(d=>d.id===id);
+    if(idx>-1) allNotableDeaths[idx]={...allNotableDeaths[idx],name,age,date:fmtDate(date),note,photo};
+    buildNotableLog();
+    buildHome();
+  }catch(e){alertEl.textContent='Save failed: '+e.message;alertEl.style.display='block';}
 }
 
 // PLAYERS
@@ -2064,6 +2466,8 @@ async function adminSavePickReview() {
     showAlert('rp-alert', `Review saved for ${p.name}.`, 's');
     renderAdminPicksReview(allPlayers[idx]);
     buildPlayersAdmin();
+    // Notify player
+    cfCall('sendPicksReviewed',{playerId:pid,playerName:p.name,picks:p.picks||[],pickStatuses}).catch(()=>{});
   } catch(e) { showAlert('rp-alert','Failed: '+e.message,'e'); }
 }
 
@@ -2635,10 +3039,20 @@ window.clearPlanningPicks=clearPlanningPicks;
 window.updatePlanSlot=updatePlanSlot;
 window.clearPlanSlot=clearPlanSlot;
 window.switchAdminTab=switchAdminTab;
+window.fetchWikiPhoto=fetchWikiPhoto;
+window.fetchWikiPhotoNotable=fetchWikiPhotoNotable;
+window.previewPhotoNotable=previewPhotoNotable;
+window.filterAllPicks=filterAllPicks;
+window.sendTestEmail=sendTestEmail;
+window.previewPhoto=previewPhoto;
 window.recordDeath=recordDeath;
 window.undoDeath=undoDeath;
+window.editDeathInline=editDeathInline;
+window.saveDeathEdit=saveDeathEdit;
 window.postNotableDeath=postNotableDeath;
 window.deleteNotableDeath=deleteNotableDeath;
+window.editNotableInline=editNotableInline;
+window.saveNotableEdit=saveNotableEdit;
 window.addPlayer=addPlayer;
 window.adminResetPw=adminResetPw;
 window.adminArchivePlayer=adminArchivePlayer;
@@ -2654,7 +3068,123 @@ window.toggleFuturePlayer=toggleFuturePlayer;
 window.addFgRule=addFgRule;
 window.saveFgRules=saveFgRules;
 window.removeFgRule=removeFgRule;
+
+// ════════════════════════════════════════
+// BROADCAST EMAIL TRIGGERS
+// ════════════════════════════════════════
+async function triggerSeasonStart(){
+  if(!confirm('Send Season Start email to all opted-in players with their pick lists?'))return;
+  try{
+    const feeNum=parseInt((gameSettings.entryFee||'10').replace(/[^0-9]/g,''))||10;
+    const res=await cfCall('sendSeasonStart',{
+      year:gameSettings.year||'2026',
+      startDate:fmtDate(gameSettings.startDate)||gameSettings.startDate||'',
+      endDate:fmtDate(gameSettings.endDate)||gameSettings.endDate||'',
+      entryFee:gameSettings.entryFee||'£10',
+      playerCount:allPlayers.length
+    });
+    showAlert('broadcast-alert',`✓ Season start email sent to ${res.sent} player${res.sent!==1?'s':''}.`,'s');
+  }catch(e){showAlert('broadcast-alert','Failed: '+e.message,'e');}
+}
+
+async function triggerSeasonEnd(){
+  if(!confirm('Send Season End email with final standings to all opted-in players?'))return;
+  const sp=getSortedPlayers();
+  const topScore=getScore(sp[0]);
+  const winners=sp.filter(p=>getScore(p)===topScore);
+  const feeNum=parseInt((gameSettings.entryFee||'10').replace(/[^0-9]/g,''))||10;
+  const pot=`${gameSettings.entryFee?.includes('£')?'£':'£'}${allPlayers.length*feeNum}`;
+  try{
+    const res=await cfCall('sendSeasonEnd',{
+      year:gameSettings.year||'2026',
+      winner:winners.map(w=>w.name).join(' & '),
+      winnerScore:topScore,
+      finalScores:sp.map(p=>({name:p.name,score:getScore(p)})),
+      pot
+    });
+    showAlert('broadcast-alert',`✓ Season end email sent to ${res.sent} player${res.sent!==1?'s':''}.`,'s');
+  }catch(e){showAlert('broadcast-alert','Failed: '+e.message,'e');}
+}
+
+async function triggerPicksReminder(){
+  const deadline=document.getElementById('reminder-deadline')?.value.trim()||'';
+  if(!confirm(`Send picks lock reminder to all opted-in players who haven't submitted yet?`))return;
+  try{
+    const res=await cfCall('sendPicksLockReminder',{deadline});
+    showAlert('broadcast-alert',`✓ Reminder sent to ${res.sent} player${res.sent!==1?'s':''}.`,'s');
+  }catch(e){showAlert('broadcast-alert','Failed: '+e.message,'e');}
+}
+
 window.archiveSeason=archiveSeason;
+async function sendTestEmail(){
+  // Always use the admin player as the source of truth — works regardless of who's playing
+  const admin=allPlayers.find(p=>p.role==='admin')||currentUser;
+  const me=allPlayers.find(p=>p.id===currentUser.id)||currentUser;
+  if(!me.email){showAlert('broadcast-alert','No email address saved on your account.','e');return;}
+  if(!confirm(`Send one of every notification type to ${me.email}?\n\nThis will send 6 emails using your account data.`))return;
+
+  const btn=document.querySelector('[onclick="sendTestEmail()"]');
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
+
+  const t=me.email;
+  const year=gameSettings.year||new Date().getFullYear();
+  const feeNum=parseInt((gameSettings.entryFee||'10').replace(/[^0-9]/g,''))||10;
+  const pot=`£${allPlayers.length*feeNum}`;
+
+  // Build test picks from admin's actual picks, padding with placeholders if needed
+  const adminPicks=[...(admin.picks||[])].filter(Boolean);
+  while(adminPicks.length<12) adminPicks.push(`Test Pick ${adminPicks.length+1}`);
+  const testPicks=adminPicks.slice(0,12);
+
+  // Statuses: first pick needs replacing, rest verified — shows both states
+  const testStatuses=testPicks.map((_,i)=>i===0?'replace':'verified');
+
+  // Standings from live data
+  const standings=getSortedPlayers().map((p,i)=>({rank:i+1,name:p.name,score:getScore(p)}));
+  const finalScores=getSortedPlayers().map(p=>({name:p.name,score:getScore(p)}));
+
+  // Use second pick (first is marked replace) as the test death subject
+  const deathPick=testPicks[1]||'Test Celebrity';
+  const testAge=Math.floor(Math.random()*30)+65; // random 65-94, realistic range
+  const testPoints=Math.max(0,100-testAge);
+  const testDeath={
+    name:deathPick,
+    age:testAge,
+    date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),
+    points:testPoints,
+    source:'https://bbc.co.uk',
+    pickedBy:[admin.name],
+    photo:'',
+    obit:`This is a test death notice. ${deathPick} has not actually died — this email is for formatting preview only.`
+  };
+
+  const tests=[
+    ['sendDeathNotice',    {death:testDeath, standings, testRecipient:t}],
+    ['sendPicksSubmitted', {playerName:admin.name, picks:testPicks, testRecipient:t}],
+    ['sendPicksReviewed',  {playerId:admin.id||currentUser.id, playerName:admin.name, picks:testPicks, pickStatuses:testStatuses, testRecipient:t}],
+    ['sendSeasonStart',    {year, startDate:gameSettings.startDate||`1 Jan ${year}`, endDate:gameSettings.endDate||`24 Dec ${year}`, entryFee:gameSettings.entryFee||'£10', playerCount:allPlayers.length, testRecipient:t, testPicks, testName:admin.name}],
+    ['sendSeasonEnd',      {year, winner:admin.name, winnerScore:getScore(admin)||13, finalScores, pot, testRecipient:t}],
+    ['sendPicksLockReminder', {deadline:gameSettings.startDate||`1 Jan ${year}`, testRecipient:t}],
+  ];
+
+  let sent=0,failed=0;
+  for(const [fn,payload] of tests){
+    try{
+      await cfCall(fn,payload);
+      sent++;
+      showAlert('broadcast-alert',`Sending… ${sent}/${tests.length} sent.`,'s');
+    }catch(e){
+      failed++;
+      console.warn(`Test email ${fn} failed:`,e.message);
+    }
+  }
+
+  if(btn){btn.disabled=false;btn.textContent='📧 Send Test to Me';}
+  showAlert('broadcast-alert',`✓ ${sent} test email${sent!==1?'s':''} sent to ${t}${failed?` (${failed} failed — check console)`:'.'}`,'s');
+}
+window.triggerSeasonStart=triggerSeasonStart;
+window.triggerSeasonEnd=triggerSeasonEnd;
+window.triggerPicksReminder=triggerPicksReminder;
 window.addManualArchive=addManualArchive;
 window.deleteArchive=deleteArchive;
 window.toggleArchiveEdit=toggleArchiveEdit;
