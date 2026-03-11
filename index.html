@@ -1856,10 +1856,9 @@ async function buildHistory(){
     const topWins = champions[0]?.[1] || 0;
 
     const hallHtml = `
-      <div style="background:var(--ash);border:1px solid var(--gray);border-top:2px solid var(--gold);margin-bottom:20px;animation:fd 0.4s ease both">
-        <div style="padding:11px 17px;border-bottom:1px solid var(--gray);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:8px">
-          🏆 Hall of Champions
-        </div>
+      <div style="margin-bottom:20px;animation:fd 0.4s ease both">
+        <div class="sec-title" style="color:var(--gold)">🏆 Hall of Champions</div>
+        <div class="divider" style="background:var(--gold);margin-bottom:11px"></div>
         <table style="width:100%;border-collapse:collapse;">
           <thead>
             <tr style="border-bottom:1px solid var(--gray)">
@@ -1914,7 +1913,10 @@ async function buildHistory(){
             <div class="sec-title" style="margin:16px 0 3px;font-size:1.1rem">Deaths (${a.deaths.length})</div>
             ${a.deaths.map(d=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.58rem"><span>${d.name}${d.age?` <span style="color:var(--muted);font-size:0.5rem">(aged ${d.age}${d.date?', '+fmtDate(d.date):''})</span>`:''}
             </span><span style="color:var(--red)">${d.points}pts</span></div>`).join('')}`:''}
-          ${a.rules?.length?`<div class="sec-title" style="margin:16px 0 3px;font-size:1.1rem">Rules</div><div class="rules-list" style="margin-top:8px">${a.rules.map((r,ri)=>`<div class="rc"><div class="rnum">${ri+1}</div><div><div class="rtitle">${r.title}</div><div class="rtext">${r.text}</div></div></div>`).join('')}</div>`:''}
+          ${a.rules?.length?`
+            <div class="sec-title" style="margin:16px 0 3px;font-size:1.1rem">Rules</div>
+            <div class="divider" style="margin-bottom:8px"></div>
+            <div class="rules-list">${a.rules.map((r,ri)=>`<div class="rc"><div class="rnum">${ri+1}</div><div><div class="rtitle">${r.title}</div><div class="rtext">${r.text}</div></div></div>`).join('')}</div>`:''}
         </div>
       </div>`;
     }).join('');
@@ -2878,6 +2880,10 @@ async function buildArchiveListAdmin(){
           <div class="field" style="margin:0 0 8px"><label>Picks (one per line: PlayerName: Pick1, Pick2, ...)</label>
             <textarea id="ea-picks-${a.id}" style="min-height:100px">${(a.picks||[]).map(pp=>`${pp.name}: ${(pp.picks||[]).join(', ')}`).join('\n')}</textarea>
           </div>
+          <div class="field" style="margin:0 0 8px"><label>Rules (one per line: Title: Rule text)</label>
+            <textarea id="ea-rules-${a.id}" style="min-height:100px">${(a.rules||[]).map(r=>`${r.title||''}: ${r.text||''}`).join('
+')}</textarea>
+          </div>
           <div class="field" style="margin:0 0 12px"><label>Notes</label>
             <input type="text" id="ea-notes-${a.id}" value="${(a.notes||'').replace(/"/g,'&quot;')}">
           </div>
@@ -2937,8 +2943,15 @@ async function saveArchiveEdit(id){
     return{name,picks:playerPicks};
   }).filter(Boolean):[];
 
+  const rulesRaw=document.getElementById(`ea-rules-${id}`).value.trim();
+  const rules=rulesRaw?rulesRaw.split('\n').filter(l=>l.trim()).map((l,ri)=>{
+    const colon=l.indexOf(':');
+    if(colon<0)return{title:l.trim(),text:'',order:ri+1};
+    return{title:l.slice(0,colon).trim(),text:l.slice(colon+1).trim(),order:ri+1};
+  }).filter(r=>r.title):[];
+
   try{
-    await cfCall('updateArchive',{id, data:{year,winner,winnerScore,finalScores,deaths,picks,notes}});
+    await cfCall('updateArchive',{id, data:{year,winner,winnerScore,finalScores,deaths,picks,notes,rules}});
     alertEl.style.display='block';
     alertEl.className='alert ag';
     alertEl.textContent='Saved.';
