@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Deadly Dozen">
 <title>Deadly Dozen</title>
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9760;</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
 :root{--blood:#c0392b;--red:#e05050;--red-dim:rgba(224,80,80,0.22);--bone:#e8e8e8;--dark:#1a1a1a;--ash:#242424;--ash2:#2c2c2c;--gray:#383838;--gray2:#484848;--muted:#666;--gold:#c9a84c;--gold-dim:rgba(201,168,76,0.18);--green:#27ae60;--green-dim:rgba(39,174,96,0.13);}
@@ -130,20 +131,20 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .htitle{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(2.8rem,11vw,5.5rem);letter-spacing:0.07em;line-height:0.88;text-shadow:0 0 80px rgba(192,57,43,0.25);}
 .htitle .year{display:block;font-size:0.38em;color:var(--blood);letter-spacing:0.44em;margin-top:5px;}
 .htagline{font-size:0.56rem;letter-spacing:0.2em;color:var(--muted);margin-top:14px;text-transform:uppercase;}
-.home-layout{display:grid;grid-template-columns:1fr 290px;gap:3px;padding:3px;max-width:1100px;margin:0 auto;}
+.home-layout{display:grid;grid-template-columns:1fr 290px;gap:3px;padding:24px 3px 72px;max-width:1100px;margin:0 auto;}
 .news-feed{display:flex;flex-direction:column;gap:3px;}
 .news-hdr{padding:12px 17px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
 .news-hdr span{color:var(--bone);}
 .news-section-hdr{display:flex;align-items:baseline;gap:11px;margin-bottom:0;}
 .news-section-hdr .sec-title{margin-bottom:0;}
 .news-section-hdr .news-count{font-size:0.46rem;letter-spacing:0.14em;color:var(--muted);}
-.news-title-sep{height:2px;background:var(--blood);margin:8px 0 14px;}
-.news-sep{height:1px;background:var(--gray);margin:24px 0 24px;}
+.news-title-sep{height:2px;background:var(--blood);margin:10px 0 10px;}
+.news-sep{margin:24px 0;}
 .obit-notable{border-left-color:var(--gold);}
 .obit-notable::before{background:var(--gold) !important;}
 .obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
 .obit-notable .obit-meta strong{color:var(--gold);}
-.obit-notable .obit-photo{filter:grayscale(0.5) brightness(0.85);}
+.obit-notable .obit-photo{opacity:0.9;}
 .obit{background:var(--ash);border:1px solid var(--gray);padding:19px 20px 17px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
 .notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
@@ -163,7 +164,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-src{font-size:0.48rem;color:var(--muted);margin-top:7px;letter-spacing:0.07em;}
 .obit-src a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--gray);}
 .obit-src a:hover{color:var(--bone);}
-.obit-photo{width:72px;height:90px;object-fit:cover;object-position:top center;border:1px solid var(--gray);flex-shrink:0;display:block;filter:grayscale(0.2);}
+.obit-photo{width:80px;height:100px;object-fit:cover;object-position:top center;border:1px solid var(--gray);flex-shrink:0;display:block;}
 .obit-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:9px;}
 .obit-header-text{flex:1;min-width:0;padding-right:60px;}
 .obit-note{font-size:0.55rem;color:#aaa;line-height:1.8;letter-spacing:0.03em;margin-top:10px;padding-top:10px;border-top:1px solid var(--gray);font-style:italic;}
@@ -278,7 +279,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 /* ══ GAME INFO PANEL (on Scoreboard) ══ */
 .game-info-panel{background:var(--ash);border:1px solid var(--gray);margin-top:20px;overflow:hidden;}
-.game-info-hdr{padding:11px 17px;border-bottom:1px solid var(--gray);font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);}
+.game-info-hdr{padding:12px 15px 10px;border-bottom:1px solid var(--gray);}
 .game-info-grid{display:grid;grid-template-columns:repeat(3,1fr);}
 .gi-cell{padding:13px 17px;border-right:1px solid var(--gray);border-bottom:1px solid var(--gray);}
 .gi-cell:nth-child(3n){border-right:none;}
@@ -340,9 +341,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 /* ══ SITEWIDE FOOTER ══ */
 .site-footer{border-top:1px solid var(--gray);background:var(--ash);padding:22px 24px 28px;}
 .sf-inner{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;}
-.sf-brand{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.1rem;letter-spacing:0.12em;color:var(--muted);}
+.sf-brand{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.1rem;letter-spacing:0.12em;color:var(--muted);display:flex;align-items:center;gap:8px;}
 .sf-brand em{color:var(--blood);font-style:normal;}
-.sf-brand span{font-size:0.44rem;letter-spacing:0.28em;display:block;margin-top:2px;color:var(--muted);text-transform:uppercase;}
+.sf-brand .sf-sub{font-size:0.44rem;letter-spacing:0.28em;display:block;margin-top:2px;color:var(--muted);text-transform:uppercase;}
 .sf-links{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0;}
 .sf-link{font-size:0.48rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-decoration:none;transition:color 0.2s;padding:3px 0;}
 .sf-link:hover{color:var(--bone);}
@@ -511,7 +512,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <div class="sec-title" style="color:var(--gold)">📰 Notable Deaths</div>
           <span class="news-count" id="notable-count-badge"></span>
         </div>
-        <div class="news-title-sep" style="background:var(--gold)"></div>
+        <div class="news-title-sep" style="background:var(--gold);margin-bottom:10px;"></div>
         <div id="notable-feed"></div>
       </div>
     </div>
@@ -528,14 +529,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- ══ SCOREBOARD ══ -->
 <div class="page" id="page-scoreboard">
-  <div class="container">
+  <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Live Standings</div><div class="page-title">Scoreboard</div><div class="divider"></div><div class="muted">Score = 100 − age at death.</div></div><br>
     <div class="status-bar"><span><span class="sdot"></span>Monitoring active · BBC News primary source</span><span id="lc-display">—</span></div>
     <div class="col-hdrs"><div>#</div><div>Player</div><div class="dead-col">Scoring Deaths</div><div style="text-align:right">Pts</div></div>
     <div class="sb-board" id="scoreboard-board"></div>
     <div class="gw-bar" id="gw-bar"></div>
     <div class="game-info-panel" id="game-info-panel">
-      <div class="game-info-hdr">Game Info</div>
+      <div class="game-info-hdr"><div class="sec-title" style="font-size:1rem;margin-bottom:0;">Game Info</div></div>
       <div class="game-info-grid" id="game-info-grid"></div>
     </div>
   </div>
@@ -559,7 +560,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- ══ MY PICKS ══ -->
 <div class="page" id="page-mypicks">
-  <div class="container">
+  <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Your Selections</div><div class="page-title">My Picks</div><div class="divider"></div><div class="muted" id="mypicks-sub">Enter your 12 celebrity picks.</div></div><br>
     <div id="mypicks-locked-note" class="alert ag" style="display:none">🔒 Picks are locked. Contact Graeme to request a change.</div>
     <div id="mypicks-alert" style="display:none"></div>
@@ -580,7 +581,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- ══ RESERVES ══ -->
 <div class="page" id="page-reserves">
-  <div class="container">
+  <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Future Games</div><div class="page-title">Planning</div><div class="divider"></div><div class="muted">Plan your picks for future years. Only you can see this.</div></div><br>
 
     <!-- Year tabs -->
@@ -634,7 +635,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- ══ HISTORY ══ -->
 <div class="page" id="page-history">
-  <div class="container">
+  <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Archive</div><div class="page-title">History</div><div class="divider"></div><div class="muted">Previous game seasons.</div></div><br>
     <div id="history-list"></div>
   </div>
@@ -642,7 +643,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- ══ RULES ══ -->
 <div class="page" id="page-rules">
-  <div class="container">
+  <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Official Rulebook</div><div class="page-title">Rules</div><div class="divider"></div><div class="muted">Binding for the current season.</div></div>
     <div id="rules-year-tabs" style="margin:14px 0 0"></div>
     <br>
@@ -745,11 +746,18 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           </div>
         </div>
       </div>
-      <div class="sec-title" style="margin-bottom:3px">Death Log</div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px">
+        <div class="sec-title">Death Log</div>
+        <button class="btn btn-ghost btn-sm" onclick="refreshAllPhotos()" id="refresh-photos-btn" style="font-size:0.44rem">↺ Refresh Photos</button>
+      </div>
       <div class="muted" style="margin-bottom:11px">All confirmed deaths this game window.</div>
+      <div id="refresh-photos-status" style="display:none;font-size:0.48rem;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px"></div>
       <div id="death-log"></div>
 
-      <div class="sec-title" style="margin:24px 0 3px">📰 Notable Deaths</div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin:24px 0 3px">
+        <div class="sec-title">📰 Notable Deaths</div>
+        <button class="btn btn-ghost btn-sm" onclick="refreshNotablePhotos()" id="refresh-notable-photos-btn" style="font-size:0.44rem">↺ Refresh Photos</button>
+      </div>
       <div class="muted" style="margin-bottom:11px">Post deaths of interest that aren't on anyone's list.</div>
       <div class="acard" style="margin-bottom:11px">
         <div class="acard-title">Post a Notable Death</div>
@@ -843,6 +851,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="field"><label>Final Scores (one per line: Name, Score)</label><textarea id="manarc-scores" placeholder="Graeme, 42&#10;Gill, 35&#10;Brian, 28" style="min-height:90px"></textarea></div>
         <div class="field"><label>Picks (one per line: PlayerName: Pick1, Pick2, ...)</label><textarea id="manarc-picks" placeholder="Graeme: Keith Richards, Mick Jagger, ...&#10;Gill: Paul McCartney, ..." style="min-height:90px"></textarea></div>
         <div class="field"><label>Deaths (one per line: Name, Age, Date, Points)</label><textarea id="manarc-deaths" placeholder="Jimmy White, 82, 15 Mar 2024, 18&#10;Jean-Paul Belmondo, 88, 2 Jun 2024, 12" style="min-height:90px"></textarea></div>
+        <div class="field"><label>Rules (one per line: Title: Rule text)</label><textarea id="manarc-rules" placeholder="Entry fee: £10 per player.&#10;Scoring: 100 minus age at death." style="min-height:90px"></textarea></div>
         <div class="field"><label>Notes (optional — shown as a summary)</label><input type="text" id="manarc-notes" placeholder="e.g. First ever Deadly Dozen game. 6 players."></div>
         <button class="btn btn-gold" onclick="addManualArchive()">Add to History</button>
       </div>
@@ -945,7 +954,7 @@ let adminTab = 'deaths';
 // ════════════════════════════════════════
 // CLOUD FUNCTIONS CONFIG
 // ════════════════════════════════════════
-const CF_BASE = 'https://us-central1-deadly-dozen-ddf4c.cloudfunctions.net';
+const CF_BASE = 'https://us-central1-deadly-dozen-ddf4c.cloudfunctions.net'; // ← update to new v2 URL after first deploy if needed
 const ADMIN_KEY = 'DeadlyAdmin2026';
 
 async function cfCall(fnName, payload) {
@@ -1259,7 +1268,7 @@ function buildFooter() {
 
   document.getElementById('site-footer').innerHTML = `
     <div class="sf-inner">
-      <div class="sf-brand"><span class="skull" style="margin-right:5px;">☠</span><em>Deadly</em> Dozen <span>Official Game Portal · ${year}</span></div>
+      <div class="sf-brand"><span class="skull" style="font-size:1.2em;">☠</span><span><em>Deadly</em> Dozen <span class="sf-sub">Official Game Portal · ${year}</span></span></div>
       <div class="sf-links">${linksHtml}</div>
       <div class="sf-copy">Deaths verified via BBC News &amp; reputable sources</div>
     </div>`;
@@ -1893,7 +1902,7 @@ async function buildHistory(){
         <div class="hyh" onclick="toggleHistory('hy-${a.id}')">
           <div>
             <div class="hyt">${a.year}${manualBadge}</div>
-            <div class="hym">${a.playerCount||'?'} players · ${a.deaths?.length||0} deaths</div>
+            <div class="hym">${a.playerCount||(a.finalScores?.length)||(a.picks?.length)||'?'} players · ${a.deaths?.length||0} deaths</div>
             <div class="hyw">🏆 ${winner}</div>
           </div>
           <div style="font-size:0.56rem;color:var(--muted);letter-spacing:0.1em">▾ Expand</div>
@@ -2074,41 +2083,120 @@ async function refreshPlayersFromServer(){
 
 // DEATHS
 // ════════════════════════════════════════
-// WIKIPEDIA PHOTO FETCH
+// WIKIPEDIA / WIKIDATA FETCH
 // ════════════════════════════════════════
 let wikiDebounce=null;
 let wikiDebounceNotable=null;
 
-async function _fetchWiki(name, photoInputId, imgId, statusId, previewId){
+// Get best photo URL from Wikipedia summary — use thumbnail.source at 600px
+// (more reliable than originalimage which can be a raw uncropped multi-MB file)
+function wikiPhotoUrl(data){
+  const src = data.thumbnail?.source;
+  if(!src) return null;
+  // Replace whatever size is in the URL with 600px for crisp retina rendering
+  return src.replace(/\/\d+px-/, '/600px-');
+}
+
+// Fetch structured death/birth data from Wikidata via Wikipedia page title
+async function fetchWikidata(title){
+  try{
+    // First get the Wikidata entity ID from the Wikipedia page
+    const r=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+    if(!r.ok) return null;
+    const d=await r.json();
+    const entityId=d.wikibase_item;
+    if(!entityId) return null;
+
+    // Fetch structured data from Wikidata
+    const wr=await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${entityId}.json`);
+    if(!wr.ok) return null;
+    const wd=await wr.json();
+    const claims=wd.entities?.[entityId]?.claims||{};
+
+    function getDate(prop){
+      const val=claims[prop]?.[0]?.mainsnak?.datavalue?.value?.time;
+      if(!val) return null;
+      // Format: +YYYY-MM-DDT00:00:00Z
+      const m=val.match(/\+(\d{4})-(\d{2})-(\d{2})/);
+      if(!m) return null;
+      return new Date(`${m[1]}-${m[2]}-${m[3]}`);
+    }
+
+    const dob=getDate('P569');
+    const dod=getDate('P570');
+    return {dob, dod};
+  }catch(e){ return null; }
+}
+
+// Core fetch: photo + optionally auto-fill age/date fields
+async function _fetchWiki(name, photoInputId, imgId, statusId, previewId, ageInputId, dateInputId){
   const status=document.getElementById(statusId);
   const preview=document.getElementById(previewId);
   const img=document.getElementById(imgId);
-  if(!name){return;}
+  if(!name) return;
   status.textContent='Searching Wikipedia...';
   preview.style.display='flex';
   img.style.display='none';
   try{
     const res=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`);
-    if(!res.ok)throw new Error('Not found');
+    if(!res.ok) throw new Error('Not found');
     const data=await res.json();
-    const thumb=data.thumbnail?.source||data.originalimage?.source;
-    if(thumb){
-      const bigThumb=thumb.replace(/\/\d+px-/,'/200px-');
-      document.getElementById(photoInputId).value=bigThumb;
-      img.src=bigThumb; img.style.display='block';
-      status.textContent=`Found: ${data.title}`;
-    }else{
-      status.textContent='No photo on Wikipedia.\nPaste a URL manually.';
+
+    // ── Photo ──
+    const photo=wikiPhotoUrl(data);
+    if(photo){
+      document.getElementById(photoInputId).value=photo;
+      img.src=photo; img.style.display='block';
     }
+
+    // ── Date of death + age from Wikidata ──
+    let statusParts=[];
+    if(photo) statusParts.push(`Found: ${data.title}`);
+    else statusParts.push(`No photo · ${data.title}`);
+
+    if(ageInputId||dateInputId){
+      status.textContent=statusParts[0]+' · Fetching dates...';
+      const wd=await fetchWikidata(data.title||name);
+      if(wd?.dod){
+        if(dateInputId){
+          const el=document.getElementById(dateInputId);
+          if(el&&!el.value){
+            el.value=wd.dod.toISOString().split('T')[0];
+            statusParts.push('Date filled');
+          }
+        }
+        if(ageInputId&&wd.dob){
+          const el=document.getElementById(ageInputId);
+          if(el&&!el.value){
+            let age=wd.dod.getFullYear()-wd.dob.getFullYear();
+            const m=wd.dod.getMonth()-wd.dob.getMonth();
+            if(m<0||(m===0&&wd.dod.getDate()<wd.dob.getDate())) age--;
+            el.value=age;
+            statusParts.push(`Age ${age} filled`);
+          }
+        }
+      } else {
+        statusParts.push('No date data on Wikidata');
+      }
+    }
+
+    status.textContent=statusParts.join(' · ');
+    if(!photo) img.style.display='none';
+
   }catch(e){
-    status.textContent='Not found on Wikipedia.\nPaste a URL manually.';
+    status.textContent='Not found on Wikipedia. Paste URL manually.';
+    img.style.display='none';
   }
 }
 
 function fetchWikiPhotoNotable(force=false){
   clearTimeout(wikiDebounceNotable);
   wikiDebounceNotable=setTimeout(()=>{
-    _fetchWiki(document.getElementById('nd-name').value.trim(),'nd-photo','nd-photo-img','nd-photo-status','nd-photo-preview');
+    _fetchWiki(
+      document.getElementById('nd-name').value.trim(),
+      'nd-photo','nd-photo-img','nd-photo-status','nd-photo-preview',
+      'nd-age','nd-date'
+    );
   }, force?0:900);
 }
 
@@ -2120,41 +2208,16 @@ function previewPhotoNotable(){
   preview.style.display='flex'; img.src=url; img.style.display='block';
   img.onerror=()=>{img.style.display='none';};
 }
+
 function fetchWikiPhoto(force=false){
   clearTimeout(wikiDebounce);
-  const delay = force ? 0 : 900;
-  wikiDebounce = setTimeout(async ()=>{
-    const name = document.getElementById('d-name').value.trim();
-    if(!name) return;
-    const photoInput = document.getElementById('d-photo');
-    const status = document.getElementById('d-photo-status');
-    const preview = document.getElementById('d-photo-preview');
-    const img = document.getElementById('d-photo-img');
-    status.textContent = 'Searching Wikipedia...';
-    preview.style.display = 'flex';
-    img.style.display = 'none';
-    try{
-      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`;
-      const res = await fetch(url);
-      if(!res.ok) throw new Error('Not found');
-      const data = await res.json();
-      const thumb = data.thumbnail?.source || data.originalimage?.source;
-      if(thumb){
-        // Use a slightly larger version if available (replace size param)
-        const bigThumb = thumb.replace(/\/\d+px-/, '/200px-');
-        photoInput.value = bigThumb;
-        img.src = bigThumb;
-        img.style.display = 'block';
-        status.textContent = `Found on Wikipedia\n${data.title}`;
-      } else {
-        status.textContent = 'No photo on Wikipedia.\nPaste a URL manually.';
-        img.style.display = 'none';
-      }
-    }catch(e){
-      status.textContent = 'Not found on Wikipedia.\nPaste a URL manually.';
-      img.style.display = 'none';
-    }
-  }, delay);
+  wikiDebounce=setTimeout(()=>{
+    _fetchWiki(
+      document.getElementById('d-name').value.trim(),
+      'd-photo','d-photo-img','d-photo-status','d-photo-preview',
+      'd-age','d-date'
+    );
+  }, force?0:900);
 }
 
 function previewPhoto(){
@@ -2219,6 +2282,63 @@ async function sendDeathNoticeEmails(death){
   try{
     await cfCall('sendDeathNotice',{death,standings});
   }catch(e){ console.warn('Email notification failed:',e.message); }
+}
+
+
+// ════════════════════════════════════════
+// REFRESH ALL PHOTOS FROM WIKIPEDIA
+// ════════════════════════════════════════
+async function _refreshPhotos(items, statusEl, onSave){
+  let updated=0,skipped=0,failed=0;
+  for(const d of items){
+    try{
+      const res=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(d.name)}`);
+      if(!res.ok){skipped++;continue;}
+      const data=await res.json();
+      const photo=wikiPhotoUrl(data);
+      if(!photo){skipped++;continue;}
+      if(photo===d.photo){skipped++;continue;}
+      await onSave(d,photo);
+      updated++;
+      statusEl.textContent=`Updated ${updated} · Skipped ${skipped} · ${items.length-updated-skipped-failed} remaining...`;
+    }catch(e){ failed++; }
+    await new Promise(r=>setTimeout(r,350));
+  }
+  return {updated,skipped,failed};
+}
+
+async function refreshAllPhotos(){
+  const btn=document.getElementById('refresh-photos-btn');
+  const status=document.getElementById('refresh-photos-status');
+  if(!allDeaths.length){status.style.display='block';status.textContent='No deaths recorded yet.';return;}
+  btn.disabled=true; btn.textContent='Refreshing...';
+  status.style.display='block';
+  status.textContent=`Fetching photos for ${allDeaths.length} death${allDeaths.length!==1?'s':''}...`;
+  const {updated,skipped,failed}=await _refreshPhotos(allDeaths,status,async(d,photo)=>{
+    await cfCall('updateDeath',{id:d.id,name:d.name,age:d.age,date:d.date,source:d.source||'',photo,obit:d.obit||''});
+    const idx=allDeaths.findIndex(x=>x.id===d.id);
+    if(idx>-1) allDeaths[idx]={...allDeaths[idx],photo};
+  });
+  btn.disabled=false; btn.textContent='↺ Refresh Photos';
+  status.textContent=`Done — ${updated} updated, ${skipped} unchanged, ${failed} failed.`;
+  if(updated>0){buildDeathLog();buildHome();}
+}
+
+async function refreshNotablePhotos(){
+  const btn=document.getElementById('refresh-notable-photos-btn');
+  const status=document.getElementById('refresh-photos-status');
+  if(!allNotableDeaths.length){status.style.display='block';status.textContent='No notable deaths posted yet.';return;}
+  btn.disabled=true; btn.textContent='Refreshing...';
+  status.style.display='block';
+  status.textContent=`Fetching photos for ${allNotableDeaths.length} notable death${allNotableDeaths.length!==1?'s':''}...`;
+  const {updated,skipped,failed}=await _refreshPhotos(allNotableDeaths,status,async(d,photo)=>{
+    await fsSet(`notableDeaths/${d.id}`,{photo});
+    const idx=allNotableDeaths.findIndex(x=>x.id===d.id);
+    if(idx>-1) allNotableDeaths[idx]={...allNotableDeaths[idx],photo};
+  });
+  btn.disabled=false; btn.textContent='↺ Refresh Photos';
+  status.textContent=`Done — ${updated} updated, ${skipped} unchanged, ${failed} failed.`;
+  if(updated>0){buildNotableLog();buildHome();}
 }
 
 function buildDeathLog(){
@@ -2782,6 +2902,7 @@ async function addManualArchive(){
   const picksRaw=document.getElementById('manarc-picks').value.trim();
   const deathsRaw=document.getElementById('manarc-deaths').value.trim();
   const notes=document.getElementById('manarc-notes').value.trim();
+  const rulesRaw=document.getElementById('manarc-rules').value.trim();
 
   if(!year){showAlert('manarc-alert','Please enter the season year.','e');return;}
   if(!winner){showAlert('manarc-alert','Please enter the winner name.','e');return;}
@@ -2813,6 +2934,12 @@ async function addManualArchive(){
     };
   }).filter(d=>d.name):[];
 
+  const rules=rulesRaw?rulesRaw.split('\n').filter(l=>l.trim()).map((l,ri)=>{
+    const colon=l.indexOf(':');
+    if(colon<0)return{title:l.trim(),text:'',order:ri+1};
+    return{title:l.slice(0,colon).trim(),text:l.slice(colon+1).trim(),order:ri+1};
+  }).filter(r=>r.title):[];
+
   const archiveData={
     year,
     winner,
@@ -2820,6 +2947,7 @@ async function addManualArchive(){
     finalScores,
     picks,
     deaths,
+    rules,
     notes,
     playerCount:finalScores.length||picks.length,
     manual:true,
@@ -2828,7 +2956,7 @@ async function addManualArchive(){
 
   try{
     await cfCall('addManualArchive',{year,data:archiveData});
-    ['manarc-year','manarc-winner','manarc-score','manarc-scores','manarc-picks','manarc-deaths','manarc-notes'].forEach(id=>{
+    ['manarc-year','manarc-winner','manarc-score','manarc-scores','manarc-picks','manarc-deaths','manarc-rules','manarc-notes'].forEach(id=>{
       const el=document.getElementById(id);
       if(el)el.value='';
     });
@@ -2881,8 +3009,7 @@ async function buildArchiveListAdmin(){
             <textarea id="ea-picks-${a.id}" style="min-height:100px">${(a.picks||[]).map(pp=>`${pp.name}: ${(pp.picks||[]).join(', ')}`).join('\n')}</textarea>
           </div>
           <div class="field" style="margin:0 0 8px"><label>Rules (one per line: Title: Rule text)</label>
-            <textarea id="ea-rules-${a.id}" style="min-height:100px">${(a.rules||[]).map(r=>`${r.title||''}: ${r.text||''}`).join('
-')}</textarea>
+            <textarea id="ea-rules-${a.id}" style="min-height:100px">${(a.rules||[]).map(r=>`${r.title||''}: ${r.text||''}`).join('\n')}</textarea>
           </div>
           <div class="field" style="margin:0 0 12px"><label>Notes</label>
             <input type="text" id="ea-notes-${a.id}" value="${(a.notes||'').replace(/"/g,'&quot;')}">
@@ -3078,6 +3205,8 @@ window.previewPhotoNotable=previewPhotoNotable;
 window.filterAllPicks=filterAllPicks;
 window.sendTestEmail=sendTestEmail;
 window.previewPhoto=previewPhoto;
+window.refreshAllPhotos=refreshAllPhotos;
+window.refreshNotablePhotos=refreshNotablePhotos;
 window.recordDeath=recordDeath;
 window.undoDeath=undoDeath;
 window.editDeathInline=editDeathInline;
