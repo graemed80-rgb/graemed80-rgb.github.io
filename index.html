@@ -146,7 +146,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
 .obit-notable .obit-meta strong{color:var(--gold);}
 .obit-notable .obit-photo{opacity:0.9;}
-@media(min-width:641px){.obit-photo{width:120px;height:150px;}}
+@media(min-width:641px){.obit-photo{width:160px;height:200px;}}
 .obit{background:var(--ash);border:1px solid var(--gray);padding:19px 20px 17px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
 .notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
@@ -493,8 +493,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- ══ HOME / NEWS ══ -->
 <div class="page active" id="page-home">
   <div class="home-hero">
-    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;">
-      <span style="font-size:22rem;line-height:1;opacity:0.03;filter:grayscale(1);user-select:none;">☠</span>
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden;">
+      <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22rem;line-height:1;opacity:0.03;filter:grayscale(1);user-select:none;">☠</span>
     </div>
     <span class="hskull">☠</span>
     <div class="htitle">Deadly Dozen<span class="year" id="home-year-text">2026</span></div>
@@ -658,7 +658,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <!-- ══ SETTINGS ══ -->
 <div class="page" id="page-settings">
-  <div class="container">
+  <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Account</div><div class="page-title">Settings</div><div class="divider"></div></div><br>
     <div class="sset"><div class="sset-title">Profile</div><div id="settings-alert" style="display:none"></div><div class="field"><label>Display Name</label><input type="text" id="sett-name"></div><button class="btn btn-primary" onclick="saveDisplayName()">Update Name</button></div>
     <div class="sset"><div class="sset-title">Email Address</div><div id="email-alert" style="display:none"></div><div class="muted" style="margin-bottom:12px;line-height:1.9">Used to log in and receive death notices. Only visible to you and Graeme.</div><div class="field"><label>Email</label><input type="email" id="sett-email" placeholder="you@example.com"></div><button class="btn btn-primary" onclick="saveEmail()">Save Email</button></div>
