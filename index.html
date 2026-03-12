@@ -147,7 +147,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-notable .obit-meta strong{color:var(--gold);}
 .obit-notable .obit-photo{opacity:0.9;}
 @media(min-width:641px){.obit-photo{width:160px;height:200px;}}
-.obit{background:var(--ash);border:1px solid var(--gray);padding:18px 20px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
+.obit{background:var(--ash);border:1px solid var(--gray);padding:10px 20px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
 .notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
 .notable-meta{font-size:0.52rem;color:var(--muted);margin-top:3px;letter-spacing:0.05em;}
@@ -157,9 +157,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blood);}
 .obit-date{font-size:0.48rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
 .obit-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.7rem;letter-spacing:0.05em;line-height:1;margin-bottom:3px;padding-right:60px;}
-.obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:18px;}
+.obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:0;}
 .obit-meta strong{color:var(--red);}
-.obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:18px;border-top:1px solid var(--gray);}
+.obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:10px;padding-bottom:10px;border-top:1px solid var(--gray);}
 .obit-picked-names{color:var(--bone);}
 .obit-pts{position:absolute;top:16px;right:16px;font-family:'Bebas Neue',Impact,sans-serif;font-size:1.9rem;color:var(--red);text-shadow:0 0 18px var(--red-dim);line-height:1;text-align:right;}
 .obit-pts small{font-size:0.4rem;letter-spacing:0.16em;display:block;color:var(--muted);margin-top:-2px;}
@@ -167,9 +167,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-src a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--gray);}
 .obit-src a:hover{color:var(--bone);}
 .obit-photo{width:80px;height:100px;object-fit:cover;object-position:top center;border:1px solid var(--gray);flex-shrink:0;display:block;}
-.obit-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:0;}
+.obit-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;}
 .obit-header-text{flex:1;min-width:0;padding-right:60px;}
-.obit-note{font-size:0.55rem;color:#aaa;line-height:1.8;letter-spacing:0.03em;padding-top:18px;border-top:1px solid var(--gray);font-style:italic;margin-bottom:18px;}
+.obit-note{font-size:0.55rem;color:#aaa;line-height:1.8;letter-spacing:0.03em;padding-top:10px;border-top:1px solid var(--gray);font-style:italic;margin-bottom:10px;}
 .no-deaths{padding:36px 20px;background:var(--ash);border:1px solid var(--gray);text-align:center;font-size:0.58rem;color:var(--muted);letter-spacing:0.11em;line-height:2;}
 .home-sidebar{display:flex;flex-direction:column;gap:3px;}
 .sidebar-sb{background:var(--ash);border:1px solid var(--gray);}
@@ -1609,9 +1609,6 @@ async function saveMyPicks() {
 
 async function submitPicksForReview() {
   // Debug
-  console.log('submitPicksForReview called');
-  console.log('currentUser:', currentUser);
-  console.log('gameSettings.picksLocked:', gameSettings.picksLocked);
 
   if(!currentUser || !currentUser.id) {
     showAlert('mypicks-alert','You must be logged in to submit picks.','e');
@@ -1628,7 +1625,6 @@ async function submitPicksForReview() {
     const v=(document.getElementById(`sinput-${i}`)?.value||'').trim();
     if(v) picks.push(v);
   }
-  console.log('picks to submit:', picks);
 
   if(!picks.length){
     showAlert('mypicks-alert','Please enter at least one pick before submitting.','e');
@@ -1641,10 +1637,8 @@ async function submitPicksForReview() {
   try {
     const pickStatuses = picks.map(()=>'pending');
     const path = `players/${currentUser.id}`;
-    console.log('Writing to Firestore path:', path);
-    await fsSet(path, {picks, picksReviewStatus:'submitted', pickStatuses});
-    console.log('Firestore write succeeded');
-
+      await fsSet(path, {picks, picksReviewStatus:'submitted', pickStatuses});
+  
     const idx = allPlayers.findIndex(p=>p.id===currentUser.id);
     if(idx>=0) allPlayers[idx] = {...allPlayers[idx], picks, picksReviewStatus:'submitted', pickStatuses};
     currentUser = {...currentUser, picks, picksReviewStatus:'submitted', pickStatuses};
@@ -3242,6 +3236,8 @@ window.filterAllPicks=filterAllPicks;
 window.sendTestEmail=sendTestEmail;
 window.previewPhoto=previewPhoto;
 window.refreshAllPhotos=refreshAllPhotos;
+window.buildDeathLog=buildDeathLog;
+window.buildNotableLog=buildNotableLog;
 window.refreshNotablePhotos=refreshNotablePhotos;
 window.recordDeath=recordDeath;
 window.undoDeath=undoDeath;
