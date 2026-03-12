@@ -29,6 +29,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .ls-bar{width:180px;height:2px;background:var(--gray);overflow:hidden;}
 .ls-fill{height:100%;background:var(--blood);animation:lf 1.6s ease infinite;}
 @keyframes lf{0%{width:0;margin-left:0}60%{width:100%}100%{width:100%;margin-left:100%}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(0.96)}}
 
 /* NAV - two row */
 #main-nav{position:sticky;top:0;z-index:500;background:rgba(18,18,18,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray);display:flex;flex-direction:column;}
@@ -126,11 +127,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 #home-signin-prompt a:hover{color:var(--bone);}
 
 /* ══ HOME / NEWS ══ */
-.home-hero{text-align:center;padding:52px 24px 38px;border-bottom:1px solid var(--gray);}
-.hskull{font-size:3.2rem;display:block;filter:grayscale(1) brightness(0.65);animation:pulse 3s ease-in-out infinite;margin-bottom:8px;}
-.htitle{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(2.8rem,11vw,5.5rem);letter-spacing:0.07em;line-height:0.88;text-shadow:0 0 80px rgba(192,57,43,0.25);}
+.home-hero{text-align:center;padding:38px 24px 38px;border-bottom:1px solid var(--gray);position:relative;overflow:hidden;}
+.hskull{font-size:3.2rem;display:block;filter:grayscale(1) brightness(0.65);animation:pulse 3s ease-in-out infinite;margin-bottom:8px;position:relative;z-index:1;}
+.htitle{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(2.8rem,11vw,5.5rem);letter-spacing:0.07em;line-height:0.88;text-shadow:0 0 60px rgba(192,57,43,0.55),0 0 120px rgba(192,57,43,0.25);position:relative;z-index:1;}
 .htitle .year{display:block;font-size:0.38em;color:var(--blood);letter-spacing:0.44em;margin-top:5px;}
-.htagline{font-size:0.56rem;letter-spacing:0.2em;color:var(--muted);margin-top:14px;text-transform:uppercase;}
+.htagline{font-size:0.56rem;letter-spacing:0.2em;color:var(--muted);margin-top:14px;text-transform:uppercase;position:relative;z-index:1;}
 .home-layout{display:grid;grid-template-columns:1fr 290px;gap:3px;padding:24px 3px 72px;max-width:1100px;margin:0 auto;}
 .news-feed{display:flex;flex-direction:column;gap:3px;}
 .news-hdr{padding:12px 17px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
@@ -145,6 +146,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
 .obit-notable .obit-meta strong{color:var(--gold);}
 .obit-notable .obit-photo{opacity:0.9;}
+@media(min-width:641px){.obit-photo{width:120px;height:150px;}}
 .obit{background:var(--ash);border:1px solid var(--gray);padding:19px 20px 17px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
 .notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
@@ -491,6 +493,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <!-- ══ HOME / NEWS ══ -->
 <div class="page active" id="page-home">
   <div class="home-hero">
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;">
+      <span style="font-size:22rem;line-height:1;opacity:0.03;filter:grayscale(1);user-select:none;transform:translateY(10%);">☠</span>
+    </div>
     <span class="hskull">☠</span>
     <div class="htitle">Deadly Dozen<span class="year" id="home-year-text">2026</span></div>
     <div class="htagline" id="home-tagline-text">Official Game Portal</div>
@@ -689,6 +694,29 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         </label>
       </div>
     </div>
+    <div class="sset">
+      <div class="sset-title">Install App</div>
+      <div class="muted" style="margin-bottom:14px;line-height:1.9">Add Deadly Dozen to your home screen for a full-screen app experience.</div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:0.5rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--blood);margin-bottom:8px">iPhone / iPad (Safari)</div>
+        <ol style="list-style:none;display:flex;flex-direction:column;gap:7px">
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">1</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Open the site in <strong>Safari</strong> (not Chrome or Firefox)</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">2</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Tap the <strong>Share</strong> button (box with arrow pointing up) in the toolbar</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">3</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Scroll down and tap <strong>Add to Home Screen</strong></span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">4</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Tap <strong>Add</strong> — the app icon will appear on your home screen</span></li>
+        </ol>
+      </div>
+      <div style="height:1px;background:var(--gray);margin-bottom:14px"></div>
+      <div>
+        <div style="font-size:0.5rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--blood);margin-bottom:8px">Android (Chrome)</div>
+        <ol style="list-style:none;display:flex;flex-direction:column;gap:7px">
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">1</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Open the site in <strong>Chrome</strong></span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">2</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Tap the <strong>⋮ menu</strong> (three dots) in the top right</span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">3</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Tap <strong>Add to Home screen</strong></span></li>
+          <li style="display:flex;gap:10px;align-items:flex-start"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--blood);flex-shrink:0;width:18px">4</span><span style="font-size:0.54rem;color:var(--bone);letter-spacing:0.03em;line-height:1.7">Tap <strong>Add</strong> — the app icon will appear on your home screen</span></li>
+        </ol>
+      </div>
+    </div>
     <div class="sset"><div class="sset-title">Change Password</div><div id="pw-alert" style="display:none"></div><div class="field"><label>Current Password</label><input type="password" id="pw-cur" placeholder="Current password"></div><div class="field"><label>New Password</label><input type="password" id="pw-new" placeholder="New password (min 6 chars)"></div><div class="field"><label>Confirm Password</label><input type="password" id="pw-con" placeholder="Confirm new password"></div><button class="btn btn-primary" onclick="changePassword()">Change Password</button></div>
   </div>
 </div>
@@ -812,6 +840,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
             </div>
             <div id="rp-review-status" style="font-size:0.52rem;color:var(--muted);letter-spacing:0.08em;margin-bottom:10px"></div>
             <div id="rp-picks-list" style="margin-bottom:10px"></div>
+            <div class="field" style="margin:0 0 8px">
+              <label>Review Note <span style="color:var(--muted);font-size:0.42rem;letter-spacing:0.06em">(optional — sent to player with their review email)</span></label>
+              <input type="text" id="rp-review-note" placeholder="e.g. Harvey Weinstein is disqualified as a pick..." style="font-size:0.54rem">
+            </div>
             <button class="btn btn-gold btn-sm" onclick="adminSavePickReview()">Save Review</button>
           </div>
           <div style="padding-top:13px;border-top:1px solid var(--gray)">
@@ -2601,15 +2633,16 @@ async function adminSavePickReview() {
   const p = allPlayers.find(x=>x.id===pid);
   if (!p) return;
   const pickStatuses = p.pickStatuses||p.picks.map(()=>'pending');
+  const reviewNote = document.getElementById('rp-review-note')?.value.trim()||'';
   try {
-    await cfCall('updatePlayer', {playerId:pid, updates:{pickStatuses, picksReviewStatus:'reviewed'}});
+    await cfCall('updatePlayer', {playerId:pid, updates:{pickStatuses, picksReviewStatus:'reviewed', reviewNote}});
     const idx = allPlayers.findIndex(x=>x.id===pid);
-    if (idx>=0) allPlayers[idx] = {...allPlayers[idx], pickStatuses, picksReviewStatus:'reviewed'};
+    if (idx>=0) allPlayers[idx] = {...allPlayers[idx], pickStatuses, picksReviewStatus:'reviewed', reviewNote};
     showAlert('rp-alert', `Review saved for ${p.name}.`, 's');
     renderAdminPicksReview(allPlayers[idx]);
     buildPlayersAdmin();
     // Notify player
-    cfCall('sendPicksReviewed',{playerId:pid,playerName:p.name,picks:p.picks||[],pickStatuses}).catch(()=>{});
+    cfCall('sendPicksReviewed',{playerId:pid,playerName:p.name,picks:p.picks||[],pickStatuses,reviewNote}).catch(()=>{});
   } catch(e) { showAlert('rp-alert','Failed: '+e.message,'e'); }
 }
 
