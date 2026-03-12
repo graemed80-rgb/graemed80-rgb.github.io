@@ -132,22 +132,22 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .htitle{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(2.8rem,11vw,5.5rem);letter-spacing:0.07em;line-height:0.88;text-shadow:0 0 60px rgba(192,57,43,0.55),0 0 120px rgba(192,57,43,0.25);position:relative;z-index:1;}
 .htitle .year{display:block;font-size:0.38em;color:var(--blood);letter-spacing:0.44em;margin-top:5px;}
 .htagline{font-size:0.56rem;letter-spacing:0.2em;color:var(--muted);margin-top:14px;text-transform:uppercase;position:relative;z-index:1;}
-.home-layout{display:grid;grid-template-columns:1fr 290px;gap:3px;padding:24px 3px 72px;max-width:1100px;margin:0 auto;}
-.news-feed{display:flex;flex-direction:column;gap:3px;}
+.home-layout{display:grid;grid-template-columns:1fr 290px;gap:3px;padding:16px 3px 72px;max-width:1100px;margin:0 auto;}
+.news-feed{display:flex;flex-direction:column;gap:0;}
 .news-hdr{padding:12px 17px;background:var(--ash);border:1px solid var(--gray);border-left:3px solid var(--blood);font-size:0.54rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
 .news-hdr span{color:var(--bone);}
 .news-section-hdr{display:flex;align-items:baseline;gap:11px;margin-bottom:0;}
 .news-section-hdr .sec-title{margin-bottom:0;}
 .news-section-hdr .news-count{font-size:0.46rem;letter-spacing:0.14em;color:var(--muted);}
-.news-title-sep{height:2px;background:var(--blood);margin:10px 0 10px;}
-.news-sep{margin:24px 0;}
+.news-title-sep{height:2px;background:var(--blood);margin:16px 0 16px;}
+
 .obit-notable{border-left-color:var(--gold);}
 .obit-notable::before{background:var(--gold) !important;}
 .obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
 .obit-notable .obit-meta strong{color:var(--gold);}
 .obit-notable .obit-photo{opacity:0.9;}
 @media(min-width:641px){.obit-photo{width:160px;height:200px;}}
-.obit{background:var(--ash);border:1px solid var(--gray);padding:19px 20px 17px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
+.obit{background:var(--ash);border:1px solid var(--gray);padding:18px 20px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
 .notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
 .notable-meta{font-size:0.52rem;color:var(--muted);margin-top:3px;letter-spacing:0.05em;}
@@ -157,9 +157,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blood);}
 .obit-date{font-size:0.48rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
 .obit-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.7rem;letter-spacing:0.05em;line-height:1;margin-bottom:3px;padding-right:60px;}
-.obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:9px;}
+.obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:18px;}
 .obit-meta strong{color:var(--red);}
-.obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:9px;border-top:1px solid var(--gray);}
+.obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:18px;border-top:1px solid var(--gray);}
 .obit-picked-names{color:var(--bone);}
 .obit-pts{position:absolute;top:16px;right:16px;font-family:'Bebas Neue',Impact,sans-serif;font-size:1.9rem;color:var(--red);text-shadow:0 0 18px var(--red-dim);line-height:1;text-align:right;}
 .obit-pts small{font-size:0.4rem;letter-spacing:0.16em;display:block;color:var(--muted);margin-top:-2px;}
@@ -393,6 +393,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   .picks-grid,.admin-grid{grid-template-columns:1fr;}
   .stats-grid{grid-template-columns:repeat(2,1fr);}
   .home-layout{grid-template-columns:1fr;}
+  .home-sidebar{margin-top:24px;}
   /* Freq list — drop bar chart column */
   .fr{grid-template-columns:1fr 58px;}
   .frbg{display:none;}
@@ -512,12 +513,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         </div>
         <div class="news-title-sep"></div>
         <div id="news-feed"></div>
-        <div class="news-sep"></div>
-        <div class="news-section-hdr">
+        <div class="news-section-hdr" style="margin-top:16px;">
           <div class="sec-title" style="color:var(--gold)">📰 Notable Deaths</div>
           <span class="news-count" id="notable-count-badge"></span>
         </div>
-        <div class="news-title-sep" style="background:var(--gold);margin-bottom:10px;"></div>
+        <div class="news-title-sep" style="background:var(--gold);"></div>
         <div id="notable-feed"></div>
       </div>
     </div>
