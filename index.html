@@ -494,7 +494,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="page active" id="page-home">
   <div class="home-hero">
     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;">
-      <span style="font-size:22rem;line-height:1;opacity:0.03;filter:grayscale(1);user-select:none;transform:translateY(10%);">☠</span>
+      <span style="font-size:22rem;line-height:1;opacity:0.03;filter:grayscale(1);user-select:none;">☠</span>
     </div>
     <span class="hskull">☠</span>
     <div class="htitle">Deadly Dozen<span class="year" id="home-year-text">2026</span></div>
@@ -670,7 +670,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <label class="toggle-wrap"><input type="checkbox" id="sett-notif-master" onchange="saveNotifPref()"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
         <span style="font-size:0.58rem;letter-spacing:0.06em;color:var(--bone)" id="notif-label">Email notifications off</span>
       </div>
-      <div id="notif-prefs" style="display:none;display:flex;flex-direction:column;gap:10px">
+      <div id="notif-prefs" style="display:none;flex-direction:column;gap:10px">
         <div style="font-size:0.42rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Choose what to receive</div>
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
           <input type="checkbox" id="np-deaths" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
@@ -2032,7 +2032,10 @@ async function saveNotifPref(){
     document.getElementById('notif-prefs').style.display='none';
     return;
   }
+  // Merge with existing saved prefs so changing one checkbox doesn't reset others
+  const existingPrefs=(allPlayers.find(p=>p.id===currentUser.id)||currentUser).notifPrefs||{};
   const notifPrefs={
+    ...existingPrefs,
     deaths:      document.getElementById('np-deaths').checked,
     reviewed:    document.getElementById('np-reviewed').checked,
     seasonStart: document.getElementById('np-seasonstart').checked,
