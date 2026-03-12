@@ -146,7 +146,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
 .obit-notable .obit-meta strong{color:var(--gold);}
 .obit-notable .obit-photo{opacity:0.9;}
-@media(min-width:641px){.obit-photo{width:160px;height:200px;}}
+@media(min-width:641px){.obit-photo{width:160px;height:200px;align-self:start;}}
 .obit{background:var(--ash);border:1px solid var(--gray);padding:10px 20px;animation:si 0.4s ease both;transition:border-color 0.2s;position:relative;overflow:hidden;}
 .notable{background:var(--ash);border:1px solid var(--gray);border-left:2px solid var(--gray2);padding:13px 16px;animation:si 0.4s ease both;margin-bottom:3px;display:grid;grid-template-columns:1fr auto;gap:6px;align-items:start;}
 .notable-name{font-size:0.7rem;letter-spacing:0.06em;color:var(--bone);}
@@ -159,16 +159,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.7rem;letter-spacing:0.05em;line-height:1;margin-bottom:3px;padding-right:60px;}
 .obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:0;}
 .obit-meta strong{color:var(--red);}
-.obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:10px;padding-bottom:10px;border-top:1px solid var(--gray);}
+.obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:10px;border-top:1px solid var(--gray);}
 .obit-picked-names{color:var(--bone);}
 .obit-pts{position:absolute;top:16px;right:16px;font-family:'Bebas Neue',Impact,sans-serif;font-size:1.9rem;color:var(--red);text-shadow:0 0 18px var(--red-dim);line-height:1;text-align:right;}
 .obit-pts small{font-size:0.4rem;letter-spacing:0.16em;display:block;color:var(--muted);margin-top:-2px;}
 .obit-src{font-size:0.48rem;color:var(--muted);margin-top:9px;letter-spacing:0.07em;}
 .obit-src a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--gray);}
 .obit-src a:hover{color:var(--bone);}
-.obit-photo{width:80px;height:100px;object-fit:cover;object-position:top center;border:1px solid var(--gray);flex-shrink:0;display:block;}
-.obit-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;}
-.obit-header-text{flex:1;min-width:0;padding-right:60px;}
+.obit-photo{width:80px;height:100px;object-fit:cover;object-position:top center;border:1px solid var(--gray);display:block;align-self:start;}
+.obit-header{display:grid;grid-template-columns:auto 1fr;gap:14px;}
+.obit-header-text{min-width:0;padding-right:60px;}
 .obit-note{font-size:0.55rem;color:#aaa;line-height:1.8;letter-spacing:0.03em;padding-top:10px;border-top:1px solid var(--gray);font-style:italic;margin-bottom:10px;}
 .no-deaths{padding:36px 20px;background:var(--ash);border:1px solid var(--gray);text-align:center;font-size:0.58rem;color:var(--muted);letter-spacing:0.11em;line-height:2;}
 .home-sidebar{display:flex;flex-direction:column;gap:3px;}
@@ -589,13 +589,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Future Games</div><div class="page-title">Planning</div><div class="divider"></div><div class="muted">Plan your picks for future years. Only you can see this.</div></div><br>
 
-    <!-- Year tabs -->
-    <div class="tabs" id="planning-year-tabs">
-      <button class="tab active" onclick="switchPlanTab('2027',this)">2027</button>
-      <button class="tab" onclick="switchPlanTab('2028',this)">2028</button>
-      <button class="tab" onclick="switchPlanTab('2029',this)">2029</button>
-      <button class="tab" onclick="switchPlanTab('reserves',this)">📋 Reserve Bank</button>
-    </div>
+    <!-- Year tabs — built dynamically in buildReserves() -->
+    <div class="tabs" id="planning-year-tabs"></div>
 
     <!-- Planning slots panel -->
     <div id="plan-panel">
@@ -1343,11 +1338,11 @@ function buildHome() {
             </div>
             <div class="obit-name" style="padding-right:0">${d.name}</div>
             <div class="obit-meta">Aged <strong>${d.age}</strong> · ${d.points} points scored</div>
+            ${d.obit ? `<div class="obit-note">${d.obit}</div>` : ''}
+            <div class="obit-picked">Picked by: <span class="obit-picked-names">${d.pickedBy?.length ? d.pickedBy.join(', ') : 'Nobody'}</span></div>
+            ${d.source ? `<div class="obit-src">Source: <a href="${d.source}" target="_blank" rel="noopener">BBC News ↗</a></div>` : ''}
           </div>
         </div>
-        ${d.obit ? `<div class="obit-note">${d.obit}</div>` : ''}
-        <div class="obit-picked">Picked by: <span class="obit-picked-names">${d.pickedBy?.length ? d.pickedBy.join(', ') : 'Nobody'}</span></div>
-        ${d.source ? `<div class="obit-src">Source: <a href="${d.source}" target="_blank" rel="noopener">BBC News ↗</a></div>` : ''}
       </div>`).join('');
   }
 
@@ -1365,10 +1360,9 @@ function buildHome() {
             <div class="obit-date">${fmtDate(d.date)}</div>
             <div class="obit-name" style="padding-right:0">${d.name}</div>
             <div class="obit-meta">Aged <strong>${d.age}</strong> · Not on anyone's list</div>
+            ${d.note?`<div class="obit-note">${d.note}</div>`:''}
           </div>
         </div>
-        ${d.note?`<div class="obit-note">${d.note}</div>`:''}
-        <div class="obit-picked" style="color:var(--muted)">Not picked by anyone</div>
       </div>`).join('');
   }
 
@@ -1659,8 +1653,14 @@ async function submitPicksForReview() {
 // ════════════════════════════════════════
 
 function buildReserves() {
-  planTab = '2027';
-  document.querySelectorAll('#planning-year-tabs .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  const baseYear = parseInt(gameSettings.year||new Date().getFullYear());
+  const planYears = [baseYear+1, baseYear+2, baseYear+3];
+  // Rebuild tabs dynamically so they always show next 3 years
+  const tabsEl = document.getElementById('planning-year-tabs');
+  tabsEl.innerHTML = planYears.map((yr,i) =>
+    `<button class="tab${i===0?' active':''}" onclick="switchPlanTab('${yr}',this)">${yr}</button>`
+  ).join('') + `<button class="tab" onclick="switchPlanTab('reserves',this)">📋 Reserve Bank</button>`;
+  planTab = String(planYears[0]);
   renderPlanningTab();
 }
 
@@ -1695,26 +1695,41 @@ async function updateReservesDatalist(datalistId) {
   if (!dl) return;
   const me = allPlayers.find(p=>p.id===currentUser.id)||currentUser;
   const reserveNames = (me.reserves||[]).map(r=>r.name);
+  const deadNames = new Set(allDeaths.map(d=>d.name.toLowerCase()));
 
-  // Get last season's picks that are still alive (not in current deaths)
-  let survivors = [];
+  // Current game alive picks (not dead, not empty)
+  const currentAlive = (me.picks||[]).filter(pk => pk && !deadNames.has(pk.toLowerCase()));
+
+  // Last archived season picks that are still alive
+  let archiveSurvivors = [];
   try {
     const archives = await fsCol('archive');
     if (archives.length) {
-      // Find most recent archive by year
       const latest = archives.sort((a,b)=>String(b.year).localeCompare(String(a.year)))[0];
-      const lastPicks = (latest.picks||{})[me.id] || (latest.picks||{})[me.name] || [];
-      const deadNames = allDeaths.map(d=>d.name.toLowerCase());
-      survivors = lastPicks.filter(pk => pk && !deadNames.includes(pk.toLowerCase()));
+      // Archive picks can be stored as array of {name, picks[]} or as object
+      let lastPicks = [];
+      if (Array.isArray(latest.picks)) {
+        const entry = latest.picks.find(pp => pp.name===me.name || pp.id===me.id);
+        lastPicks = entry?.picks||[];
+      } else {
+        lastPicks = (latest.picks||{})[me.id] || (latest.picks||{})[me.name] || [];
+      }
+      archiveSurvivors = lastPicks.filter(pk => pk && !deadNames.has(pk.toLowerCase())
+        && !currentAlive.includes(pk));
     }
-  } catch(e) { /* silently skip if archive unavailable */ }
+  } catch(e) { /* silently skip */ }
 
   let options = '';
-  if (survivors.length) {
-    survivors.forEach(n => {
+  if (currentAlive.length) {
+    currentAlive.forEach(n => {
+      options += `<option value="${n.replace(/"/g,'&quot;')}" label="✓ Current pick">`;
+    });
+    options += `<option value="" disabled label="─────────────────">`;
+  }
+  if (archiveSurvivors.length) {
+    archiveSurvivors.forEach(n => {
       options += `<option value="${n.replace(/"/g,'&quot;')}" label="↩ Last season">`;
     });
-    // Separator — browsers don't support <hr> in datalist, so use a dashed label trick
     options += `<option value="" disabled label="─────────────────">`;
   }
   reserveNames.forEach(n => {
@@ -1729,12 +1744,15 @@ function renderPlanSlots() {
   updateReservesDatalist('reserves-datalist');
   const ed = document.getElementById('plan-slots-editor');
   ed.innerHTML = '';
+  const deadNamesSet = new Set(allDeaths.map(d=>d.name.toLowerCase()));
   for (let i=0; i<12; i++) {
     const v = planned[i] || '';
+    const isDead = v && deadNamesSet.has(v.toLowerCase());
     const slot = document.createElement('div');
-    slot.className = `pslot${v?' f':' e'}`;
+    slot.className = `pslot${v?' f':' e'}${isDead?' dead':''}`;
     slot.id = `pplan-${i}`;
-    slot.innerHTML = `<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="pplaninput-${i}" type="text" list="reserves-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." oninput="updatePlanSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('pplaninput-${i+1}').focus()}"><button class="sclear" onclick="clearPlanSlot(${i})">×</button>`;
+    const deadBadge = isDead ? `<span style="font-size:0.38rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-left:6px;vertical-align:middle">☠ deceased</span>` : '';
+    slot.innerHTML = `<div class="snum">${String(i+1).padStart(2,'0')}</div><input class="sinput" id="pplaninput-${i}" type="text" list="reserves-datalist" value="${v.replace(/"/g,'&quot;')}" placeholder="Celebrity name..." style="${isDead?'text-decoration:line-through;color:var(--muted);':''}" oninput="updatePlanSlot(${i})" onkeydown="if(event.key==='Enter'&&${i}<11){document.getElementById('pplaninput-${i+1}').focus()}">${deadBadge}<button class="sclear" onclick="clearPlanSlot(${i})">×</button>`;
     ed.appendChild(slot);
   }
   updatePlanCount();
@@ -2812,7 +2830,15 @@ async function promoteFutureGame(fgId){
   const fgs=await fsCol('futureGames');
   const fg=fgs.find(g=>g.id===fgId);
   if(!fg)return;
-  if(!confirm(`Promote ${fg.year} to the live game?\n\nThis will update the game settings (year, dates, entry fee) to match this planned game.\n\nMake sure you have archived the current season first.`))return;
+
+  // Count players with planned picks for this year
+  const yr=String(fg.year);
+  const withPlans=allPlayers.filter(p=>(p.plannedPicks||{})[yr]?.filter(Boolean).length>0);
+  const importMsg=withPlans.length
+    ? `\n\n${withPlans.length} player${withPlans.length!==1?'s have':' has'} planned picks for ${yr} — these will be automatically imported as their picks.`
+    : `\n\nNo players have planned picks for ${yr} yet.`;
+
+  if(!confirm(`Promote ${fg.year} to the live game?\n\nThis will update the game settings (year, dates, entry fee) to match this planned game.${importMsg}\n\nMake sure you have archived the current season first.`))return;
   try{
     const settings={
       year: fg.year,
@@ -2824,13 +2850,33 @@ async function promoteFutureGame(fgId){
     };
     await cfCall('saveGameSettings',{settings});
     gameSettings={...gameSettings,...settings};
-    // Optionally delete the future game doc now it's live
+
+    // Auto-import plannedPicks[year] → picks for each player that has them
+    let imported=0;
+    for(const p of allPlayers){
+      const planned=(p.plannedPicks||{})[yr]?.filter(Boolean)||[];
+      if(!planned.length) continue;
+      await fsSet(`players/${p.id}`,{
+        picks: planned,
+        picksReviewStatus: 'draft',
+        pickStatuses: planned.map(()=>'pending'),
+      });
+      const idx=allPlayers.findIndex(x=>x.id===p.id);
+      if(idx>=0) allPlayers[idx]={...allPlayers[idx],picks:planned,picksReviewStatus:'draft',pickStatuses:planned.map(()=>'pending')};
+      imported++;
+    }
+
+    if(imported>0){
+      showAlert('fg-alert',`${fg.year} promoted. Picks imported for ${imported} player${imported!==1?'s':''}.`,'s');
+    }
+
     if(confirm(`${fg.year} is now the live game. Remove it from the future games list?`)){
       await cfCall('deleteFutureGame',{id:fgId});
     }
-    showAlert('fg-alert',`${fg.year} promoted to live game successfully.`,'s');
+    showAlert('fg-alert',`${fg.year} is now the live game${imported?` · ${imported} players' planned picks imported as their picks`:''}.`,'s');
     buildFutureGames();
     buildScoreboard();
+    buildReserves();
   }catch(e){alert('Failed to promote: '+e.message);}
 }
 
@@ -2915,9 +2961,10 @@ async function archiveSeason(){
   try{
     await cfCall('archiveSeason',{year,snapshot:archiveData});
     allDeaths=[];
+    allNotableDeaths=[];
     allPlayers=allPlayers.map(p=>({...p,picks:[]}));
     document.getElementById('archive-year-input').value='';
-    alert(`Season ${year} archived successfully! Picks and deaths have been cleared for the new season.`);
+    alert(`Season ${year} archived successfully! Picks, deaths and notable deaths have been cleared for the new season.`);
     buildDeathLog();
     buildArchiveListAdmin();
   }catch(e){alert('Archive failed: '+e.message);}
