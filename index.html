@@ -143,7 +143,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 .obit-notable{border-left-color:var(--gold);}
 .obit-notable::before{background:var(--gold) !important;}
-.obit-notable .obit-name{font-size:1.25rem;color:#cccccc;}
+.obit-notable .obit-name{font-size:1.25rem;color:#cccccc;padding-right:0;}
+.obit-notable .obit-meta{padding-right:0;}
+.obit-notable .obit-header-text .obit-date{padding-right:0;}
 .obit-notable .obit-meta strong{color:var(--gold);}
 .obit-notable .obit-photo{opacity:0.9;}
 @media(min-width:641px){.obit-photo{width:160px;height:200px;align-self:start;}}
@@ -157,7 +159,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blood);}
 .obit-date{font-size:0.48rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
 .obit-name{font-family:'Bebas Neue',Impact,sans-serif;font-size:1.7rem;letter-spacing:0.05em;line-height:1;margin-bottom:3px;padding-right:60px;}
-.obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:0;}
+.obit-meta{font-size:0.56rem;color:#aaa;letter-spacing:0.05em;margin-bottom:10px;padding-right:60px;}
 .obit-meta strong{color:var(--red);}
 .obit-picked{font-size:0.53rem;letter-spacing:0.08em;color:var(--muted);padding-top:10px;border-top:1px solid var(--gray);}
 .obit-picked-names{color:var(--bone);}
@@ -168,7 +170,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .obit-src a:hover{color:var(--bone);}
 .obit-photo{width:80px;height:100px;object-fit:cover;object-position:top center;border:1px solid var(--gray);display:block;align-self:start;}
 .obit-header{display:grid;grid-template-columns:auto 1fr;gap:14px;}
-.obit-header-text{min-width:0;padding-right:60px;}
+.obit-header-text{min-width:0;}
 .obit-note{font-size:0.55rem;color:#aaa;line-height:1.8;letter-spacing:0.03em;padding-top:10px;border-top:1px solid var(--gray);font-style:italic;margin-bottom:10px;}
 .no-deaths{padding:36px 20px;background:var(--ash);border:1px solid var(--gray);text-align:center;font-size:0.58rem;color:var(--muted);letter-spacing:0.11em;line-height:2;}
 .home-sidebar{display:flex;flex-direction:column;gap:3px;}
@@ -769,6 +771,17 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           </div>
         </div>
       </div>
+      <!-- Quick Check -->
+      <div class="acard" style="margin-bottom:14px;border-top-color:var(--gold)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="acard-title" style="margin:0">🔍 Quick Death Check</div>
+          <button class="btn btn-ghost btn-sm" onclick="runQuickCheck()" id="quick-check-btn">▶ Run Check</button>
+        </div>
+        <div class="muted" style="margin-bottom:10px;font-size:0.52rem;line-height:1.8">Checks all active picks against Wikidata for a recorded date of death. Flags any not already in the death log. Updates Last Checked date — or override it manually in Settings.</div>
+        <div id="quick-check-status" style="display:none;font-size:0.48rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:8px"></div>
+        <div id="quick-check-results" style="display:none"></div>
+      </div>
+
       <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px">
         <div class="sec-title">Death Log</div>
         <button class="btn btn-ghost btn-sm" onclick="refreshAllPhotos()" id="refresh-photos-btn" style="font-size:0.44rem">↺ Refresh Photos</button>
@@ -1332,7 +1345,7 @@ function buildHome() {
         <div class="obit-header">
           ${d.photo ? `<img class="obit-photo" src="${d.photo}" alt="${d.name}" onerror="this.style.display='none'">` : ''}
           <div class="obit-header-text">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;padding-right:60px">
               <div class="obit-date" style="margin-bottom:0">${fmtDate(d.date)}</div>
               ${d.recorded ? `<div style="font-size:0.42rem;letter-spacing:0.12em;color:var(--muted)">Added ${fmtDate(d.recorded)}</div>` : ''}
             </div>
@@ -2332,6 +2345,125 @@ async function sendDeathNoticeEmails(death){
 }
 
 
+
+// ════════════════════════════════════════
+// QUICK DEATH CHECK
+// ════════════════════════════════════════
+async function runQuickCheck() {
+  const btn = document.getElementById('quick-check-btn');
+  const statusEl = document.getElementById('quick-check-status');
+  const resultsEl = document.getElementById('quick-check-results');
+
+  // Gather all unique active picks not already in death log
+  const recordedNames = new Set(allDeaths.map(d=>d.name.toLowerCase()));
+  const allPicks = [...new Set(
+    allPlayers.flatMap(p=>(p.picks||[]).filter(Boolean))
+  )].filter(pk => !recordedNames.has(pk.toLowerCase()));
+
+  if (!allPicks.length) {
+    statusEl.style.display='block';
+    statusEl.textContent='No unrecorded picks to check.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+  statusEl.style.display = 'block';
+  resultsEl.style.display = 'none';
+  resultsEl.innerHTML = '';
+
+  const flagged = [];
+  let checked = 0;
+
+  for (const name of allPicks) {
+    statusEl.textContent = `Checking ${checked+1} / ${allPicks.length}: ${name}...`;
+    try {
+      // Get Wikipedia summary to find wikibase_item
+      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const entityId = data.wikibase_item;
+        if (entityId) {
+          const wr = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${entityId}.json`);
+          if (wr.ok) {
+            const wd = await wr.json();
+            const claims = wd.entities?.[entityId]?.claims||{};
+            const dodVal = claims['P570']?.[0]?.mainsnak?.datavalue?.value?.time;
+            if (dodVal) {
+              // Has a date of death on Wikidata
+              const m = dodVal.match(/\+(\d{4})-(\d{2})-(\d{2})/);
+              const dodStr = m ? `${parseInt(m[3])} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m[2])-1]} ${m[1]}` : dodVal;
+              // Check if within game window
+              const dodDate = m ? new Date(`${m[1]}-${m[2]}-${m[3]}`) : null;
+              const start = gameSettings.startDate ? new Date(gameSettings.startDate) : new Date('2026-01-01');
+              const end = gameSettings.endDate ? new Date(gameSettings.endDate) : new Date('2026-12-24');
+              const inWindow = dodDate && dodDate >= start && dodDate <= end;
+              flagged.push({ name, dod: dodStr, inWindow, wikiTitle: data.title });
+            }
+          }
+        }
+      }
+    } catch(e) { /* skip on error */ }
+    checked++;
+    // Polite delay
+    await new Promise(r=>setTimeout(r,400));
+  }
+
+  // Update last checked date
+  const today = fmtDate(new Date().toISOString());
+  try {
+    await cfCall('saveGameSettings', {settings:{...gameSettings, lastChecked: today}});
+    gameSettings = {...gameSettings, lastChecked: today};
+    document.getElementById('lc-display').textContent = 'Last checked: ' + today;
+    document.getElementById('gs-checked').value = today;
+  } catch(e) { /* non-fatal */ }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Run Check';
+
+  if (!flagged.length) {
+    statusEl.textContent = `✓ All ${checked} picks checked — no deaths found. Last checked updated.`;
+    return;
+  }
+
+  statusEl.textContent = `⚠ ${flagged.length} possible death${flagged.length!==1?'s':''} found from ${checked} picks checked. Last checked updated.`;
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = flagged.map(f => {
+    const windowBadge = f.inWindow
+      ? `<span style="font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);border:1px solid rgba(192,57,43,0.4);padding:1px 6px;margin-left:8px">In window</span>`
+      : `<span style="font-size:0.42rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--gray);padding:1px 6px;margin-left:8px">Outside window</span>`;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--gray);gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:0.6rem;letter-spacing:0.04em;color:var(--bone)">${f.name}${windowBadge}</div>
+        <div style="font-size:0.5rem;color:var(--muted);margin-top:3px;letter-spacing:0.06em">Wikidata date of death: <strong style="color:var(--red)">${f.dod}</strong> · Wiki: ${f.wikiTitle}</div>
+      </div>
+      <button class="btn btn-sm btn-primary" style="white-space:nowrap" onclick="prefillDeath('${f.name.replace(/'/g,"\\'")}','${f.dod}')">+ Pre-fill Form</button>
+    </div>`;
+  }).join('');
+}
+
+function prefillDeath(name, dod) {
+  // Pre-fill the record death form and scroll to it
+  document.getElementById('d-name').value = name;
+  document.getElementById('d-age').value = '';
+  document.getElementById('d-date').value = '';
+  // Try to parse dod into yyyy-mm-dd for the date input
+  try {
+    const MONTHS = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+    const m = dod.match(/(\d{1,2})\s([A-Za-z]{3})\s(\d{4})/);
+    if (m) {
+      const mm = String(MONTHS[m[2]]).padStart(2,'0');
+      const dd = String(parseInt(m[1])).padStart(2,'0');
+      document.getElementById('d-date').value = `${m[3]}-${mm}-${dd}`;
+    }
+  } catch(e) {}
+  // Trigger wiki fetch for photo and age
+  fetchWikiPhoto(true);
+  // Scroll to the form
+  document.getElementById('d-name').scrollIntoView({behavior:'smooth', block:'center'});
+  document.getElementById('d-name').focus();
+}
+
 // ════════════════════════════════════════
 // REFRESH ALL PHOTOS FROM WIKIPEDIA
 // ════════════════════════════════════════
@@ -3282,6 +3414,8 @@ window.previewPhotoNotable=previewPhotoNotable;
 window.filterAllPicks=filterAllPicks;
 window.sendTestEmail=sendTestEmail;
 window.previewPhoto=previewPhoto;
+window.runQuickCheck=runQuickCheck;
+window.prefillDeath=prefillDeath;
 window.refreshAllPhotos=refreshAllPhotos;
 window.buildDeathLog=buildDeathLog;
 window.buildNotableLog=buildNotableLog;
