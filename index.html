@@ -485,7 +485,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="field"><label>Password</label><input type="password" id="login-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()">Enter the Pool</button>
     <div style="margin-top:13px;font-size:0.5rem;letter-spacing:0.1em;color:var(--muted);display:flex;justify-content:space-between;">
-      <span>Contact Graeme to reset your password</span>
+      <span>Contact the admin to reset your password</span>
       <a onclick="closeLoginModal();showPage('rules')" style="color:var(--muted);cursor:pointer;text-decoration:none;border-bottom:1px solid var(--gray)">Rules ↗</a>
     </div>
   </div>
@@ -569,7 +569,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="page" id="page-mypicks">
   <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Your Selections</div><div class="page-title">My Picks</div><div class="divider"></div><div class="muted" id="mypicks-sub">Enter your 12 celebrity picks.</div></div><br>
-    <div id="mypicks-locked-note" class="alert ag" style="display:none">🔒 Picks are locked. Contact Graeme to request a change.</div>
+    <div id="mypicks-locked-note" class="alert ag" style="display:none">🔒 Picks are locked. Contact the admin to request a change.</div>
     <div id="mypicks-alert" style="display:none"></div>
     <datalist id="mypicks-datalist"></datalist>
     <div class="picks-meta">Filled: <b id="picks-count">0</b> / 12</div>
@@ -579,7 +579,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <button class="btn btn-ghost" onclick="clearMyPicks()">Clear All</button>
     </div>
     <div id="mypicks-submit-wrap" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray)">
-      <div style="font-size:0.56rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:10px">When you're happy with your picks, submit them for Graeme to review before the season begins.</div>
+      <div style="font-size:0.56rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:10px">When you're happy with your picks, submit them for admin review before the season begins.</div>
       <div id="mypicks-review-status" style="margin-bottom:10px"></div>
       <button id="mypicks-submit-btn" class="btn btn-gold">Submit for Review</button>
     </div>
@@ -658,7 +658,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="wide">
     <div style="animation:fd 0.5s ease both"><div class="eyebrow">Account</div><div class="page-title">Settings</div><div class="divider"></div></div><br>
     <div class="sset"><div class="sset-title">Profile</div><div id="settings-alert" style="display:none"></div><div class="field"><label>Display Name</label><input type="text" id="sett-name"></div><button class="btn btn-primary" onclick="saveDisplayName()">Update Name</button></div>
-    <div class="sset"><div class="sset-title">Email Address</div><div id="email-alert" style="display:none"></div><div class="muted" style="margin-bottom:12px;line-height:1.9">Used to log in and receive death notices. Only visible to you and Graeme.</div><div class="field"><label>Email</label><input type="email" id="sett-email" placeholder="you@example.com"></div><button class="btn btn-primary" onclick="saveEmail()">Save Email</button></div>
+    <div class="sset"><div class="sset-title">Email Address</div><div id="email-alert" style="display:none"></div><div class="muted" style="margin-bottom:12px;line-height:1.9">Used to log in and receive death notices. Only visible to you and the admin.</div><div class="field"><label>Email</label><input type="email" id="sett-email" placeholder="you@example.com"></div><button class="btn btn-primary" onclick="saveEmail()">Save Email</button></div>
     <div class="sset">
       <div class="sset-title">Notifications</div>
       <div id="notif-alert" style="display:none"></div>
@@ -675,7 +675,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         </label>
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
           <input type="checkbox" id="np-reviewed" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
-          <div><div style="font-size:0.56rem;letter-spacing:0.04em;color:var(--bone)">✓ Picks reviewed</div><div style="font-size:0.48rem;color:var(--muted);margin-top:1px">Email when Graeme reviews your picks, showing what's verified or needs replacing</div></div>
+          <div><div style="font-size:0.56rem;letter-spacing:0.04em;color:var(--bone)">✓ Picks reviewed</div><div style="font-size:0.48rem;color:var(--muted);margin-top:1px">Email when the admin reviews your picks, showing what's verified or needs replacing</div></div>
         </label>
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
           <input type="checkbox" id="np-seasonstart" onchange="saveNotifPref()" style="accent-color:var(--blood);width:14px;height:14px">
@@ -731,6 +731,17 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
 
     <div class="tab-panel active" id="tab-deaths">
+      <!-- Quick Check -->
+      <div class="acard" style="margin-bottom:14px;border-top-color:var(--gold)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="acard-title" style="margin:0">🔍 Quick Death Check</div>
+          <button class="btn btn-ghost btn-sm" onclick="runQuickCheck()" id="quick-check-btn">▶ Run Check</button>
+        </div>
+        <div class="muted" style="margin-bottom:10px;font-size:0.52rem;line-height:1.8">Checks all active picks against Wikidata for a recorded date of death. Flags any not already in the death log. Updates Last Checked date — or override it manually in Settings.</div>
+        <div id="quick-check-status" style="display:none;font-size:0.48rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:8px"></div>
+        <div id="quick-check-results" style="display:none"></div>
+      </div>
+
       <div class="admin-grid">
         <div class="acard">
           <div class="acard-title">⚰ Record a Death</div>
@@ -771,17 +782,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           </div>
         </div>
       </div>
-      <!-- Quick Check -->
-      <div class="acard" style="margin-bottom:14px;border-top-color:var(--gold)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div class="acard-title" style="margin:0">🔍 Quick Death Check</div>
-          <button class="btn btn-ghost btn-sm" onclick="runQuickCheck()" id="quick-check-btn">▶ Run Check</button>
-        </div>
-        <div class="muted" style="margin-bottom:10px;font-size:0.52rem;line-height:1.8">Checks all active picks against Wikidata for a recorded date of death. Flags any not already in the death log. Updates Last Checked date — or override it manually in Settings.</div>
-        <div id="quick-check-status" style="display:none;font-size:0.48rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:8px"></div>
-        <div id="quick-check-results" style="display:none"></div>
-      </div>
-
       <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px">
         <div class="sec-title">Death Log</div>
         <button class="btn btn-ghost btn-sm" onclick="refreshAllPhotos()" id="refresh-photos-btn" style="font-size:0.44rem">↺ Refresh Photos</button>
@@ -794,6 +794,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="sec-title">📰 Notable Deaths</div>
         <button class="btn btn-ghost btn-sm" onclick="refreshNotablePhotos()" id="refresh-notable-photos-btn" style="font-size:0.44rem">↺ Refresh Photos</button>
       </div>
+      <div id="refresh-notable-status" style="display:none;font-size:0.48rem;letter-spacing:0.07em;color:var(--muted);margin-bottom:8px"></div>
       <div class="muted" style="margin-bottom:11px">Post deaths of interest that aren't on anyone's list.</div>
       <div class="acard" style="margin-bottom:11px">
         <div class="acard-title">Post a Notable Death</div>
@@ -874,8 +875,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="fg-title" style="color:var(--red)">⚠ Archive Current Season</div>
         <div class="muted" style="margin-bottom:14px;line-height:1.9">Snapshots the current game (scores, picks, deaths, rules) into the History archive. All current picks and deaths are cleared for the new season. <strong style="color:var(--red)">This cannot be undone.</strong></div>
         <div class="field"><label>Season Year to Archive</label><input type="text" id="archive-year-input" placeholder="e.g. 2026"></div>
-        <button class="btn btn-danger" onclick="archiveSeason()">Archive &amp; Start New Season</button>
-        <div style="margin-top:8px;font-size:0.46rem;color:var(--muted);letter-spacing:0.08em;line-height:1.8">After archiving, send the season end email to notify all players of the final result.</div>
+        <button class="btn btn-danger" onclick="archiveSeason()">Archive &amp; Promote Next Season</button>
+        <div style="margin-top:8px;font-size:0.46rem;color:var(--muted);letter-spacing:0.08em;line-height:1.8">Archives current season, promotes the next planned game to live, and sends season end email.</div>
         <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="triggerSeasonEnd()">📧 Send Season End Email</button>
       </div>
 
@@ -1551,12 +1552,12 @@ function buildMyPicks() {
   if (!locked && hasPicks) {
     submitWrap.style.display = 'block';
     if (reviewStatus === 'submitted') {
-      reviewStatusEl.innerHTML = `<div class="review-banner submitted">⏳ Picks submitted — awaiting review by Graeme. You can still edit and resubmit.</div>`;
+      reviewStatusEl.innerHTML = `<div class="review-banner submitted">⏳ Picks submitted — awaiting review by the admin. You can still edit and resubmit.</div>`;
       submitBtn.style.display = 'inline-flex';
       submitBtn.textContent = 'Resubmit for Review';
     } else if (reviewStatus === 'reviewed') {
       const needsReplace = pickStatuses.some(s=>s==='replace');
-      reviewStatusEl.innerHTML = `<div class="review-banner reviewed">${needsReplace ? '⚠ Some picks need replacing — edit them above and resubmit.' : '✓ All picks verified by Graeme.'}</div>`;
+      reviewStatusEl.innerHTML = `<div class="review-banner reviewed">${needsReplace ? '⚠ Some picks need replacing — edit them above and resubmit.' : '✓ All picks verified by the admin.'}</div>`;
       submitBtn.style.display = 'inline-flex';
       submitBtn.textContent = 'Resubmit for Review';
     } else {
@@ -2505,7 +2506,7 @@ async function refreshAllPhotos(){
 
 async function refreshNotablePhotos(){
   const btn=document.getElementById('refresh-notable-photos-btn');
-  const status=document.getElementById('refresh-photos-status');
+  const status=document.getElementById('refresh-notable-status')||document.getElementById('refresh-photos-status');
   if(!allNotableDeaths.length){status.style.display='block';status.textContent='No notable deaths posted yet.';return;}
   btn.disabled=true; btn.textContent='Refreshing...';
   status.style.display='block';
@@ -2901,11 +2902,16 @@ async function buildFutureGames(){
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
             <div class="fg-title" style="margin:0">${fg.year} — ${fg.entryFee||'£10'} entry · ${fg.picksPerPlayer||12} picks</div>
             <div style="display:flex;gap:6px">
-              <button class="btn btn-gold btn-sm" onclick="promoteFutureGame('${fg.id}')">▶ Promote to Live</button>
               <button class="btn btn-danger btn-sm" onclick="deleteFutureGame('${fg.id}','${fg.year}')">Delete</button>
             </div>
           </div>
-          <div class="muted" style="margin-bottom:11px">Start: ${fg.startDate?fmtDate(fg.startDate):'—'} · End: ${fg.endDate?fmtDate(fg.endDate):'—'} · Scoring: ${fg.scoring||'100 - age'}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:11px" id="fgedit-${fg.id}">
+            <div class="field" style="margin:0"><label>Start Date</label><input type="text" id="fgs-${fg.id}" value="${fg.startDate?fmtDate(fg.startDate):''}" placeholder="1 Jan 2027" style="font-size:0.54rem"></div>
+            <div class="field" style="margin:0"><label>End Date</label><input type="text" id="fge-${fg.id}" value="${fg.endDate?fmtDate(fg.endDate):''}" placeholder="24 Dec 2027" style="font-size:0.54rem"></div>
+            <div class="field" style="margin:0"><label>Entry Fee</label><input type="text" id="fgf-${fg.id}" value="${fg.entryFee||'£10'}" style="font-size:0.54rem"></div>
+            <div class="field" style="margin:0"><label>Picks per Player</label><input type="number" id="fgp-${fg.id}" value="${fg.picksPerPlayer||12}" min="1" max="20" style="font-size:0.54rem"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-bottom:11px" onclick="saveFgDetails('${fg.id}')">💾 Save Details</button>
           <div class="sec-title" style="font-size:1rem;margin-bottom:5px">Players (${(fg.players||[]).length})</div>
           ${allPlayers.map(p=>{
             const inGame=(fg.players||[]).includes(p.id);
@@ -2948,6 +2954,18 @@ async function createFutureGame(){
     await cfCall('saveFutureGame',{id:String(year),data:{year,startDate:start,endDate:end,entryFee:fee,picksPerPlayer:picks,scoring,players:[],rules:[]}});
     buildFutureGames();
   }catch(e){showAlert('fg-alert','Failed to create: '+e.message,'e');}
+}
+
+async function saveFgDetails(fgId){
+  const start=document.getElementById(`fgs-${fgId}`)?.value.trim();
+  const end=document.getElementById(`fge-${fgId}`)?.value.trim();
+  const fee=document.getElementById(`fgf-${fgId}`)?.value.trim()||'£10';
+  const picks=parseInt(document.getElementById(`fgp-${fgId}`)?.value)||12;
+  try{
+    await cfCall('saveFutureGame',{id:fgId,data:{startDate:fmtDate(start),endDate:fmtDate(end),entryFee:fee,picksPerPlayer:picks}});
+    showAlert('fg-alert','Details saved.','s');
+    buildFutureGames();
+  }catch(e){showAlert('fg-alert','Failed: '+e.message,'e');}
 }
 
 async function deleteFutureGame(id,year){
@@ -3071,7 +3089,12 @@ async function removeFgRule(fgId,ri){
 async function archiveSeason(){
   const year=document.getElementById('archive-year-input').value.trim();
   if(!year){alert('Please enter the season year.');return;}
-  if(!confirm(`Archive the ${year} season? This will snapshot all data and clear current picks/deaths. This cannot be undone.`))return;
+  if(!confirm(`Archive the ${year} season?\n\nThis will:\n• Snapshot scores, picks, deaths and rules\n• Clear all current picks and deaths\n• Promote next planned season to live\n\nThis cannot be undone.`))return;
+  // Admin password confirmation
+  const adminPlayer=allPlayers.find(p=>p.role==='admin')||currentUser;
+  const pw=prompt('Enter admin password to confirm:');
+  if(!pw){return;}
+  if(pw!==adminPlayer.password&&pw!==(currentUser.password)){alert('Incorrect password. Archive cancelled.');return;}
 
   const sp=getSortedPlayers();
   const topScore=getScore(sp[0]);
@@ -3096,9 +3119,41 @@ async function archiveSeason(){
     allNotableDeaths=[];
     allPlayers=allPlayers.map(p=>({...p,picks:[]}));
     document.getElementById('archive-year-input').value='';
-    alert(`Season ${year} archived successfully! Picks, deaths and notable deaths have been cleared for the new season.`);
+
+    // Auto-promote next planned future game if one exists
+    let promotedYear=null;
+    try{
+      const fgs=await fsCol('futureGames');
+      const nextYear=parseInt(year)+1;
+      const nextFg=fgs.find(g=>String(g.year)===String(nextYear))||fgs.sort((a,b)=>(a.year||0)-(b.year||0))[0];
+      if(nextFg){
+        const settings={
+          year:nextFg.year, startDate:nextFg.startDate||'',
+          endDate:nextFg.endDate||'', entryFee:nextFg.entryFee||'£10',
+          picksLocked:false, lastChecked:fmtDate(new Date().toISOString()),
+        };
+        await cfCall('saveGameSettings',{settings});
+        gameSettings={...gameSettings,...settings};
+        // Import planned picks for all players
+        for(const p of allPlayers){
+          const planned=(p.plannedPicks||{})[String(nextFg.year)]?.filter(Boolean)||[];
+          if(!planned.length) continue;
+          await fsSet(`players/${p.id}`,{picks:planned,picksReviewStatus:'draft',pickStatuses:planned.map(()=>'pending')});
+          const idx=allPlayers.findIndex(x=>x.id===p.id);
+          if(idx>=0) allPlayers[idx]={...allPlayers[idx],picks:planned};
+        }
+        promotedYear=nextFg.year;
+      }
+    }catch(e){ console.warn('Auto-promote failed:',e.message); }
+
+    const msg=promotedYear
+      ? `Season ${year} archived. ${promotedYear} is now the live game with planned picks imported.`
+      : `Season ${year} archived. No future game found to promote — update game settings manually.`;
+    alert(msg);
     buildDeathLog();
     buildArchiveListAdmin();
+    buildScoreboard();
+    buildHome();
   }catch(e){alert('Archive failed: '+e.message);}
 }
 
@@ -3438,6 +3493,7 @@ window.copyPicksForReview=copyPicksForReview;
 window.setLock=setLock;
 window.createFutureGame=createFutureGame;
 window.deleteFutureGame=deleteFutureGame;
+window.saveFgDetails=saveFgDetails;
 window.promoteFutureGame=promoteFutureGame;
 window.toggleFuturePlayer=toggleFuturePlayer;
 window.addFgRule=addFgRule;
